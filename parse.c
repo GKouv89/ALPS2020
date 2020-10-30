@@ -20,20 +20,33 @@ void parser(){
         return;
     }
     current_folder = readdir(dir);
-    if(current_folder == NULL){
+	if(current_folder == NULL){
         fprintf(stderr, "could not access 2013_camera_specs contents.\n");
     }
     if(strcmp(current_folder->d_name, ".") == 0){
         current_folder = readdir(dir);
         if(strcmp(current_folder->d_name, "..") == 0){
             current_folder = readdir(dir);
-            printf("Current folder: %s\n", current_folder->d_name);
+			while(current_folder != NULL){
+				printf("Current folder: %s\n", current_folder->d_name);
+				current_folder = readdir(dir);
+			}
         }else{
-            printf("Current folder: %s\n", current_folder->d_name);
+			while(current_folder != NULL){
+				printf("Current folder: %s\n", current_folder->d_name);
+				current_folder = readdir(dir);
+			}
         }
-    }
+    }else{
+		while(current_folder != NULL){
+			printf("Current folder: %s\n", current_folder->d_name);
+			current_folder = readdir(dir);
+		}
+	}
     closedir(dir);
 }
+
+
 
 /*
 int parsing_dataset(){
