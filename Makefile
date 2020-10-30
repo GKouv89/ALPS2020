@@ -1,4 +1,5 @@
 make:
 	gcc -o main main.c parse.c
-make clean:
+
+clean:
 	rm -f *.o main

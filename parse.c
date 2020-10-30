@@ -1,10 +1,41 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
 #include "parse.h"
-#define PATH "camera_specs/2013_camera_specs/"
-#define BUY_NET "buy.net"
 
+#define PATH "camera_specs/2013_camera_specs/" // WE SHALL ALLOW THE USER TO ENTER THE PATH THROUGH 
+// KEYBOARD INPUT, BUT LATER 
+
+void parser(){
+    struct dirent *current_folder;
+    char *path;
+    path = malloc((strlen(PATH) + 1)*sizeof(char));
+    strcpy(path, PATH);
+    path[strlen(path)-1] = '\0';
+    // printf("About to traverse folder %s\n", path); //DEBUGGING INFO
+    DIR *dir = opendir(path);
+    if(dir == NULL){
+        fprintf(stderr, "sth went wrong\n");
+        return;
+    }
+    current_folder = readdir(dir);
+    if(current_folder == NULL){
+        fprintf(stderr, "could not access 2013_camera_specs contents.\n");
+    }
+    if(strcmp(current_folder->d_name, ".") == 0){
+        current_folder = readdir(dir);
+        if(strcmp(current_folder->d_name, "..") == 0){
+            current_folder = readdir(dir);
+            printf("Current folder: %s\n", current_folder->d_name);
+        }else{
+            printf("Current folder: %s\n", current_folder->d_name);
+        }
+    }
+    closedir(dir);
+}
+
+/*
 int parsing_dataset(){
     if(parse_buy_net() == -1){
         return -1;
@@ -41,3 +72,4 @@ int parse_buy_net(){
     free(spec_id);
     return 0;
 }
+*/
