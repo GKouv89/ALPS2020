@@ -31,7 +31,7 @@ void parser(){
         if(strcmp(current_folder->d_name, "..") == 0){ // ...and dot-dot entries existing
             current_folder = readdir(dir); // reading site sub-directories
 			while(current_folder != NULL){
-				printf("Current folder: %s\n", current_folder->d_name);
+				//printf("Current folder: %s\n", current_folder->d_name);
                 memset(path, 0, curr_path_length*sizeof(char)); // resetting path name
                 curr_path_length = strlen(PATH) + strlen(current_folder->d_name) + 1;
                 path = realloc(path, curr_path_length*sizeof(char));
@@ -47,7 +47,22 @@ void parser(){
                     strcpy(file_path, path);
                     strcat(file_path, "/");
                     strcat(file_path, current_file->d_name);
-                    printf("File_path: %s\n", file_path);
+                    //printf("File_path: %s\n", file_path);
+				//
+				//
+				//
+					fp = fopen(file_path,"r");
+					if(fp == NULL){
+						fprintf(stderr, "Couldn't access JSON file.\n");
+					}
+					//will use fgetc
+					if(fclose(fp)!= 0){
+						fprintf(stderr, "Couldn't close file.\n");
+					}
+					
+				//
+				//
+				//
                     
                 }
                 closedir(child_dir);
