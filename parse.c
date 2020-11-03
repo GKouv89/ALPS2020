@@ -57,10 +57,13 @@ void parser(){
                     if((strcmp(current_file->d_name, ".") == 0) || (strcmp(current_file->d_name, "..") == 0)){
                         
                     }else{
+                        char* temp;
+                        temp = strchr(current_file->d_name, '.');
+                        int length = strlen(current_file->d_name) - strlen(temp);
                         id_buf = malloc((strlen(current_folder->d_name) + strlen(current_file->d_name) + 3)*sizeof(char));
                         strcpy(id_buf, current_folder->d_name);
                         strcat(id_buf, "//");
-                        strcat(id_buf, current_file->d_name);
+                        strncat(id_buf, current_file->d_name, length);
                         // NODE CREATION
                         list_node* pseudonode = create_node(id_buf);
                         printf("pseudonode's id: %s\n", pseudonode->id);
