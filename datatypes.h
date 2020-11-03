@@ -14,6 +14,7 @@ typedef struct tuple{
 // gets initialized to one node containing page title
 
 typedef struct node{
+    char* id; // this will be of the format folder_name//file_numeric_id
     info_tuple content;
     struct node *previous;
     struct node *next;
@@ -27,6 +28,9 @@ typedef struct json{
     char* id;
     info_list information;
 } spec;
+
+void create_node(list_node*, char *);
+void delete_node(list_node*);
 
  
 
