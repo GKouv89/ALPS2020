@@ -62,12 +62,9 @@ void parser(){
                         strcat(id_buf, "//");
                         strcat(id_buf, current_file->d_name);
                         // NODE CREATION
-                        list_node* pseudonode;
-                        pseudonode = malloc(sizeof(list_node));
-                        create_node(pseudonode, id_buf);
+                        list_node* pseudonode = create_node(id_buf);
                         printf("pseudonode's id: %s\n", pseudonode->id);
-                        delete_node(pseudonode);
-                        free(pseudonode);
+                        delete_node(&pseudonode);
                         free(id_buf);                                                                       
                     }
                     /**************************************/

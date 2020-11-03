@@ -29,8 +29,8 @@ typedef struct json{
     info_list information;
 } spec;
 
-void create_node(list_node*, char *);
-void delete_node(list_node*);
+list_node* create_node(char *);
+void delete_node(list_node**);
 
  
 
