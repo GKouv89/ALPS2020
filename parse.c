@@ -55,7 +55,7 @@ void parser(){
 					if(fp == NULL){
 						fprintf(stderr, "Couldn't access JSON file.\n");
 					}
-					//will use fgetc
+					
 					if(fclose(fp)!= 0){
 						fprintf(stderr, "Couldn't close file.\n");
 					}
