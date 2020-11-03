@@ -4,11 +4,13 @@
 #include <dirent.h>
 #include "parse.h"
 #include "datatypes.h"
+#include "hashmap.h"
 
 #define PATH "camera_specs/2013_camera_specs/" // WE SHALL ALLOW THE USER TO ENTER THE PATH THROUGH 
 // KEYBOARD INPUT, BUT LATER 
+#define BUCKETS 64
 
-void parser(){
+void parser(hash_map* map){
     struct dirent *current_folder, *current_file;
     char *path, *file_path = NULL;
     char *id_buf; //Will be the buffer for the node's creation and will hold their id
@@ -57,6 +59,7 @@ void parser(){
                     if((strcmp(current_file->d_name, ".") == 0) || (strcmp(current_file->d_name, "..") == 0)){
                         
                     }else{
+                        
                         char* temp;
                         temp = strchr(current_file->d_name, '.');
                         int length = strlen(current_file->d_name) - strlen(temp);
@@ -64,9 +67,11 @@ void parser(){
                         strcpy(id_buf, current_folder->d_name);
                         strcat(id_buf, "//");
                         strncat(id_buf, current_file->d_name, length);
+                        hash_function(map, id_buf);
+                        //
                         // NODE CREATION
                         list_node* pseudonode = create_node(id_buf);
-                        printf("pseudonode's id: %s\n", pseudonode->id);
+                        //printf("pseudonode's id: %s\n", pseudonode->id);
                         delete_node(&pseudonode);
                         free(id_buf);                                                                       
                     }

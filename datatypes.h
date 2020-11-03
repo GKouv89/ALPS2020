@@ -1,3 +1,6 @@
+#ifndef __DATATYPES_H__
+#define __DATATYPES_H__
+
 // Data Types
 // Dataset: A list of all json specs that will be parsed
 // spec: Each spec contains id (site//id), info_list
@@ -31,6 +34,6 @@ typedef struct json{
 
 list_node* create_node(char *);
 void delete_node(list_node**);
-
+#endif
  
 
