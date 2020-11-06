@@ -8,7 +8,7 @@
 
 #define PATH "camera_specs/2013_camera_specs/" // WE SHALL ALLOW THE USER TO ENTER THE PATH THROUGH 
 // KEYBOARD INPUT, BUT LATER 
-#define BUCKETS 64
+//#define BUCKETS 64
 
 void parser(hash_map* map){
     struct dirent *current_folder, *current_file;
@@ -24,6 +24,9 @@ void parser(hash_map* map){
     int curr_fpl, curr_path_length = strlen(PATH) + 1; //curr_fpl is path to current file rather than
     // curr_path_length which is path to current folder
     int c, ecount = 2; //will be used in reading json files, ecount = " counter
+    
+    int entry_count = 0;
+    
     if(dir == NULL){
         fprintf(stderr, "sth went wrong\n");
         return;
@@ -73,7 +76,8 @@ void parser(hash_map* map){
                         list_node* pseudonode = create_node(id_buf);
                         //printf("pseudonode's id: %s\n", pseudonode->id);
                         delete_node(&pseudonode);
-                        free(id_buf);                                                                       
+                        free(id_buf);      
+                        entry_count++;
                     }
                     /**************************************/
                 
@@ -152,4 +156,5 @@ void parser(hash_map* map){
     }
     free(path);
     closedir(dir);
+    // printf("Entry count = %d\n.", entry_count);
 }

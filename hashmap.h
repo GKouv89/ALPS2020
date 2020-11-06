@@ -2,7 +2,7 @@
 #define __HASHMAPS_H__
 
 #include "datatypes.h"
-#define BUCKETS 64
+#define BUCKETS 997
 
 
 typedef struct bucket{
