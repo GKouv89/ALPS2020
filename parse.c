@@ -53,46 +53,42 @@ void parser(){
                 //
                 //
                 //
-                if((strcmp(current_folder->d_name, "buy.net") == 0) && (strcmp(current_file->d_name, "4233.json") == 0)){
+                if((strcmp(current_folder->d_name, "buy.net") == 0)&&(strcmp(current_file->d_name, "4233.json") == 0)){
                     fp = fopen(file_path,"r");
                     if(fp == NULL){
                         fprintf(stderr, "Couldn't access JSON file.\n");
                     }
                     // will use fgetc, and for starters try to print contents into a text file //
                     jfp = fopen("jsontest.txt","w");
-                    //printf("opened file for printing\n");
                     do{
                         c = fgetc(fp);
-                       // printf("Got char\n");
                         if(feof(fp)){
-                           // printf("exiting loop");
                             break;
                         }
-                        //if(strcmp(c, ",")==0){
-                        if(c == ','){
-                            ecount == 2;
+                        if(c == ':'){ //About to start parsing attribute value
+                            ecount = 2;
+                            fputc('\t',jfp);
                         }
-                        //printf("about to print char in file\n");
-                        //character control//
-                        if(/*(strcmp(c, " \" ")==0)*/(c=='"') && (ecount == 2)){
+                        if(c == ',' && ecount ==0){ //Line parsing completed, moving to next attribute
+                            ecount = 2;
+                            fputc('\n', jfp);
+                        }
+                        //character control | Attribute/Value parsing and writing in test file//
+                        if((c=='"') && (ecount == 2)){
                             ecount--;
                             while(ecount>0){
                                 c = fgetc(fp);
                                 if(feof(fp)){
                                     break;
                                 }
-                                if(c!='"'){//strcmp(c, " \" ")!=0){
+                                if(c!='"'){//keeping attribute name and value information
                                    fputc(c, jfp); 
                                 }else{
                                     ecount--;
                                 }
                             }                        
-                        }else{
-                            continue;
                         }
                         //////////////////////
-                       // fputc(c, jfp);
-                        //printf("New char inserted in file, next\n");
                     }while(1);
                     //printf("Out of loop\n");
                     if(fclose(jfp)!= 0){
@@ -103,6 +99,9 @@ void parser(){
                         fprintf(stderr, "Couldn't close file.\n");
                     }
                 }
+                //Preparation before switching files
+                ecount = 2;// "reinitializing ecount to move on the next file
+                    // this helps in avoiding to skip the first attribute name (value is being registered) when switching files
                 //
                 //
                 //
