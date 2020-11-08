@@ -70,12 +70,14 @@ void parser(hash_map* map){
                         strcpy(id_buf, current_folder->d_name);
                         strcat(id_buf, "//");
                         strncat(id_buf, current_file->d_name, length);
-                        hash_function(map, id_buf);
+                        int hash_val = hash_function(map, id_buf);
+                        
                         //
                         // NODE CREATION
                         list_node* pseudonode = create_node(id_buf);
+                        add_to_bucket(map, hash_val, pseudonode);
                         //printf("pseudonode's id: %s\n", pseudonode->id);
-                        delete_node(&pseudonode);
+                        //delete_node(&pseudonode);
                         free(id_buf);      
                         entry_count++;
                     }
