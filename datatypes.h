@@ -25,6 +25,7 @@ typedef struct node{
 
 typedef struct list{
     list_node *front;
+    list_node *rear;
 } info_list;
 
 typedef struct json{
@@ -32,8 +33,12 @@ typedef struct json{
     info_list information;
 } spec;
 
+void list_create(info_list**);
 list_node* create_node(char *);
+void list_add(info_list*, list_node*);
+void list_print(info_list*);
 void delete_node(list_node**);
+void destroy_list(info_list**);
 #endif
  
 
