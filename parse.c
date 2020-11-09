@@ -53,7 +53,7 @@ void parser(){
                 //
                 //
                 //
-                if((strcmp(current_folder->d_name, "buy.net") == 0)&&(strcmp(current_file->d_name, "4233.json") == 0)){
+                if((strcmp(current_folder->d_name, "buy.net") == 0)&&(strcmp(current_file->d_name, "4236.json") == 0)){
                     fp = fopen(file_path,"r");
                     if(fp == NULL){
                         fprintf(stderr, "Couldn't access JSON file.\n");
@@ -82,6 +82,15 @@ void parser(){
                                     break;
                                 }
                                 if(c!='"'){//keeping attribute name and value information
+                                    if(c == 92){//some entries have \" in them which messes with value output
+                                        fputc(c, jfp);
+                                        c = fgetc(fp);
+                                        if(c== '"'){
+                                            fputc(c,jfp);
+                                            continue;
+                                        }
+                                        
+                                    }
                                    fputc(c, jfp); 
                                 }else{
                                     ecount--;
