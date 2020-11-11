@@ -2,8 +2,9 @@
 #define __HASHMAPS_H__
 
 #include "datatypes.h"
-#define BUCKETS 997
-
+#ifndef BUCKETS
+    #define BUCKETS 997
+#endif
 
 typedef struct bucket{
     int id;
@@ -17,6 +18,7 @@ typedef struct map{
 
 hash_map* create_map();
 void add_to_bucket(hash_map*, int, list_node*);
+list_node* find_node(hash_map*, char*);
 void destroy_map(hash_map**);
 int hash_function(hash_map*, const char*);
 void print_bucket_no_of_entries(hash_map*);

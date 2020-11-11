@@ -30,6 +30,18 @@ void add_to_bucket(hash_map* map, int bucket, list_node* node){
     map->map[bucket].no_of_entries++;
 }
 
+list_node* find_node(hash_map* map, char* id){
+    int hash = hash_function(map, id);
+    list_node* temp = map->map[hash].bucket_list->front;
+    while(temp != NULL){
+        if(strcmp(temp->id, id) == 0){
+            return temp;
+        }
+        temp = temp->next;
+    }
+    return NULL;
+}
+
 
 void print_bucket_no_of_entries(hash_map* map){
     int median = 0;

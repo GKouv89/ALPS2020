@@ -10,5 +10,8 @@ datatest:
 run_tests:
 	./tests/hash_test
 
+set:
+	gcc -g -o tests/set_test tests/set_test.c set.c datatypes.c hashmap.c -DBUCKETS=3
+
 clean:
-	rm -f tests/*.o *.o main tests/data_test
+	rm -f tests/*.o *.o main tests/data_test tests/set_test

@@ -19,8 +19,12 @@ typedef struct tuple{
 typedef struct node{
     char* id; // this will be of the format folder_name//file_numeric_id
     info_tuple content;
-    struct node *previous;
-    struct node *next;
+    struct node *previous; // previous in hash bucket overflow list
+    struct node *next; // next in hash bucket overflow list
+    struct node *parent; // WILL BE USED FOR DISJOINT SET OPERATIONS - FINDING OF CLIQUES
+    struct node *next_in_clique; // WILL BE USED FOR CLIQUE PRINTING
+    int amount; //If disjoint set root, amount of nodes in set. If not, -1. Initialized as 1 because,
+    // at the very beginning, each node is a disjoint set of its own.
 } list_node;
 
 typedef struct list{
