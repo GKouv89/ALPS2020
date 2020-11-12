@@ -4,6 +4,50 @@
 #include "set.h"
 #include "hashmap.h"
 
+void create_clique_list(clique_list** list){
+    (*list) = malloc(sizeof(clique_list));
+    (*list)->front = (*list)->rear = NULL;
+}
+
+void insert_master(clique_list* list, list_node* a){
+    clique_list_node* new = malloc(sizeof(clique_list_node));
+    new->representative = a;
+    if(list->front == NULL){
+        new->prev = new->next = NULL;
+        list->front = new;
+        list->rear = new;
+    }else{
+        new->prev = list->rear;    
+        new->next = NULL;
+        list->rear->next = new;
+        list->rear = new;
+    }
+    
+}
+
+void remove_master(clique_list* list, list_node* a){
+    clique_list_node* temp = list->front;
+    while(temp){
+        if(temp->representative == a){
+            temp->prev->next = temp->next;
+            temp->next->prev = temp->prev;
+            if((temp == list->front) && (temp == (list->rear))){
+                list->front = list->rear = NULL;
+            }else if(temp == list->front){
+                list->front = temp->next;
+            }else if(temp == list->rear){
+                list->rear = temp->prev;
+            }
+            temp->prev = NULL;
+            temp->next = NULL;
+            temp->representative = NULL;
+            free(temp);
+            return;
+        }
+        temp = temp->next;
+    }
+}
+
 list_node* find_root(list_node* a){
     list_node* result = a;
     while(result->parent != NULL){
