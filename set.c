@@ -29,17 +29,19 @@ void remove_master(clique_list* list, list_node* a){
     clique_list_node* temp = list->front;
     while(temp){
         if(temp->representative == a){
-            temp->prev->next = temp->next;
-            temp->next->prev = temp->prev;
-            if((temp == list->front) && (temp == (list->rear))){
+            if((temp == list->front) && (temp == (list->rear))){ // no other nodes after removal
                 list->front = list->rear = NULL;
-            }else if(temp == list->front){
+            }else if(temp == list->front){ // removing first node, list->front goes one position to the right
+                temp->next->prev = NULL;
                 list->front = temp->next;
-            }else if(temp == list->rear){
+            }else if(temp == list->rear){ // removing last node, list->rear goes one position to the left
+                temp->prev->next = NULL;
                 list->rear = temp->prev;
+            }else{ // there's both a next and prev node
+               temp->prev->next = temp->next;
+               temp->next->prev = temp->prev;  
             }
-            temp->prev = NULL;
-            temp->next = NULL;
+            temp->prev = temp->next = NULL;
             temp->representative = NULL;
             free(temp);
             return;

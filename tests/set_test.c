@@ -198,26 +198,26 @@ void test_clique_remove(void){
     TEST_CHECK(list->rear == NULL);
 }
 
-// void test_multiple_clique_creation(void){
-    // hash_map* map = create_map();
-    // list_node* node;
-    // int hash;
-    // for(int i = 0; i < 9; i++){
-        // node = create_node(mult_input[i].right_spec);
-        // hash = hash_function(map,mult_input[i].right_spec);
-        // add_to_bucket(map, hash, node);
-    // }
-    // list_node *a, *b;
-    // // list_node *root;
-    // for(int i = 0; i < 9; i++){
-        // a = find_node(map, mult_input[i].left_spec);
-        // TEST_CHECK(a != NULL);
-        // b = find_node(map, mult_input[i].right_spec);
-        // TEST_CHECK(b != NULL);
-        // root = join_sets(a, b);
-        // TEST_CHECK(root != NULL);
-    // }
-// } 
+void test_multiple_clique_creation(void){
+    hash_map* map = create_map();
+    list_node* node;
+    int hash;
+    for(int i = 0; i < 9; i++){
+        node = create_node(mult_input[i].right_spec);
+        hash = hash_function(map,mult_input[i].right_spec);
+        add_to_bucket(map, hash, node);
+    }
+    list_node *a, *b;
+    // list_node *root;
+    for(int i = 0; i < 9; i++){
+        a = find_node(map, mult_input[i].left_spec);
+        TEST_CHECK(a != NULL);
+        b = find_node(map, mult_input[i].right_spec);
+        TEST_CHECK(b != NULL);
+        root = join_sets(a, b);
+        TEST_CHECK(root != NULL);
+    }
+} 
 
 TEST_LIST = {
     {"create_one_clique", test_singular_clique_creation},
