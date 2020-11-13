@@ -123,13 +123,15 @@ void test_singular_clique_creation(void){
     print_bucket_no_of_entries(map);
     list_node *a, *b;
     list_node *root;
+    clique_list *l;
+    create_clique_list(&l);
     for(int i = 0; i < 10; i++){
         if(lines[i].matching){
             a = find_node(map, lines[i].left_spec);
             TEST_CHECK(a != NULL);
             b = find_node(map, lines[i].right_spec);
             TEST_CHECK(b != NULL);
-            root = join_sets(a, b);
+            root = join_sets(l, a, b);
             TEST_CHECK(root != NULL);
         }
     }
@@ -203,26 +205,45 @@ void test_multiple_clique_creation(void){
     list_node* node;
     int hash;
     for(int i = 0; i < 9; i++){
+        node = create_node(mult_input[i].left_spec);
+        hash = hash_function(map,mult_input[i].left_spec);
+        add_to_bucket(map, hash, node);
         node = create_node(mult_input[i].right_spec);
         hash = hash_function(map,mult_input[i].right_spec);
         add_to_bucket(map, hash, node);
     }
     list_node *a, *b;
-    // list_node *root;
+    clique_list* l;
+    create_clique_list(&l);
     for(int i = 0; i < 9; i++){
         a = find_node(map, mult_input[i].left_spec);
         TEST_CHECK(a != NULL);
+        TEST_MSG("i = %d, left_spec = %s\n", i, mult_input[i].left_spec);
         b = find_node(map, mult_input[i].right_spec);
         TEST_CHECK(b != NULL);
-        root = join_sets(a, b);
-        TEST_CHECK(root != NULL);
+        join_sets(l, a, b);
     }
+    print_all_cliques(0, l);
+    // the outputs of these two cliques have been confirmed by hand
+    // the order they come out in is 
+    // for the 1st clique: in the order they appear in mult_input
+    // for the 2nd clique: a 3rd clique with the representative
+    // "www.gosale.com//953" is temporary created, and contains two more
+    // elements of the clique, and is therefore larger than the 2nd temporary clique
+    // under the representative "www.aliexpress.com//456"
+    // Therefore when the two are joined, aliexpress//456 and amazon//987
+    // come last in order in the clique
+    // Doesn't matter, as they are sets, but this is how we determined this
+    // is indeed the correct output
+    destroy_clique_list(&l);
+    TEST_CHECK(l == NULL);
+    destroy_map(&map);
 } 
 
 TEST_LIST = {
     {"create_one_clique", test_singular_clique_creation},
     {"create_clique_list", test_clique_insert},
     {"test_removal", test_clique_remove},
-    // {"create_two_cliques", test_multiple_clique_creation},
+    {"create_two_cliques", test_multiple_clique_creation},
     {NULL, NULL}
 };
