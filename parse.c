@@ -179,8 +179,6 @@ void csvparser(){
                   //the last (blank) line in the file and EOF
             break;
         }
-        free(site_buff1);
-        site_buff1 = malloc(BUFFERCAP*sizeof(char));
         bufflimit = BUFFERCAP-1;
         reallcount = 1; //reinitializing bufflimit and reallcount for next buffer
         
@@ -193,14 +191,16 @@ void csvparser(){
                 site_buff2 = realloc(site_buff2, reallcount*BUFFERCAP);
             }
         }
-        free(site_buff2);
-        site_buff2 = malloc(BUFFERCAP*sizeof(char));
         bufflimit = BUFFERCAP-1;
         reallcount = 1; //reinitializing bufflimit and reallcount for next buffer
         
         matching = fgetc(fp);
         c = fgetc(fp); // removing \n from being added at the
                        // start of next buffer
+        free(site_buff1);
+        site_buff1 = malloc(BUFFERCAP*sizeof(char));
+        free(site_buff2);
+        site_buff2 = malloc(BUFFERCAP*sizeof(char));
     }
     
     
