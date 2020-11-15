@@ -1,8 +1,10 @@
 //#include <stdio.h>
 //#include <stdlib.h>
 //#include <string.h>
-//#include <dirent.h>
+#include <dirent.h>
 #include "../parse.h"
+#include "../tuplist.h"
+#include "../datatypes.h"
 #include "acutest.h"
 #define BUFFERCAP 100
 
@@ -293,10 +295,228 @@ void test_matchinglines_medium(void){
     TEST_MSG("Error: Couldn't close csv file.\n");
 }
 
+void test_JSONparse(void){    
+    struct dirent *current_folder, *current_file;
+    char *path, *buff_name, *buff_val, *file_path = NULL;
+    
+    //Buffers and buffer counters//
+    buff_name = malloc(BUFFERCAP*sizeof(char)); // atr name buffer
+    buff_val = malloc(BUFFERCAP*sizeof(char));  // atr val buffer
+    int reallcount = 1, bufflimit = BUFFERCAP-1;
+    //////////////////////////////
+    
+    //Tuple list//
+    tuplelist *tulist = NULL;
+    int error;
+    /////////////
+    
+    
+    path = malloc((strlen(PATH) + 1)*sizeof(char));
+    strcpy(path, PATH);
+    printf("About to traverse folder %s\n", path); //DEBUGGING INFO
+    
+    DIR *dir = opendir(path);
+    DIR *child_dir;
+    FILE *fp;
+    //FILE *jfp; //file pointer of json file contents
+    int curr_fpl, curr_path_length = strlen(PATH) + 1; //curr_fpl is path to current file rather than
+    // curr_path_length which is path to current folder
+    int c, atrpass = 0,ecount = 2; //will be used in reading json files, ecount = " counter, atr_pass for switching buffers (0 for name, 1 for val)
+    if(dir == NULL){
+        fprintf(stderr, "sth went wrong\n");
+        return;
+    }
+    current_folder = readdir(dir);
+    if(current_folder == NULL){
+        fprintf(stderr, "could not access 2013_camera_specs contents.\n");
+    }
+    if(strcmp(current_folder->d_name, ".") == 0){ // Bypassing cases of dot... 
+        current_folder = readdir(dir);
+        if(strcmp(current_folder->d_name, "..") == 0){ // ...and dot-dot entries existing
+            current_folder = readdir(dir); // reading site sub-directories
+            while(current_folder != NULL){
+                //printf("Current folder: %s\n", current_folder->d_name);
+                memset(path, 0, curr_path_length*sizeof(char)); // resetting path name
+                curr_path_length = strlen(PATH) + strlen(current_folder->d_name) + 1;
+                path = realloc(path, curr_path_length*sizeof(char));
+                strcpy(path, PATH);
+                strcat(path, current_folder->d_name);
+                child_dir = opendir(path); // reading site sub-dir contents (json files)
+                while((current_file = readdir(child_dir)) != NULL){
+                    if(file_path != NULL){
+                        memset(file_path, 0, curr_fpl*sizeof(char)); // resetting file name   
+                    }
+                    curr_fpl = strlen(path) + strlen(current_file->d_name) + 2*sizeof(char);
+                    file_path = realloc(file_path, curr_fpl*sizeof(char));
+                    strcpy(file_path, path);
+                    strcat(file_path, "/");
+                    strcat(file_path, current_file->d_name);
+                    //printf("File_path: %s\n", file_path);
+                //
+                //
+                //
+                if((strcmp(current_folder->d_name, "buy.net") == 0)&&(strcmp(current_file->d_name, "4233.json") == 0)){
+                    fp = fopen(file_path,"r");
+                    if(fp == NULL){
+                        fprintf(stderr, "Couldn't access JSON file.\n");
+                    }
+                    list_create(&tulist, &error); //initializing tuplelist
+                    if(error==1){
+                        fprintf(stderr, "Failed to create tuplelist.\n");
+                    }
+                    // will use fgetc, and for starters try to print contents into a text file //
+                    //jfp = fopen("jsontest.txt","w");
+                    do{
+                        c = fgetc(fp);
+                        if(feof(fp)){
+                            break; 
+                        }
+                        if(c == ':'){ //About to start parsing attribute value
+                            atrpass = 1;
+                            bufflimit = BUFFERCAP-1; //reinitializing bufflimit for second buffer
+                            ecount = 2;
+                            //fputc('\t',jfp);
+                        }
+                        if(c == ',' && ecount ==0){ //Line parsing completed, moving to next attribute
+                            list_insert(&tulist, buff_name, buff_val); // passing info to tuple node before
+                                                                       // before emptying buffers for next line
+                            bufflimit = BUFFERCAP-1;
+                            reallcount = 1;
+                            TEST_CHECK((strlen(buff_name)>=1) && (strlen(buff_val)>=1));
+                            TEST_MSG("Error: 1 or both buffers are empty\n");
+                            free(buff_name);
+                            buff_name = malloc(BUFFERCAP*sizeof(char));
+                            free(buff_val);
+                            buff_val = malloc(BUFFERCAP*sizeof(char));
+                            atrpass = 0; // getting 1st buffer ready to be used
+                            ecount = 2;
+                            //fputc('\n', jfp);
+                        }
+                        //character control | Attribute/Value parsing and writing in test file//
+                        if((c=='"') && (ecount == 2)){
+                            if(atrpass == 0){//using first buffer to insert atr name
+                                ecount--;
+                                while(ecount>0){
+                                    c = fgetc(fp);
+                                    if(feof(fp)){
+                                        break;
+                                    }
+                                    if(c!='"'){//keeping attribute name and value information
+                                        if(c == 92){//some entries have \" in them which messes with value output
+                                            strcat(buff_name, (char*)&c);
+                                            bufflimit--;
+                                            if(bufflimit == 0){// Boundary testing for really large atr names
+                                                reallcount++;
+                                                buff_name = realloc(buff_name, reallcount*BUFFERCAP);
+                                            }
+                                            c = fgetc(fp);
+                                            if(c== '"'){
+                                                strcat(buff_name, (char*)&c); 
+                                                bufflimit--;
+                                                if(bufflimit == 0){
+                                                    reallcount++;
+                                                    buff_name = realloc(buff_name, reallcount*BUFFERCAP);
+                                                }
+                                                continue;
+                                            }
+                                            
+                                        }
+                                        strcat(buff_name, (char*)&c);
+                                        bufflimit--;
+                                        if(bufflimit == 0){
+                                            reallcount++;
+                                            buff_name = realloc(buff_name, reallcount*BUFFERCAP);
+                                        }
+                                    }else{
+                                        ecount--;
+                                    }
+                                }   
+                            }else{ // have read till ":", switching to buffer 2 for atr val
+                                ecount--;
+                                while(ecount>0){
+                                    c = fgetc(fp);
+                                    if(feof(fp)){
+                                        break;
+                                    }
+                                    if(c!='"'){//keeping attribute name and value information
+                                        if(c == 92){//some entries have \" in them which messes with value output
+                                            strcat(buff_val, (char*)&c);
+                                            bufflimit--;
+                                            if(bufflimit == 0){
+                                                reallcount++;
+                                                buff_val = realloc(buff_val, reallcount*BUFFERCAP);
+                                            }
+                                            c = fgetc(fp);
+                                            if(c== '"'){
+                                                strcat(buff_val, (char*)&c);
+                                                bufflimit--;
+                                                if(bufflimit == 0){
+                                                    reallcount++;
+                                                    buff_val = realloc(buff_val, reallcount*BUFFERCAP);
+                                                }
+                                                continue;
+                                            }
+                                            
+                                        }
+                                        strcat(buff_val, (char*)&c);
+                                        bufflimit--;
+                                        if(bufflimit == 0){
+                                            reallcount++;
+                                            buff_val = realloc(buff_val, reallcount*BUFFERCAP);
+                                        }
+                                    }else{
+                                        ecount--;
+                                    }
+                                }
+                            }                                
+                        }
+                        //////////////////////
+                    }while(1);
+                    
+                    // συνδεω το ταπλλιστ με το pseudonode (pseudonode->content = tuplelist)
+                    // δλδ μπαινει "απευθειας" στο ^
+                    
+                    //printf("Out of loop\n");
+                    //if(fclose(jfp)!= 0){
+                       // fprintf(stderr, "Couldn't close JSON file.\n");
+                   // }
+                    ////////////////////////////////////////////////////////////////////////////
+                    if(fclose(fp)!= 0){
+                        fprintf(stderr, "Couldn't close file.\n");
+                    }
+                }
+                //Preparation before switching files
+                ecount = 2;// "reinitializing ecount to move on the next file
+                    // this helps in avoiding to skip the first attribute name (value is being registered) when switching files
+                //
+                //
+                //
+                    
+                }
+                closedir(child_dir);
+                current_folder = readdir(dir);
+            }
+        }else{
+            while(current_folder != NULL){
+                printf("Current folder: %s\n", current_folder->d_name);
+                current_folder = readdir(dir);
+            }
+        }
+    }else{
+        while(current_folder != NULL){
+            printf("Current folder: %s\n", current_folder->d_name);
+            current_folder = readdir(dir);
+        }
+    }
+    free(path);
+    closedir(dir);  
+}
+
 TEST_LIST = {
     {"csv_parse_first_line_test", test_firstlineparse},
     {"csv_eof_reaching", test_eofparse},
     {"csv_matching_lines_large",test_matchinglines_large},
     {"csv_matching_lines_medium",test_matchinglines_medium},
+    {"JSON_Parser",test_JSONparse},
     {NULL, NULL}
 };

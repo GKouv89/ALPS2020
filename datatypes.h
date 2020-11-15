@@ -1,3 +1,5 @@
+#ifndef DATATYPES_H_
+#define DATATYPES_H_
 // Data Types
 // Dataset: A list of all json specs that will be parsed
 // spec: Each spec contains id (site//id), info_list
@@ -7,14 +9,21 @@
 typedef struct tuple{
     char* name;
     char* value;
-} info_tuple;
+    struct tuple *next;
+} node_tuple;
+
+typedef struct listnode{
+    node_tuple *head;
+    node_tuple *last;
+}tuplelist;
 
 // will have head
 // double connected
 // gets initialized to one node containing page title
 
 typedef struct node{
-    info_tuple content;
+    char* id;
+    tuplelist *content;
     struct node *previous;
     struct node *next;
 } list_node;
@@ -22,11 +31,6 @@ typedef struct node{
 typedef struct list{
     list_node *front;
 } info_list;
-
-typedef struct json{
-    char* id;
-    info_list information;
-} spec;
-
  
 
+#endif
