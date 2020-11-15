@@ -86,10 +86,10 @@ list_node* join_sets(clique_list* l, list_node* a, list_node* b){
             while(temp->next_in_clique != NULL){
                 temp = temp->next_in_clique;
             }
-            temp->next_in_clique = a;
+            temp->next_in_clique = root_a; // Connecting the former cliques lists, to be ready for printing
             remove_master(l, root_a); // If we are just starting to form the cliques,
-            // then root_a might be a itself. When a node is a clique by itself, then it is not
-            // included in clique_list (otherwise we'd have ~30.000 cliques). In this case,
+            // then root_a might be 'a' itself. When a node is a clique by itself, then it is not
+            // included in clique_list (otherwise we'd have ~30.000 cliques at first). In this case,
             // remove_master just won't do anything.
             insert_master(l, root_b); // If root_b already in list, he won't be added again
             return root_b;
@@ -101,7 +101,7 @@ list_node* join_sets(clique_list* l, list_node* a, list_node* b){
             while(temp->next_in_clique != NULL){
                 temp = temp->next_in_clique;
             }
-            temp->next_in_clique = b;
+            temp->next_in_clique = root_b;
             remove_master(l, root_b);
             insert_master(l, root_a);
             return root_a;
@@ -112,16 +112,15 @@ list_node* join_sets(clique_list* l, list_node* a, list_node* b){
 void print_all_cliques(int opt, clique_list* l){
     clique_list_node *temp = l->front;
     while(temp){
-        printf("\n");
+        // printf("\n");
         print_clique(opt, temp->representative);
         temp = temp->next;
     }
 }
 
 void print_clique(int opt, list_node *root){
-    if(!opt){
+    // if(!opt){
         list_node *temp = root;
-        // printf("nodes in clique: %d\n", root->amount);
         list_node *temp_2;
         while(temp != NULL){
             temp_2 = temp->next_in_clique;
@@ -131,20 +130,20 @@ void print_clique(int opt, list_node *root){
             }
             temp = temp->next_in_clique;
         }
-    }else{
-        FILE* fp = fopen("clique.txt", "w");
-        list_node *temp = root;
-        list_node *temp_2;
-        while(temp != NULL){
-            temp_2 = temp->next_in_clique;
-            while(temp_2 != NULL){
-                fprintf(fp, "%s, %s\n", temp->id, temp_2->id);
-                temp_2 = temp_2->next_in_clique;
-            }
-            temp = temp->next_in_clique;
-        }
-        fclose(fp);
-    }
+    // }else{
+        // FILE* fp = fopen("clique.txt", "w");
+        // list_node *temp = root;
+        // list_node *temp_2;
+        // while(temp != NULL){
+            // temp_2 = temp->next_in_clique;
+            // while(temp_2 != NULL){
+                // fprintf(fp, "%s, %s\n", temp->id, temp_2->id);
+                // temp_2 = temp_2->next_in_clique;
+            // }
+            // temp = temp->next_in_clique;
+        // }
+        // fclose(fp);
+    // }
 }
 
 void delete_clique_node(clique_list_node** node){

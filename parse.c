@@ -8,7 +8,8 @@
 
 #define PATH "camera_specs/2013_camera_specs/" // WE SHALL ALLOW THE USER TO ENTER THE PATH THROUGH 
 // KEYBOARD INPUT, BUT LATER 
-//#define BUCKETS 64
+
+#define BUFFERCAP 100 // for csvparser function
 
 void parser(hash_map* map){
     struct dirent *current_folder, *current_file;
@@ -159,4 +160,90 @@ void parser(hash_map* map){
     free(path);
     closedir(dir);
     // printf("Entry count = %d\n.", entry_count);
+}
+
+void csvparser(hash_map* map, clique_list* all_cliques){
+    
+    FILE *fp;
+    char *site_buff1;
+    char *site_buff2;
+    char matching;
+    int c, reallcount = 1, bufflimit = BUFFERCAP-1;
+    int flag = 0; // used in eof checking
+    
+    //buffer memory alloc//
+    site_buff1 = malloc(BUFFERCAP*sizeof(char));
+    site_buff2 = malloc(BUFFERCAP*sizeof(char)); // may need to realloc
+    
+    fp = fopen("sigmod_large_labelled_dataset.csv","r");
+    if(fp == NULL){
+        fprintf(stderr, "Couldn't open csv file.\n");
+    }
+    // first csv line doesn't contain useful info so
+    // it'll be ignored
+    do{
+        c = fgetc(fp);
+    }while(c != '\n'); // c should be \n
+    
+    while(1){
+        while((c = fgetc(fp))!=','){
+            // if EOF is read, it will be done here, instead of reading the first 
+            // column of a new line.
+            if(feof(fp)){
+                flag = 1;
+                break;
+            }
+            if(bufflimit == BUFFERCAP-1){
+                strcpy(site_buff1, (char*)&c);
+            }else{
+                strcat(site_buff1, (char*)&c);
+            }
+            bufflimit--;
+            if(bufflimit == 0){// low chance of this happening
+                               // Boundary testing in case urls were larger
+                reallcount++;
+                site_buff1 = realloc(site_buff1, reallcount*BUFFERCAP);
+            }
+        }
+        if(flag){ // If flag==1 then we've reached 
+                  //the last (blank) line in the file and EOF
+            break;
+        }
+        bufflimit = BUFFERCAP-1;
+        reallcount = 1; //reinitializing bufflimit and reallcount for next buffer
+        
+        while((c = fgetc(fp))!=','){ //no need to check for EOF here
+            if(bufflimit == BUFFERCAP-1){
+                strcpy(site_buff2, (char*)&c);
+            }else{
+                strcat(site_buff2, (char*)&c);
+            }
+            bufflimit--;
+            if(bufflimit == 0){// low chance of this happening
+                               // Boundary testing in case urls were larger
+                reallcount++;
+                site_buff2 = realloc(site_buff2, reallcount*BUFFERCAP);
+            }
+        }
+        bufflimit = BUFFERCAP-1;
+        reallcount = 1; //reinitializing bufflimit and reallcount for next buffer
+        
+        matching = fgetc(fp);
+        if(matching == '1'){
+            list_node *a, *b;
+            a = find_node(map, site_buff1);
+            b = find_node(map, site_buff2);
+            join_sets(all_cliques, a, b);
+        }
+        c = fgetc(fp); // removing \n from being added at the
+                       // start of next buffer
+        free(site_buff1);
+        site_buff1 = malloc(BUFFERCAP*sizeof(char));
+        free(site_buff2);
+        site_buff2 = malloc(BUFFERCAP*sizeof(char));
+    } 
+    if(fclose(fp)!= 0){
+        fprintf(stderr, "Couldn't close csv file.\n");
+    }
+    
 }

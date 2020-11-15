@@ -1,5 +1,5 @@
 make:
-	gcc -g -o main main.c parse.c datatypes.c hashmap.c
+	gcc -g -o main main.c parse.c datatypes.c hashmap.c set.c
 
 test:
 	gcc -o tests/hash_test tests/HashMap_test.c hashmap.c
