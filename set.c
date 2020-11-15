@@ -111,6 +111,7 @@ list_node* join_sets(clique_list* l, list_node* a, list_node* b){
 
 void print_all_cliques(int opt, clique_list* l){
     clique_list_node *temp = l->front;
+    printf("left_spec_id, right_spec_id\n");
     while(temp){
         // printf("\n");
         print_clique(opt, temp->representative);
@@ -119,31 +120,16 @@ void print_all_cliques(int opt, clique_list* l){
 }
 
 void print_clique(int opt, list_node *root){
-    // if(!opt){
-        list_node *temp = root;
-        list_node *temp_2;
-        while(temp != NULL){
-            temp_2 = temp->next_in_clique;
-            while(temp_2 != NULL){
-                printf("%s, %s\n", temp->id, temp_2->id);
-                temp_2 = temp_2->next_in_clique;
-            }
-            temp = temp->next_in_clique;
+    list_node *temp = root;
+    list_node *temp_2;
+    while(temp != NULL){
+        temp_2 = temp->next_in_clique;
+        while(temp_2 != NULL){
+            printf("%s, %s\n", temp->id, temp_2->id);
+            temp_2 = temp_2->next_in_clique;
         }
-    // }else{
-        // FILE* fp = fopen("clique.txt", "w");
-        // list_node *temp = root;
-        // list_node *temp_2;
-        // while(temp != NULL){
-            // temp_2 = temp->next_in_clique;
-            // while(temp_2 != NULL){
-                // fprintf(fp, "%s, %s\n", temp->id, temp_2->id);
-                // temp_2 = temp_2->next_in_clique;
-            // }
-            // temp = temp->next_in_clique;
-        // }
-        // fclose(fp);
-    // }
+        temp = temp->next_in_clique;
+    }
 }
 
 void delete_clique_node(clique_list_node** node){

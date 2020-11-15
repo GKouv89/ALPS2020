@@ -135,16 +135,8 @@ void test_singular_clique_creation(void){
             TEST_CHECK(root != NULL);
         }
     }
-    print_clique(1, root);
-    FILE* fp = fopen("clique.txt", "r");
-    TEST_CHECK(fp != NULL);
-    char buf[255], buf2[255];
-    for(int i = 0; i < 15; i++){
-        fscanf(fp, "%s", buf);
-        fscanf(fp, "%s", buf2);
-        TEST_CHECK((strcmp(buf, output[i].left_spec) == 0) && (strcmp(buf2, output[i].right_spec) == 0));
-    }
-    fclose(fp);
+    print_clique(0, root);
+    
 }
 
 void test_clique_insert(void){
@@ -223,18 +215,37 @@ void test_multiple_clique_creation(void){
         TEST_CHECK(b != NULL);
         join_sets(l, a, b);
     }
-    print_all_cliques(0, l);
-    // the outputs of these two cliques have been confirmed by hand
-    // the order they come out in is 
-    // for the 1st clique: in the order they appear in mult_input
-    // for the 2nd clique: a 3rd clique with the representative
-    // "www.gosale.com//953" is temporary created, and contains two more
-    // elements of the clique, and is therefore larger than the 2nd temporary clique
-    // under the representative "www.aliexpress.com//456"
-    // Therefore when the two are joined, aliexpress//456 and amazon//987
-    // come last in order in the clique
-    // Doesn't matter, as they are sets, but this is how we determined this
-    // is indeed the correct output
+    // print_all_cliques(0, l);
+    int pairs, pairs_expec; 
+    // For a given clique, if n is the amount
+    // of nodes in the clique, the number of pairs to be printed
+    // equals to the sum of all integers from 1 to n-1
+    // pairs_expec contains this amount. pairs contains amount of actual
+    // pairs printed per clique
+    clique_list_node *temp = l->front;
+    list_node *tempn; 
+    list_node *tempn_2;
+    
+    while(temp){ // code of functions print_all_cliques and print_clique combined
+        tempn = temp->representative;
+        pairs = 0;
+        pairs_expec = 0;
+        while(tempn != NULL){
+            tempn_2 = tempn->next_in_clique;
+            while(tempn_2 != NULL){
+                printf("%s, %s\n", tempn->id, tempn_2->id);
+                tempn_2 = tempn_2->next_in_clique;
+                pairs++;
+            }
+            tempn = tempn->next_in_clique;
+        }
+        for(int i = 1; i < temp->representative->amount; i++){
+            pairs_expec += i;
+        }
+        TEST_CHECK(pairs == pairs_expec);
+        temp = temp->next;
+    }
+    // the outputs of these two cliques have been confirmed manually
     destroy_clique_list(&l);
     TEST_CHECK(l == NULL);
     destroy_map(&map);

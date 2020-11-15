@@ -1,17 +1,37 @@
 make:
 	gcc -g -o main main.c parse.c datatypes.c hashmap.c set.c
 
-test:
-	gcc -o tests/hash_test tests/HashMap_test.c hashmap.c
+run:
+	./main
+
+run_out_file:
+	rm -f output.txt
+	make run >> output.txt
+
+hashtest:
+	gcc -o tests/hash_test tests/HashMap_test.c hashmap.c datatypes.c
 
 datatest:
 	gcc -o tests/data_test tests/datatypes_test.c datatypes.c
 
-run_tests:
-	./tests/hash_test
+cliquetest:
+	gcc -g -o tests/cliques tests/set_test.c set.c datatypes.c hashmap.c -DBUCKETS=3
 
-set:
-	gcc -g -o tests/set_test tests/set_test.c set.c datatypes.c hashmap.c -DBUCKETS=3
+csvparsetest:
+	gcc -o tests/csvparse tests/csvparse.c 
+
+run_all_tests:
+	make hashtest
+	make datatest
+	make cliquetest
+	make csvparsetest
+	./tests/hash_test
+	./tests/data_test
+	./tests/cliques
+	./tests/csvparse
 
 clean:
-	rm -f tests/*.o *.o main tests/data_test tests/set_test
+	rm -f *.o main
+
+clean_tests:
+	rm -f tests/*.o tests/hash_test tests/data_test tests/cliques tests/csvparse
