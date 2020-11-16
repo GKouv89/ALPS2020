@@ -322,6 +322,7 @@ void test_JSONparse(void){
     int curr_fpl, curr_path_length = strlen(PATH) + 1; //curr_fpl is path to current file rather than
     // curr_path_length which is path to current folder
     int c, atrpass = 0,ecount = 2; //will be used in reading json files, ecount = " counter, atr_pass for switching buffers (0 for name, 1 for val)
+    int files_trav = 0;
     if(dir == NULL){
         fprintf(stderr, "sth went wrong\n");
         return;
@@ -352,145 +353,195 @@ void test_JSONparse(void){
                     strcat(file_path, "/");
                     strcat(file_path, current_file->d_name);
                     //printf("File_path: %s\n", file_path);
-                //
-                //
-                //
-                if((strcmp(current_folder->d_name, "buy.net") == 0)&&(strcmp(current_file->d_name, "4233.json") == 0)){
-                    fp = fopen(file_path,"r");
-                    if(fp == NULL){
-                        fprintf(stderr, "Couldn't access JSON file.\n");
-                    }
-                    list_create(&tulist, &error); //initializing tuplelist
-                    if(error==1){
-                        fprintf(stderr, "Failed to create tuplelist.\n");
-                    }
-                    // will use fgetc, and for starters try to print contents into a text file //
-                    //jfp = fopen("jsontest.txt","w");
-                    do{
-                        c = fgetc(fp);
-                        if(feof(fp)){
-                            break; 
-                        }
-                        if(c == ':'){ //About to start parsing attribute value
-                            atrpass = 1;
-                            bufflimit = BUFFERCAP-1; //reinitializing bufflimit for second buffer
-                            ecount = 2;
-                            //fputc('\t',jfp);
-                        }
-                        if(c == ',' && ecount ==0){ //Line parsing completed, moving to next attribute
-                            list_insert(&tulist, buff_name, buff_val); // passing info to tuple node before
-                                                                       // before emptying buffers for next line
-                            bufflimit = BUFFERCAP-1;
-                            reallcount = 1;
-                            TEST_CHECK((strlen(buff_name)>=1) && (strlen(buff_val)>=1));
-                            TEST_MSG("Error: 1 or both buffers are empty\n");
-                            free(buff_name);
-                            buff_name = malloc(BUFFERCAP*sizeof(char));
-                            free(buff_val);
-                            buff_val = malloc(BUFFERCAP*sizeof(char));
-                            atrpass = 0; // getting 1st buffer ready to be used
-                            ecount = 2;
-                            //fputc('\n', jfp);
-                        }
-                        //character control | Attribute/Value parsing and writing in test file//
-                        if((c=='"') && (ecount == 2)){
-                            if(atrpass == 0){//using first buffer to insert atr name
-                                ecount--;
-                                while(ecount>0){
-                                    c = fgetc(fp);
-                                    if(feof(fp)){
-                                        break;
-                                    }
-                                    if(c!='"'){//keeping attribute name and value information
-                                        if(c == 92){//some entries have \" in them which messes with value output
-                                            strcat(buff_name, (char*)&c);
-                                            bufflimit--;
-                                            if(bufflimit == 0){// Boundary testing for really large atr names
-                                                reallcount++;
-                                                buff_name = realloc(buff_name, reallcount*BUFFERCAP);
-                                            }
+                    //
+                    //
+                    //
+                    if((strcmp(current_folder->d_name, "cammarkt.com") == 0) /*&& (strcmp(current_file->d_name, "4239.json") == 0)*/){
+                        if((strcmp(current_file->d_name, ".") != 0) && (strcmp(current_file->d_name, "..") != 0)){
+                            fp = fopen(file_path,"r");
+                            if(fp == NULL){
+                                fprintf(stderr, "Couldn't access JSON file.\n");
+                            }
+                            list_create(&tulist, &error); //initializing tuplelist
+                            if(error==1){
+                                fprintf(stderr, "Failed to create tuplelist.\n");
+                            }
+                            // will use fgetc, and for starters try to print contents into a text file //
+                            //jfp = fopen("jsontest.txt","w");
+                            do{
+                                c = fgetc(fp);
+                                if(feof(fp)){
+                                    break; 
+                                }
+                                if(c == ':'){ //About to start parsing attribute value
+                                    atrpass = 1;
+                                    bufflimit = BUFFERCAP-1; //reinitializing bufflimit for second buffer
+                                    reallcount = 1;
+                                    ecount = 2;
+                                    //fputc('\t',jfp);
+                                }
+                                if((c == ',' && ecount == 0 ) || (c == '\n' && ecount == 0)){ //Line parsing completed, moving to next attribute
+                                    list_insert(&tulist, buff_name, buff_val); // passing info to tuple node before
+                                                                               // before emptying buffers for next line
+                                    bufflimit = BUFFERCAP-1;
+                                    reallcount = 1;
+                                    // TEST_CHECK((strlen(buff_name)>=1) && (strlen(buff_val)>=1));
+                                    // TEST_MSG("Error: 1 or both buffers are empty\n");
+                                    free(buff_name);
+                                    buff_name = malloc(BUFFERCAP*sizeof(char));
+                                    free(buff_val);
+                                    buff_val = malloc(BUFFERCAP*sizeof(char));
+                                    atrpass = 0; // getting 1st buffer ready to be used
+                                    ecount = 2;
+                                    //fputc('\n', jfp);
+                                }
+                                //character control | Attribute/Value parsing and writing in test file//
+                                if((c=='"') && (ecount == 2)){
+                                    if(atrpass == 0){//using first buffer to insert atr name
+                                        ecount--;
+                                        while(ecount>0){
                                             c = fgetc(fp);
-                                            if(c== '"'){
-                                                strcat(buff_name, (char*)&c); 
+                                            if(feof(fp)){
+                                                break;
+                                            }
+                                            if(c!='"'){//keeping attribute name and value information
+                                                if(c == 92){//some entries have \" in them which messes with value output
+                                                    if(strlen(buff_name)==0){
+                                                        strcpy(buff_name, (char*)&c);
+                                                    }else{
+                                                        strcat(buff_name, (char*)&c);
+                                                    }
+                                                    bufflimit--;
+                                                    if(bufflimit == 0){// Boundary testing for really large atr names
+                                                        reallcount++;
+                                                        bufflimit = BUFFERCAP-1;
+                                                        buff_name = realloc(buff_name, reallcount*BUFFERCAP*sizeof(char));
+                                                    }
+                                                    c = fgetc(fp);
+                                                    if(c== '"'){
+                                                        if(strlen(buff_name)==0){
+                                                            strcpy(buff_name, (char*)&c);
+                                                        }else{
+                                                            strcat(buff_name, (char*)&c);
+                                                        }
+                                                        bufflimit--;
+                                                        if(bufflimit == 0){
+                                                            reallcount++;
+                                                            bufflimit = BUFFERCAP-1;
+                                                            buff_name = realloc(buff_name, reallcount*BUFFERCAP*sizeof(char));
+                                                        }
+                                                        continue;
+                                                    }
+                                                    
+                                                }
+                                                if(strlen(buff_name)==0){
+                                                    strcpy(buff_name, (char*)&c);
+                                                }else{
+                                                    strcat(buff_name, (char*)&c);
+                                                }                                                
                                                 bufflimit--;
                                                 if(bufflimit == 0){
                                                     reallcount++;
+                                                    bufflimit = BUFFERCAP-1;
                                                     buff_name = realloc(buff_name, reallcount*BUFFERCAP);
                                                 }
-                                                continue;
+                                            }else{
+                                                ecount--;
                                             }
-                                            
-                                        }
-                                        strcat(buff_name, (char*)&c);
-                                        bufflimit--;
-                                        if(bufflimit == 0){
-                                            reallcount++;
-                                            buff_name = realloc(buff_name, reallcount*BUFFERCAP);
-                                        }
-                                    }else{
+                                        }   
+                                    }else{ // have read till ":", switching to buffer 2 for atr val
                                         ecount--;
-                                    }
-                                }   
-                            }else{ // have read till ":", switching to buffer 2 for atr val
-                                ecount--;
-                                while(ecount>0){
-                                    c = fgetc(fp);
-                                    if(feof(fp)){
-                                        break;
-                                    }
-                                    if(c!='"'){//keeping attribute name and value information
-                                        if(c == 92){//some entries have \" in them which messes with value output
-                                            strcat(buff_val, (char*)&c);
-                                            bufflimit--;
-                                            if(bufflimit == 0){
-                                                reallcount++;
-                                                buff_val = realloc(buff_val, reallcount*BUFFERCAP);
-                                            }
+                                        while(ecount>0){
                                             c = fgetc(fp);
-                                            if(c== '"'){
-                                                strcat(buff_val, (char*)&c);
+                                            if(feof(fp)){
+                                                break;
+                                            }
+                                            if(c!='"'){//keeping attribute name and value information
+                                                if(c == 92){//some entries have \" in them which messes with value output
+                                                    if(strlen(buff_val)==0){
+                                                        strcpy(buff_val, (char*)&c);
+                                                    }else{
+                                                        strcat(buff_val, (char*)&c);
+                                                    }
+                                                    bufflimit--;
+                                                    if(bufflimit == 0){
+                                                        reallcount++;
+                                                        bufflimit = BUFFERCAP-1;
+                                                        buff_val = realloc(buff_val, reallcount*BUFFERCAP*sizeof(char));
+                                                        if(buff_val == NULL){
+                                                            printf("What???\n");
+                                                        }
+                                                    }
+                                                    c = fgetc(fp);
+                                                    if(c== '"'){
+                                                        if(strlen(buff_val)==0){
+                                                            strcpy(buff_val, (char*)&c);
+                                                        }else{
+                                                            strcat(buff_val, (char*)&c);
+                                                        }
+                                                        bufflimit--;
+                                                        if(bufflimit == 0){
+                                                            reallcount++;
+                                                            bufflimit = BUFFERCAP-1;
+                                                            buff_val = realloc(buff_val, reallcount*BUFFERCAP*sizeof(char));
+                                                            if(buff_val == NULL){
+                                                                printf("What???\n");
+                                                            }
+                                                        }
+                                                        continue;
+                                                    }
+                                                    
+                                                }
+                                                if(strlen(buff_val)==0){
+                                                    strcpy(buff_val, (char*)&c);
+                                                }else{
+                                                    strcat(buff_val, (char*)&c);
+                                                }
                                                 bufflimit--;
                                                 if(bufflimit == 0){
                                                     reallcount++;
-                                                    buff_val = realloc(buff_val, reallcount*BUFFERCAP);
+                                                    bufflimit = BUFFERCAP-1;
+                                                    // printf("reallcount = %d\n", reallcount);
+                                                    buff_val = realloc(buff_val, reallcount*BUFFERCAP*sizeof(char));
+                                                    if(buff_val == NULL){
+                                                        printf("What???\n");
+                                                    }
                                                 }
-                                                continue;
+                                            }else{
+                                                ecount--;
                                             }
-                                            
                                         }
-                                        strcat(buff_val, (char*)&c);
-                                        bufflimit--;
-                                        if(bufflimit == 0){
-                                            reallcount++;
-                                            buff_val = realloc(buff_val, reallcount*BUFFERCAP);
-                                        }
-                                    }else{
-                                        ecount--;
-                                    }
+                                    }                                
                                 }
-                            }                                
+                                //////////////////////
+                            }while(1);
+                            // node_tuple* temp = tulist->head;
+                            // while(temp){
+                                // printf("Attr: %s, val: %s.\n", temp->name, temp->value);
+                                // temp = temp->next;
+                            // }
+                            // συνδεω το ταπλλιστ με το pseudonode (pseudonode->content = tuplelist)
+                            // δλδ μπαινει "απευθειας" στο ^
+                            
+                            //printf("Out of loop\n");
+                            //if(fclose(jfp)!= 0){
+                               // fprintf(stderr, "Couldn't close JSON file.\n");
+                           // }
+                            ////////////////////////////////////////////////////////////////////////////
+                            if(fclose(fp)!= 0){
+                                fprintf(stderr, "Couldn't close file.\n");
+                            }
+                            list_destroy(&tulist, &error);
+                            files_trav++;
+                            printf("files_trav = %d\n", files_trav);
                         }
-                        //////////////////////
-                    }while(1);
-                    
-                    // συνδεω το ταπλλιστ με το pseudonode (pseudonode->content = tuplelist)
-                    // δλδ μπαινει "απευθειας" στο ^
-                    
-                    //printf("Out of loop\n");
-                    //if(fclose(jfp)!= 0){
-                       // fprintf(stderr, "Couldn't close JSON file.\n");
-                   // }
-                    ////////////////////////////////////////////////////////////////////////////
-                    if(fclose(fp)!= 0){
-                        fprintf(stderr, "Couldn't close file.\n");
                     }
-                }
-                //Preparation before switching files
-                ecount = 2;// "reinitializing ecount to move on the next file
+                    //Preparation before switching files
+                    ecount = 2;// "reinitializing ecount to move on the next file
                     // this helps in avoiding to skip the first attribute name (value is being registered) when switching files
-                //
-                //
-                //
+                    //
+                    //
+                    //
                     
                 }
                 closedir(child_dir);

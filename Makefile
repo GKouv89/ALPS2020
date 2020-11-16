@@ -1,13 +1,9 @@
 make:
-	gcc -o main main.c tuplist.c parse.c
+	gcc -g -o main main.c tuplist.c parse.c hashmap.c datatypes.c set.c
 
 parsetest:
 	gcc -o parsetest test/parsetest.c parse.c tuplist.c
 	./parsetest
-
-newparsetest:
-	gcc -o newparsetest test/newparsetest.c parse.c tuplist.c
-	./newparsetest
 
 clean:
 	rm -f *.o main
