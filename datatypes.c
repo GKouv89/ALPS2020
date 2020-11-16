@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "datatypes.h"
+#include "tuplist.h"
 
 void list_create(info_list** list){
     (*list) = malloc(sizeof(info_list));
