@@ -138,7 +138,7 @@ void parser(hash_map* map){
                 }
                 
                 pseudonode->content = tulist;
-                tulist = NULL;
+		tulist = NULL;
                 add_to_bucket(map, hash_val, pseudonode);
                 free(id_buf);      
             }

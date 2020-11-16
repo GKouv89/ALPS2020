@@ -32,12 +32,14 @@ node_tuple* tuplist_create_node(char* buffname, char* buffval){
 void tuplist_insert(tuplelist **tl, char* buffname, char* buffval){
     node_tuple* temp;
     if(!tuplist_empty(*tl)){
-        temp = (*tl)->head;
+        /*temp = (*tl)->head;
         while(temp->next!=NULL){
             temp = temp-> next;
         }
         temp->next = tuplist_create_node(buffname, buffval);
-        (*tl)->last = temp->next;
+        (*tl)->last = temp->next; */
+	(*tl)->last->next = tuplist_create_node(buffname, buffval);
+	(*tl)->last = (*tl)->last->next;
     }else{ 
         temp = tuplist_create_node(buffname, buffval);
         (*tl)->head = temp;
