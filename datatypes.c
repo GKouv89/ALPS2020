@@ -13,6 +13,7 @@ list_node* create_node(char* temp_id){
     list_node* new_node = malloc(sizeof(list_node));
     new_node->id = malloc((strlen(temp_id) + 1)*sizeof(char));
     strcpy(new_node->id, temp_id);
+    new_node->content = NULL;
     new_node->previous = new_node->next = new_node->parent = new_node->next_in_clique = NULL;
     new_node->amount = 1;
     return new_node;
@@ -60,7 +61,9 @@ void destroy_list(info_list** list){
 }
 
 void delete_node(list_node** node){
+    int error;
     free((*node)->id);
+    tuplist_destroy(&((*node)->content), &error);
     (*node)->next = NULL;
     (*node)->previous = NULL;
     free(*node);

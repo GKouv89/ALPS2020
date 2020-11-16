@@ -6,6 +6,7 @@
 #include "datatypes.h"
 #include "parse.h"
 #include "hashmap.h"
+#include "tuplist.h"
 #include "set.h"
 
 int main(int argc, char* argv[]){

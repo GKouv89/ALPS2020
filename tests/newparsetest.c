@@ -1,28 +1,27 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <string.h>
 #include <dirent.h>
-#include "parse.h"
-
-#include "datatypes.h"
-#include "hashmap.h"
-#include "tuplist.h"
-#include "set.h"
+#include "../parse.h"
+#include "../tuplist.h"
+#include "../datatypes.h"
+#include "../hashmap.h"
+#include "acutest.h"
 
 #define PATH "camera_specs/2013_camera_specs/" // WE SHALL ALLOW THE USER TO ENTER THE PATH THROUGH 
 // KEYBOARD INPUT, BUT LATER 
 
-#define BUFFERCAP 100 // for csvparser function
-
-void parser(hash_map* map){
+void test_JSONparse(void){    
+    hash_map* map = create_map();
+    
     struct dirent *current_folder, *current_file;
     char *path, *file_path = NULL;
-    char *id_buf; //Will be the buffer for the node's creation and will hold their id
     
     //Tuple list//
     tuplelist *tulist = NULL;
     int error;
     /////////////
+    
     
     path = malloc((strlen(PATH) + 1)*sizeof(char));
     strcpy(path, PATH);
@@ -32,11 +31,10 @@ void parser(hash_map* map){
     FILE *fp;
     int curr_fpl, curr_path_length = strlen(PATH) + 1; //curr_fpl is path to current file rather than
     // curr_path_length which is path to current folder
-
+    int c; 
     size_t line_size = 1024;
     int bytes_read;
-    char *line, *buff_name, *buff_val;
-
+    char *line, *buff_name, *buff_val, *id_buf;
     if(dir == NULL){
         fprintf(stderr, "sth went wrong\n");
         return;
@@ -65,7 +63,6 @@ void parser(hash_map* map){
                     strcpy(file_path, path);
                     strcat(file_path, "/");
                     strcat(file_path, current_file->d_name);
-
                     if((strcmp(current_file->d_name, ".") != 0) && (strcmp(current_file->d_name, "..") != 0)){ 
                         
                         // NODE ID CREATION
@@ -77,11 +74,11 @@ void parser(hash_map* map){
                         strcat(id_buf, "//");
                         strncat(id_buf, current_file->d_name, length);
                         int hash_val = hash_function(map, id_buf);
-
+                        
                         // NODE CREATION
                         list_node* pseudonode = create_node(id_buf);
-
-			fp = fopen(file_path,"r");
+                                                      
+                        fp = fopen(file_path,"r");
                         if(fp == NULL){
                             fprintf(stderr, "Couldn't access JSON file.\n");
                         }
@@ -147,6 +144,7 @@ void parser(hash_map* map){
                 closedir(child_dir);
                 current_folder = readdir(dir);
             }
+            destroy_map(&map);
         }else{
             while(current_folder != NULL){
                 printf("Current folder: %s\n", current_folder->d_name);
@@ -159,93 +157,9 @@ void parser(hash_map* map){
             current_folder = readdir(dir);
         }
     }
-    free(path);
-    closedir(dir);
 }
 
-void csvparser(hash_map* map, clique_list* all_cliques){
-    
-    FILE *fp;
-    char *site_buff1;
-    char *site_buff2;
-    char matching;
-    int c, reallcount = 1, bufflimit = BUFFERCAP-1;
-    int flag = 0; // used in eof checking
-    
-    //buffer memory alloc//
-    site_buff1 = malloc(BUFFERCAP*sizeof(char));
-    site_buff2 = malloc(BUFFERCAP*sizeof(char)); // may need to realloc
-    
-    fp = fopen("sigmod_medium_labelled_dataset.csv","r");
-
-    if(fp == NULL){
-        fprintf(stderr, "Couldn't open csv file.\n");
-    }
-    // first csv line doesn't contain useful info so
-    // it'll be ignored
-    do{
-        c = fgetc(fp);
-    }while(c != '\n'); // c should be \n
-    
-    while(1){
-        while((c = fgetc(fp))!=','){
-            // if EOF is read, it will be done here, instead of reading the first 
-            // column of a new line.
-            if(feof(fp)){
-                flag = 1;
-                break;
-            }
-            if(bufflimit == BUFFERCAP-1){
-                strcpy(site_buff1, (char*)&c);
-            }else{
-                strcat(site_buff1, (char*)&c);
-            }
-            bufflimit--;
-            if(bufflimit == 0){// low chance of this happening
-                               // Boundary testing in case urls were larger
-                reallcount++;
-                site_buff1 = realloc(site_buff1, reallcount*BUFFERCAP);
-            }
-        }
-        if(flag){ // If flag==1 then we've reached 
-                  //the last (blank) line in the file and EOF
-            break;
-        }
-        bufflimit = BUFFERCAP-1;
-        reallcount = 1; //reinitializing bufflimit and reallcount for next buffer
-        
-        while((c = fgetc(fp))!=','){ //no need to check for EOF here
-            if(bufflimit == BUFFERCAP-1){
-                strcpy(site_buff2, (char*)&c);
-            }else{
-                strcat(site_buff2, (char*)&c);
-            }
-            bufflimit--;
-            if(bufflimit == 0){// low chance of this happening
-                               // Boundary testing in case urls were larger
-                reallcount++;
-                site_buff2 = realloc(site_buff2, reallcount*BUFFERCAP);
-            }
-        }
-        bufflimit = BUFFERCAP-1;
-        reallcount = 1; //reinitializing bufflimit and reallcount for next buffer
-        
-        matching = fgetc(fp);
-        if(matching == '1'){
-            list_node *a, *b;
-            a = find_node(map, site_buff1);
-            b = find_node(map, site_buff2);
-            join_sets(all_cliques, a, b);
-        }
-        c = fgetc(fp); // removing \n from being added at the
-                       // start of next buffer
-        free(site_buff1);
-        site_buff1 = malloc(BUFFERCAP*sizeof(char));
-        free(site_buff2);
-        site_buff2 = malloc(BUFFERCAP*sizeof(char));
-    } 
-    if(fclose(fp)!= 0){
-        fprintf(stderr, "Couldn't close csv file.\n");
-    }
-    
-}
+TEST_LIST = {
+    {"testjson", test_JSONparse},
+    {NULL, NULL}
+};
