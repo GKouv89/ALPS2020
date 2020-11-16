@@ -8,8 +8,8 @@ run:
 	./main
 
 run_out_file:
-	rm -f output.txt
-	./main >> output.txt
+	rm -f output.csv
+	./main >> output.csv
 
 hashtest:
 	gcc -o tests/hash_test tests/HashMap_test.c hashmap.c datatypes.c tuplist.c
