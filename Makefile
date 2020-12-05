@@ -23,18 +23,23 @@ cliquetest:
 csvparsetest:
 	gcc -o tests/csvparse tests/csvparse.c tuplist.c
 
+arrayparsetest:
+	gcc -o tests/arrayparse tests/arrayparse.c
+
 run_all_tests:
 	make hashtest
 	make datatest
 	make cliquetest
 	make csvparsetest
+	make arrayparsetest
 	./tests/hash_test
 	./tests/data_test
 	./tests/cliques
 	./tests/csvparse
+	./tests/arrayparse
 
 clean:
 	rm -f *.o main
 
 clean_tests:
-	rm -f tests/*.o tests/hash_test tests/data_test tests/cliques tests/csvparse
+	rm -f tests/*.o tests/hash_test tests/data_test tests/cliques tests/csvparse tests/arrayparse
