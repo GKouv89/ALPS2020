@@ -132,6 +132,7 @@ void test_complete_arrayparsing(void){
     //NEW//
     line = malloc(line_size*sizeof(char));
     buff_name = malloc(line_size*sizeof(char));
+    buff_val = malloc(line_size*sizeof(char));
     ///////
 
     if(dir == NULL){
@@ -190,7 +191,7 @@ void test_complete_arrayparsing(void){
                 strcpy(id_buf, current_folder->d_name);
                 strcat(id_buf, "//");
                 strncat(id_buf, current_file->d_name, sans_json_length);
-                printf("id_buf is %s\n", id_buf);
+                // printf("id_buf is %s\n", id_buf);
                 
                 int hash_val = hash_function(map, id_buf);
 
@@ -198,7 +199,7 @@ void test_complete_arrayparsing(void){
                 list_node* pseudonode = create_node(id_buf);
 
                 fp = fopen(file_path,"r");
-                printf("Accessing %s file.\n", file_path);
+                // printf("Accessing %s file.\n", file_path);
                 TEST_ASSERT(fp != NULL);
                 tuplist_create(&tulist, &error); //initializing tuplelist
                 TEST_ASSERT(error!=1);
@@ -206,17 +207,15 @@ void test_complete_arrayparsing(void){
                 
                 bytes_read = getline(&line, &line_size, fp);
                 
-                buff_val = malloc(line_size*sizeof(char));
-                
                 while(1){
                     bytes_read = getdelim(&buff_name, &line_size, ':', fp);
                     if(strcmp(buff_name, "}") == 0){
                         break;
                     }
                     buff_name = strtok(buff_name, ":");
-                    getline(&buff_val, &line_size, fp);
-                    if(strcmp(buff_val, " [\n") == 0){ // JSON Array
-                        buff_val = strtok(buff_val, "\n");
+                    getline(&line, &line_size, fp);
+                    if(strcmp(line, " [\n") == 0){ // JSON Array
+                        line = strtok(line, "\n");
                         while(1){
                             bytes_read = getline(&line, &line_size, fp);
                             // buff_val = realloc(buff_val, (strlen(buff_val) + bytes_read + 1 )*sizeof(char));
@@ -233,8 +232,14 @@ void test_complete_arrayparsing(void){
                         
                     }else{
                         // buff_val = strtok(buff_val, ",");
+                        line = strtok(line, "\n");
+                        if(strlen(line) > strlen(buff_val)){ //TEMPORARY
+                            temp_realloc = realloc(buff_val, (strlen(line)*sizeof(char) + 1));
+                            TEST_ASSERT(temp_realloc != NULL);
+                            buff_val = temp_realloc;
+                        }
+                        strcpy(buff_val, line);
                     }
-                    
                     tuplist_insert(&tulist, buff_name, buff_val);
                 }
                 
@@ -254,7 +259,14 @@ void test_complete_arrayparsing(void){
     free(id_buf);
     free(line);
     free(buff_name);
+    free(buff_val);
     closedir(dir);
+    
+    list_node *tempn = find_node(map, "buy.net//5389");
+    tuplist_print(&(tempn->content));
+    tempn = find_node(map, "cammarkt.com//0");
+    tuplist_print(&(tempn->content));
+    destroy_map(&map);
 }
 
 TEST_LIST = {
