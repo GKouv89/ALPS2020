@@ -24,7 +24,7 @@ csvparsetest:
 	gcc -o tests/csvparse tests/csvparse.c tuplist.c
 
 arrayparsetest:
-	gcc -o tests/arrayparse tests/arrayparse.c
+	gcc -g -o tests/arrayparse tests/arrayparse.c datatypes.c hashmap.c tuplist.c
 
 run_all_tests:
 	make hashtest

@@ -1,8 +1,13 @@
 #include "acutest.h"
+#include "../hashmap.h"
+#include "../tuplist.h"
+#include "../datatypes.h"
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
 
 #define FILE_NAME "camera_specs/2013_camera_specs/cammarkt.com/0.json"
+#define PATH "camera_specs/2013_camera_specs/"
 
 void test_arrayparsing(void){
     FILE *fp = fopen(FILE_NAME, "r");
@@ -84,7 +89,176 @@ void test_arrayparsing(void){
     TEST_ASSERT(fclose(fp) == 0);
 } 
 
+void test_complete_arrayparsing(void){
+    struct dirent *current_folder, *current_file;
+    char *path, *file_path = NULL;
+    char *id_buf; //Will be the buffer for the node's creation and will hold their id
+    
+    //Map//
+    hash_map *map = create_map();
+    
+    //Tuple list//
+    tuplelist *tulist = NULL;
+    int error;
+    /////////////
+    
+    path = malloc((strlen(PATH) + 1)*sizeof(char));
+    strcpy(path, PATH);
+   
+    DIR *dir = opendir(path);
+    DIR *child_dir;
+    FILE *fp;
+    int curr_fpl, curr_path_length = strlen(PATH) + 1; 
+    // curr_path_length doesn't contain the actual size of the path
+    // but rather the size of the path buffer
+    // curr_fpl does the same thing for the *file* path buffer
+
+    // NEW //
+    curr_fpl = curr_path_length + 20; 
+    // a few extra characters to make sure site and file name fit
+    // at least for the first directory
+    file_path = malloc(curr_fpl*sizeof(char));
+    char *json_postfix;
+    char *temp_realloc;
+    int id_buf_len = 100;
+    id_buf = malloc(id_buf_len*sizeof(char));
+    /////////
+    
+    
+    size_t line_size = 1024;
+    int bytes_read;
+    char *line, *buff_name, *buff_val;
+    
+    //NEW//
+    line = malloc(line_size*sizeof(char));
+    buff_name = malloc(line_size*sizeof(char));
+    ///////
+
+    if(dir == NULL){
+        fprintf(stderr, "sth went wrong\n");
+        return;
+    }
+    current_folder = readdir(dir);
+    if(current_folder == NULL){
+        fprintf(stderr, "could not access 2013_camera_specs contents.\n");
+    }
+    
+    if(strcmp(current_folder->d_name, ".") == 0){ // Bypassing cases of dot... 
+        current_folder = readdir(dir);
+        if(strcmp(current_folder->d_name, "..") == 0){ // ...and dot-dot entries existing
+            current_folder = readdir(dir); // reading site sub-directories
+        }
+    }
+    
+    while(current_folder != NULL){
+        if(curr_path_length < strlen(PATH) + strlen(current_folder->d_name) + 1){
+            curr_path_length = strlen(PATH) + strlen(current_folder->d_name) + 1;
+            temp_realloc = realloc(path, curr_path_length*sizeof(char));
+            TEST_ASSERT(temp_realloc != NULL);
+            path = temp_realloc;
+        }
+        strcpy(path, PATH);
+        strcat(path, current_folder->d_name);
+        
+        
+        child_dir = opendir(path); // reading site sub-dir contents (json files)
+        
+        
+        while((current_file = readdir(child_dir)) != NULL){
+            if(curr_fpl < curr_path_length + strlen(current_file->d_name) + 2){
+                curr_fpl = curr_path_length + strlen(current_file->d_name) + 2;
+                temp_realloc = realloc(file_path, curr_fpl*sizeof(char));
+                TEST_ASSERT(temp_realloc != NULL);
+                file_path = temp_realloc;
+            }
+
+            strcpy(file_path, path);
+            strcat(file_path, "/");
+            strcat(file_path, current_file->d_name);
+
+            if((strcmp(current_file->d_name, ".") != 0) && (strcmp(current_file->d_name, "..") != 0)){ 
+                
+                // NODE ID CREATION
+                json_postfix = strchr(current_file->d_name, '.');
+                int sans_json_length = strlen(current_file->d_name) - strlen(json_postfix);
+                if(id_buf_len < strlen(current_folder->d_name) + sans_json_length +3 ){
+                    id_buf_len *= 2;
+                    temp_realloc = realloc(id_buf, id_buf_len*sizeof(char));
+                    TEST_ASSERT(temp_realloc != NULL);
+                    id_buf = temp_realloc;
+                }
+                strcpy(id_buf, current_folder->d_name);
+                strcat(id_buf, "//");
+                strncat(id_buf, current_file->d_name, sans_json_length);
+                printf("id_buf is %s\n", id_buf);
+                
+                int hash_val = hash_function(map, id_buf);
+
+                // NODE CREATION
+                list_node* pseudonode = create_node(id_buf);
+
+                fp = fopen(file_path,"r");
+                printf("Accessing %s file.\n", file_path);
+                TEST_ASSERT(fp != NULL);
+                tuplist_create(&tulist, &error); //initializing tuplelist
+                TEST_ASSERT(error!=1);
+                
+                
+                bytes_read = getline(&line, &line_size, fp);
+                
+                buff_val = malloc(line_size*sizeof(char));
+                
+                while(1){
+                    bytes_read = getdelim(&buff_name, &line_size, ':', fp);
+                    if(strcmp(buff_name, "}") == 0){
+                        break;
+                    }
+                    buff_name = strtok(buff_name, ":");
+                    getline(&buff_val, &line_size, fp);
+                    if(strcmp(buff_val, " [\n") == 0){ // JSON Array
+                        buff_val = strtok(buff_val, "\n");
+                        while(1){
+                            bytes_read = getline(&line, &line_size, fp);
+                            // buff_val = realloc(buff_val, (strlen(buff_val) + bytes_read + 1 )*sizeof(char));
+                            // strcat(buff_val, line);
+                            line = strtok(line, "\n");
+                            if(strstr(line, "]")){
+                                // end of array
+                                // strtok(line, ",");
+                                // strcat(buff_val, "]");
+                                break;
+                            }
+                            strcpy(buff_val, "array");
+                        }
+                        
+                    }else{
+                        // buff_val = strtok(buff_val, ",");
+                    }
+                    
+                    tuplist_insert(&tulist, buff_name, buff_val);
+                }
+                
+                if(fclose(fp) != 0){
+                    fprintf(stderr, "Couldn't close JSON file.\n");
+                }
+                
+                pseudonode->content = tulist;
+                tulist = NULL;
+                add_to_bucket(map, hash_val, pseudonode);
+            }
+        }
+        closedir(child_dir);
+        current_folder = readdir(dir);
+    }
+    free(path);
+    free(id_buf);
+    free(line);
+    free(buff_name);
+    closedir(dir);
+}
+
 TEST_LIST = {
     {"arrays", test_arrayparsing},
+    {"whole_dataset_arrays", test_complete_arrayparsing},
     {NULL, NULL}
 };
