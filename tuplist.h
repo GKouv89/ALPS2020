@@ -19,5 +19,6 @@ void tuplist_create(tuplelist **, int *);
 void tuplist_insert(tuplelist **, char*, char*);
 void tuplist_destroy_node(node_tuple **);
 void tuplist_destroy(tuplelist **, int *);
-void tuplist_print(tuplelist *, int *);
+//void tuplist_print(tuplelist *, int *);
+void tuplist_print(tuplelist **);
 #endif

@@ -47,6 +47,14 @@ void tuplist_insert(tuplelist **tl, char* buffname, char* buffval){
     }
 }
 
+void tuplist_print(tuplelist **tl){
+    node_tuple* temp = (*tl)->head;
+    while(temp){
+        printf("Attribute: %s\nValue: %s\n", temp->name, temp->value);
+        temp = temp->next;
+    }
+}
+
 void tuplist_destroy_node(node_tuple **tn){
 	free(*tn);
 	*tn = NULL;

@@ -38,6 +38,7 @@ void list_print(info_list* list){
     list_node* temp = list->front;
     while(temp){
         printf("%s\n", temp->id);
+        tuplist_print(&(temp->content));
         temp = temp->next;
     }
 }
