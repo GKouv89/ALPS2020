@@ -1,5 +1,6 @@
 #include "acutest.h"
 #include "../tuplist.h"
+#include "../BOW/bow.h"
 #include <ctype.h>
 
 #define FILE_NAME "camera_specs/2013_camera_specs/cammarkt.com/83.json"
@@ -35,6 +36,8 @@ void test_attribute_value_buffer_splitting(){
     
     //NEW//
     char *name = calloc(255, sizeof(char));
+    char *val = calloc(255, sizeof(char));
+    char *arr_word = calloc(255, sizeof(char));
     char c;
     char flag = 0;
     ///////
@@ -45,21 +48,7 @@ void test_attribute_value_buffer_splitting(){
             break;
         }
         buff_name = strtok(buff_name, ":");
-        for(int i = 0; i < strlen(buff_name); i++){
-            c = *(buff_name + i);
-            if(isspace(c)){
-                printf("%s\n", name);
-                memset(name, 0, 255*sizeof(char));
-            }else{
-                if(isalnum(c)){                       
-                    if(strlen(name) == 0){
-                        strcpy(name, &c);
-                    }else{
-                        strcat(name, &c);
-                    }
-                }
-            }
-        }
+        bow_it(buff_name);
         getline(&buff_val, &buff_val_size, fp);
         if(strcmp(buff_val, " [\n") == 0){ // JSON Array
             strcpy(array_buff, " [");
@@ -96,8 +85,10 @@ void test_attribute_value_buffer_splitting(){
                 }
                 remaining = remaining - bytes_read;
             }
+            bow_it(array_buff);
             tuplist_insert(&tulist, buff_name, array_buff);
         }else{
+            bow_it(buff_val);
             tuplist_insert(&tulist, buff_name, buff_val);
         }
     }
@@ -108,6 +99,8 @@ void test_attribute_value_buffer_splitting(){
     free(line);
     free(array_buff);
     free(name);
+    free(val);
+    free(arr_word);
     tuplist_destroy(&tulist, &error);
 }
 

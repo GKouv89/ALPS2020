@@ -23,8 +23,8 @@ cliquetest:
 csvparsetest:
 	gcc -o tests/csvparse tests/csvparse.c tuplist.c
 
-arrayparsetest:
-	gcc -g -o tests/arrayparse tests/arrayparse.c datatypes.c hashmap.c tuplist.c
+ctypetest:
+	gcc -g -o tests/ctype tests/ctypetest.c tuplist.c BOW/bow.c
 
 run_all_tests:
 	make hashtest
