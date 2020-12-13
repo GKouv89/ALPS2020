@@ -8,6 +8,8 @@ typedef struct vector{
 } Vector;
 
 void create_vector(Vector **);
-void insert_element(Vector *);
+void insert_element(Vector *, int *);
+void update_element(Vector *, int);
+void resize_vector(Vector *);
 void destroy_vector(Vector **);
 #endif

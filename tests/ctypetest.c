@@ -1,6 +1,6 @@
 #include "acutest.h"
 #include "../tuplist.h"
-#include "../BOW/bow.h"
+#include "../BOW/stringOps.h"
 #include <ctype.h>
 
 #define FILE_NAME "camera_specs/2013_camera_specs/cammarkt.com/83.json"

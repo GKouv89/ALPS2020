@@ -10,7 +10,7 @@
 #include "tuplist.h"
 #include "set.h"
 
-#include "BOW/bow.h"
+#include "BOW/stringOps.h"
 
 #define PATH "camera_specs/2013_camera_specs/" // WE SHALL ALLOW THE USER TO ENTER THE PATH THROUGH 
 // KEYBOARD INPUT, BUT LATER 
