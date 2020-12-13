@@ -34,14 +34,6 @@ void test_attribute_value_buffer_splitting(){
     
     bytes_read = getline(&line, &line_size, fp);
     
-    //NEW//
-    char *name = calloc(255, sizeof(char));
-    char *val = calloc(255, sizeof(char));
-    char *arr_word = calloc(255, sizeof(char));
-    char c;
-    char flag = 0;
-    ///////
-    
     while(1){
         bytes_read = getdelim(&buff_name, &buff_name_size, ':', fp);
         if(strcmp(buff_name, "}") == 0){
@@ -98,9 +90,6 @@ void test_attribute_value_buffer_splitting(){
     free(buff_val);
     free(line);
     free(array_buff);
-    free(name);
-    free(val);
-    free(arr_word);
     tuplist_destroy(&tulist, &error);
 }
 
