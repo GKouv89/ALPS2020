@@ -1,8 +1,11 @@
+FLAGS = -g -o
+MODULES =  main.c parse.c datatypes.c hashmap.c set.c tuplist.c BOW/bow.c 
+
 medium:
-	gcc -g -o main main.c parse.c datatypes.c hashmap.c set.c tuplist.c -DDATASET=\"sigmod_medium_labelled_dataset.csv\"
+	gcc $(FLAGS) main $(MODULES) -DDATASET=\"sigmod_medium_labelled_dataset.csv\"
 
 large:
-	gcc -g -o main main.c parse.c datatypes.c hashmap.c set.c tuplist.c
+	gcc $(FLAGS) main $(MODULES)
 
 run:
 	./main

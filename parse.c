@@ -10,6 +10,8 @@
 #include "tuplist.h"
 #include "set.h"
 
+#include "BOW/bow.h"
+
 #define PATH "camera_specs/2013_camera_specs/" // WE SHALL ALLOW THE USER TO ENTER THE PATH THROUGH 
 // KEYBOARD INPUT, BUT LATER 
 
@@ -141,6 +143,7 @@ struct dirent *current_folder, *current_file;
                         break;
                     }
                     buff_name = strtok(buff_name, ":");
+                    bow_it(buff_name);
                     getline(&buff_val, &buff_val_size, fp);
                     if(strcmp(buff_val, " [\n") == 0){ // JSON Array
                         strcpy(array_buff, " [");
@@ -177,8 +180,10 @@ struct dirent *current_folder, *current_file;
                             }
                             remaining = remaining - bytes_read;
                         }
+                        bow_it(array_buff);
                         tuplist_insert(&tulist, buff_name, array_buff);
                     }else{
+                        bow_it(buff_val);
                         tuplist_insert(&tulist, buff_name, buff_val);
                     }
                 }

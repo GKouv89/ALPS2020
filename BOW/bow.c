@@ -16,7 +16,7 @@ void bow_it(char *buffer){
             }
             i--;
             if(word_letters > 0){
-                printf("%s\n", word);
+                // printf("%s\n", word);
                 memset(word, 0, 255*sizeof(char));
                 word_letters = 0;
             }
@@ -26,7 +26,7 @@ void bow_it(char *buffer){
                 c = *(buffer + i);
                 if(c == 'n' || c == '"'){
                     if(word_letters > 0){
-                        printf("%s\n", word);
+                        // printf("%s\n", word);
                         memset(word, 0, 255*sizeof(char));
                         word_letters = 0;    
                     }                    
@@ -40,7 +40,7 @@ void bow_it(char *buffer){
     }
     if(word_letters > 0){ // a.k.a. there was no whitespace to indicate the need for printing
     // happened with buff_val
-        printf("%s\n", word);
+        // printf("%s\n", word);
     }
     free(word);
 }
