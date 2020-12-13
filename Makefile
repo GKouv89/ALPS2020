@@ -29,6 +29,9 @@ csvparsetest:
 ctypetest:
 	gcc -g -o tests/ctype tests/ctypetest.c tuplist.c BOW/bow.c
 
+vectest:
+	gcc $(FLAGS) tests/vectest tests/vectest.c BOW/vectorOps.c
+
 run_all_tests:
 	make hashtest
 	make datatest
