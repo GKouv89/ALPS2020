@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
@@ -6,11 +7,16 @@
 void create_vector(Vector **vec){
     *vec = malloc(sizeof(Vector));
     (*vec)->size = 0;
-    (*vec)->capacity = 100;
+    (*vec)->capacity = CAPACITY;
     (*vec)->elements = calloc((*vec)->capacity, sizeof(int));
 }
 
-void insert_element(Vector *vec, int *resizing){ // This function indicates we stumbled upon a new word
+void new_word(Vector *vec, int *resizing){
+    /* 
+        Added a new word to bow. This updates the 'top' vector, that contains the number of the word
+        that a search in the dictionary will return. If this is resized, we resize all other vector of
+        the bag, too.
+    */
     int pos = vec->size;
     if(vec->size == vec->capacity){
         *resizing = 1;
@@ -24,12 +30,14 @@ void insert_element(Vector *vec, int *resizing){ // This function indicates we s
     }else{
         *resizing = 0;
     }
-    vec->elements[pos] = 1;
+    vec->elements[pos] = vec->size; // The number of the word (numbering starts from 0)
     vec->size++;
 }
 
 void update_element(Vector *vec, int pos){ // This one indicates that we stumbled upon a word that's already in the bag
-    vec->elements[pos]++;
+    // printf("updating element in pos = %d\n", pos);
+    // printf("curr elem value = %d\n", vec->elements[pos]);
+    (vec->elements[pos])++;
 }
 
 void resize_vector(Vector *vec){

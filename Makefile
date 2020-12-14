@@ -33,7 +33,7 @@ vectest:
 	gcc $(FLAGS) tests/vectest tests/vectest.c BOW/vectorOps.c
 
 bowtest:
-	gcc $(FLAGS) tests/bowtest tests/bow_test.c BOW/vectorOps.c BOW/bow.c
+	gcc $(FLAGS) tests/bowtest tests/bow_test.c BOW/vectorOps.c -DCAPACITY=5 -DVECTORS=3 BOW/bow.c
 
 run_all_tests:
 	make hashtest
@@ -41,14 +41,16 @@ run_all_tests:
 	make cliquetest
 	make csvparsetest
 	make arrayparsetest
+	make bowtest
 	./tests/hash_test
 	./tests/data_test
 	./tests/cliques
 	./tests/csvparse
 	./tests/arrayparse
+	./tests/bowtest
 
 clean:
 	rm -f *.o main
 
 clean_tests:
-	rm -f tests/*.o tests/hash_test tests/data_test tests/cliques tests/csvparse tests/arrayparse
+	rm -f tests/*.o tests/hash_test tests/data_test tests/cliques tests/csvparse tests/arrayparse tests/bowtest
