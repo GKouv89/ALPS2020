@@ -1,6 +1,7 @@
 #include "acutest.h"
 #include "../tuplist.h"
 #include "../BOW/stringOps.h"
+#include "../BOW/stopwords.h"
 #include <ctype.h>
 
 #define FILE_NAME "camera_specs/2013_camera_specs/cammarkt.com/83.json"
@@ -32,6 +33,11 @@ void test_attribute_value_buffer_splitting(){
     tuplist_create(&tulist, &error); //initializing tuplelist
     TEST_ASSERT(error!=1);
     
+    //NEW//
+    sw_list *l;
+    make_stopword_list(&l);
+    ///////
+    
     bytes_read = getline(&line, &line_size, fp);
     
     while(1){
@@ -40,7 +46,7 @@ void test_attribute_value_buffer_splitting(){
             break;
         }
         buff_name = strtok(buff_name, ":");
-        bow_it(buff_name);
+        bow_it(buff_name, l);
         getline(&buff_val, &buff_val_size, fp);
         if(strcmp(buff_val, " [\n") == 0){ // JSON Array
             strcpy(array_buff, " [");
@@ -77,10 +83,10 @@ void test_attribute_value_buffer_splitting(){
                 }
                 remaining = remaining - bytes_read;
             }
-            bow_it(array_buff);
+            bow_it(array_buff, l);
             tuplist_insert(&tulist, buff_name, array_buff);
         }else{
-            bow_it(buff_val);
+            bow_it(buff_val, l);
             tuplist_insert(&tulist, buff_name, buff_val);
         }
     }

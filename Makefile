@@ -1,5 +1,5 @@
 FLAGS = -g -o
-MODULES =  main.c parse.c datatypes.c hashmap.c set.c tuplist.c BOW/stringOps.c BOW/vectorOps.c
+MODULES =  main.c parse.c datatypes.c hashmap.c set.c tuplist.c BOW/stringOps.c BOW/vectorOps.c BOW/stopwords.c
 
 medium:
 	gcc $(FLAGS) main $(MODULES) -DDATASET=\"sigmod_medium_labelled_dataset.csv\"
@@ -27,7 +27,7 @@ csvparsetest:
 	gcc -o tests/csvparse tests/csvparse.c tuplist.c
 
 ctypetest:
-	gcc -g -o tests/ctype tests/ctypetest.c tuplist.c BOW/stringOps.c
+	gcc -g -o tests/ctype tests/ctypetest.c tuplist.c BOW/stringOps.c BOW/stopwords.c
 
 vectest:
 	gcc $(FLAGS) tests/vectest tests/vectest.c BOW/vectorOps.c
@@ -47,10 +47,11 @@ run_all_tests:
 	./tests/cliques
 	./tests/csvparse
 	./tests/arrayparse
+	./tests/ctype
 	./tests/bowtest
 
 clean:
 	rm -f *.o main
 
 clean_tests:
-	rm -f tests/*.o tests/hash_test tests/data_test tests/cliques tests/csvparse tests/arrayparse tests/bowtest
+	rm -f tests/*.o tests/hash_test tests/data_test tests/cliques tests/csvparse tests/arrayparse tests/ctype tests/bowtest

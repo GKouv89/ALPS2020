@@ -10,6 +10,7 @@
 #include "tuplist.h"
 #include "set.h"
 
+#include "BOW/stopwords.h"
 #include "BOW/stringOps.h"
 
 #define PATH "camera_specs/2013_camera_specs/" // WE SHALL ALLOW THE USER TO ENTER THE PATH THROUGH 
@@ -40,7 +41,6 @@ struct dirent *current_folder, *current_file;
     // but rather the size of the path buffer
     // curr_fpl does the same thing for the *file* path buffer
 
-    // NEW //
     curr_fpl = curr_path_length + 20; 
     // a few extra characters to make sure site and file name fit
     // at least for the first directory
@@ -49,14 +49,12 @@ struct dirent *current_folder, *current_file;
     char *temp_realloc;
     int id_buf_len = 100;
     id_buf = malloc(id_buf_len*sizeof(char));
-    /////////
     
     
     size_t line_size = 1024;
     int bytes_read;
     char *line, *buff_name, *buff_val;
     
-    //NEW//
     line = malloc(line_size*sizeof(char));
     size_t buff_name_size = 1024;
     size_t buff_val_size = 1024;
@@ -65,6 +63,10 @@ struct dirent *current_folder, *current_file;
     int val_capacity = 100;
     int remaining = val_capacity - 1;
     char *array_buff = malloc(val_capacity*sizeof(char));
+    
+    //NEW//
+    sw_list *l;
+    make_stopword_list(&l);
     ///////
 
     if(dir == NULL){
@@ -143,7 +145,7 @@ struct dirent *current_folder, *current_file;
                         break;
                     }
                     buff_name = strtok(buff_name, ":");
-                    bow_it(buff_name);
+                    bow_it(buff_name, l);
                     getline(&buff_val, &buff_val_size, fp);
                     if(strcmp(buff_val, " [\n") == 0){ // JSON Array
                         strcpy(array_buff, " [");
@@ -180,10 +182,10 @@ struct dirent *current_folder, *current_file;
                             }
                             remaining = remaining - bytes_read;
                         }
-                        bow_it(array_buff);
+                        bow_it(array_buff, l);
                         tuplist_insert(&tulist, buff_name, array_buff);
                     }else{
-                        bow_it(buff_val);
+                        bow_it(buff_val, l);
                         tuplist_insert(&tulist, buff_name, buff_val);
                     }
                 }
@@ -207,6 +209,7 @@ struct dirent *current_folder, *current_file;
     free(buff_name);
     free(buff_val);
     closedir(dir);
+    destroy(&l);
 }
 
 void csvparser(hash_map* map, clique_list* all_cliques){

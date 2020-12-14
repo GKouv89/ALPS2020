@@ -1,4 +1,8 @@
 #ifndef STRINGOPS_H
-#define STRINGOPS_H_H
-void bow_it(char *);
+#define STRINGOPS_H
+
+#include "stopwords.h"
+
+void bow_it(char *, sw_list *);
+
 #endif
