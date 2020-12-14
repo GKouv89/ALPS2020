@@ -2,6 +2,7 @@
 #include "../tuplist.h"
 #include "../BOW/stringOps.h"
 #include "../BOW/stopwords.h"
+#include "../BOW/dictionary.h"
 #include <ctype.h>
 
 #define FILE_NAME "camera_specs/2013_camera_specs/cammarkt.com/83.json"
@@ -33,9 +34,12 @@ void test_attribute_value_buffer_splitting(){
     tuplist_create(&tulist, &error); //initializing tuplelist
     TEST_ASSERT(error!=1);
     
-    //NEW//
     sw_list *l;
     make_stopword_list(&l);
+    
+    //NEW//
+    tree_node *tree;
+    create_tree(&tree);
     ///////
     
     bytes_read = getline(&line, &line_size, fp);
@@ -46,7 +50,7 @@ void test_attribute_value_buffer_splitting(){
             break;
         }
         buff_name = strtok(buff_name, ":");
-        bow_it(buff_name, l);
+        bow_it(buff_name, l, &tree);
         getline(&buff_val, &buff_val_size, fp);
         if(strcmp(buff_val, " [\n") == 0){ // JSON Array
             strcpy(array_buff, " [");
@@ -83,20 +87,22 @@ void test_attribute_value_buffer_splitting(){
                 }
                 remaining = remaining - bytes_read;
             }
-            bow_it(array_buff, l);
+            bow_it(array_buff, l, &tree);
             tuplist_insert(&tulist, buff_name, array_buff);
         }else{
-            bow_it(buff_val, l);
+            bow_it(buff_val, l, &tree);
             tuplist_insert(&tulist, buff_name, buff_val);
         }
     }
-    
+    print_tree(tree);
     TEST_ASSERT(fclose(fp) == 0);
     free(buff_name);
     free(buff_val);
     free(line);
     free(array_buff);
     tuplist_destroy(&tulist, &error);
+    destroy_tree(&tree);
+    TEST_ASSERT(tree == NULL);
 }
 
 TEST_LIST = {

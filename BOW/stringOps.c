@@ -5,12 +5,12 @@
 
 #include "stringOps.h"
 
-
-void bow_it(char *buffer, sw_list *l){
+void bow_it(char *buffer, sw_list *l, tree_node **tree){
     char *word = calloc(255, sizeof(char));
     char c;
     int word_letters = 0;
-    int word_counter = 0;
+    static int word_counter = 0;
+    int error = 0;
     for(int i = 0; i < strlen(buffer); i++){
         c = *(buffer + i);
         if(isspace(c)){
@@ -22,7 +22,10 @@ void bow_it(char *buffer, sw_list *l){
             if(word_letters > 0){
                 if(!is_stopword(l, word)){
                     // printf("%s\n", word);
-                    word_counter++;
+                    insert_tree(tree, word, word_counter, &error);
+                    if(error == 0){
+                        word_counter++;
+                    }
                 }
                 memset(word, 0, 255*sizeof(char));
                 word_letters = 0;
@@ -34,8 +37,10 @@ void bow_it(char *buffer, sw_list *l){
                 if(c == 'n' || c == '"'){
                     if(word_letters > 0){
                         if(!is_stopword(l, word)){
-                            // printf("%s\n", word);
-                            word_counter++;
+                            insert_tree(tree, word, word_counter, &error);
+                            if(error == 0){
+                                word_counter++;
+                            }    
                         }
                         memset(word, 0, 255*sizeof(char));
                         word_letters = 0;    
@@ -50,10 +55,11 @@ void bow_it(char *buffer, sw_list *l){
     }
     if(word_letters > 0){ // a.k.a. there was no whitespace to indicate the need for printing
     // happened with buff_val
-        if(!is_stopword(l, word)){
-            // printf("%s\n", word);
+        insert_tree(tree, word, word_counter, &error);
+        if(error == 0){
             word_counter++;
         }
     }
     free(word);
+    // printf("unique word_counter :%d\n", word_counter);
 }

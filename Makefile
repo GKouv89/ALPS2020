@@ -27,7 +27,7 @@ csvparsetest:
 	gcc -o tests/csvparse tests/csvparse.c tuplist.c
 
 ctypetest:
-	gcc -g -o tests/ctype tests/ctypetest.c tuplist.c BOW/stringOps.c BOW/stopwords.c
+	gcc -g -o tests/ctype tests/ctypetest.c tuplist.c BOW/stringOps.c BOW/stopwords.c BOW/dictionary.c
 
 vectest:
 	gcc $(FLAGS) tests/vectest tests/vectest.c BOW/vectorOps.c
