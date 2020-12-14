@@ -35,6 +35,9 @@ vectest:
 bowtest:
 	gcc $(FLAGS) tests/bowtest tests/bow_test.c BOW/vectorOps.c -DCAPACITY=5 -DVECTORS=3 BOW/bow.c
 
+dicttest:
+	gcc $(FLAGS) tests/dicttest tests/dicttest.c BOW/dictionary.c
+
 run_all_tests:
 	make hashtest
 	make datatest
@@ -42,6 +45,7 @@ run_all_tests:
 	make csvparsetest
 	make arrayparsetest
 	make bowtest
+	make dicttest
 	./tests/hash_test
 	./tests/data_test
 	./tests/cliques
@@ -49,9 +53,10 @@ run_all_tests:
 	./tests/arrayparse
 	./tests/ctype
 	./tests/bowtest
+	./tests/dicttest
 
 clean:
 	rm -f *.o main
 
 clean_tests:
-	rm -f tests/*.o tests/hash_test tests/data_test tests/cliques tests/csvparse tests/arrayparse tests/ctype tests/bowtest
+	rm -f tests/*.o tests/hash_test tests/data_test tests/cliques tests/csvparse tests/arrayparse tests/ctype tests/bowtest tests/dicttest
