@@ -44,14 +44,18 @@ void test_all_bow_strctures(void){
     sw_list *l;
     make_stopword_list(&l);
     
-    //NEW//
     tree_node *tree;
     create_tree(&tree);
-    ///////
-   
+    
+    BoW *bag;
+    create_bow(&bag);
+    TEST_ASSERT(bag != NULL);
+    
     TEST_ASSERT(dir != NULL);
     current_folder = readdir(dir);
     TEST_ASSERT(current_folder != NULL);
+    
+    int text_counter = 0;
     
     if(strcmp(current_folder->d_name, ".") == 0){ // Bypassing cases of dot... 
         current_folder = readdir(dir);
@@ -72,13 +76,8 @@ void test_all_bow_strctures(void){
         
         
         child_dir = opendir(path); // reading site sub-dir contents (json files)
-        //BUGGY SHIT GOING ON HERE//
-        // printf("dir_name: %s\n", current_folder->d_name);
-        // current_file = readdir(child_dir);
-        // printf("child_dir_name: %s\n", current_file->d_name);
         
         while((current_file = readdir(child_dir)) != NULL){
-        //BUGGY SHIT END//
             if(curr_fpl < curr_path_length + strlen(current_file->d_name) + 2){
                 curr_fpl = curr_path_length + strlen(current_file->d_name) + 2;
                 temp_realloc = realloc(file_path, curr_fpl*sizeof(char));
@@ -92,6 +91,7 @@ void test_all_bow_strctures(void){
 
             if((strcmp(current_file->d_name, ".") != 0) && (strcmp(current_file->d_name, "..") != 0)){ 
                 fp = fopen(file_path,"r");
+                text_counter++;
                 TEST_ASSERT(fp != NULL);
 
                 bytes_read = getline(&line, &line_size, fp);
@@ -102,7 +102,7 @@ void test_all_bow_strctures(void){
                         break;
                     }
                     buff_name = strtok(buff_name, ":");
-                    bow_it(buff_name, l, &tree);
+                    bow_it(buff_name, l, &tree, &bag, text_counter);
                     getline(&buff_val, &buff_val_size, fp);
                     if(strcmp(buff_val, " [\n") == 0){ // JSON Array
                         strcpy(array_buff, " [");
@@ -139,9 +139,9 @@ void test_all_bow_strctures(void){
                             }
                             remaining = remaining - bytes_read;
                         }
-                        // bow_it(array_buff, l, &tree);
+                        // bow_it(array_buff, l, &tree, &bag, text_counter);
                     }else{
-                        // bow_it(buff_val, l, &tree);
+                        // bow_it(buff_val, l, &tree, &bag, text_counter);
                     }
                 }
                 TEST_ASSERT(fclose(fp) == 0);
@@ -149,6 +149,13 @@ void test_all_bow_strctures(void){
         }
         closedir(child_dir);
         current_folder = readdir(dir);
+    }
+    for(int i = 1; i < VECTORS; i++){
+        printf("VECTOR %d.\n", i);
+        for(int j = 0; j < bag->vectors[i]->size; j++){
+            printf("word: %d frequency: %d\n", bag->vectors[0]->elements[j], bag->vectors[i]->elements[j]);            
+        }
+        printf("\n");
     }
     print_tree(tree);
     destroy_tree(&tree);
@@ -160,6 +167,8 @@ void test_all_bow_strctures(void){
     closedir(dir);
     destroy(&l);
     TEST_ASSERT(l == NULL);
+    destroy_bow(&bag);
+    TEST_ASSERT(bag == NULL);
 }    
 
 TEST_LIST = {

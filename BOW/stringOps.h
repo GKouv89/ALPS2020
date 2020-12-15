@@ -3,7 +3,8 @@
 
 #include "stopwords.h"
 #include "dictionary.h"
+#include "bow.h"
 
-void bow_it(char *, sw_list *, tree_node **);
+void bow_it(char *, sw_list *, tree_node **, BoW **, int);
 
 #endif

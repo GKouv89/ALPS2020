@@ -5,12 +5,13 @@
 
 #include "stringOps.h"
 
-void bow_it(char *buffer, sw_list *l, tree_node **tree){
+void bow_it(char *buffer, sw_list *l, tree_node **tree, BoW **bag, int text_num){
     char *word = calloc(255, sizeof(char));
     char c;
     int word_letters = 0;
     static int word_counter = 0;
     int error = 0;
+    int payload;
     for(int i = 0; i < strlen(buffer); i++){
         c = *(buffer + i);
         if(isspace(c)){
@@ -23,8 +24,13 @@ void bow_it(char *buffer, sw_list *l, tree_node **tree){
                 if(!is_stopword(l, word)){
                     // printf("%s\n", word);
                     insert_tree(tree, word, word_counter, &error);
-                    if(error == 0){
-                        word_counter++;
+                    if(error == 1){
+                        // Duplicate, word already in bag
+                        payload = search_tree((*tree), word);
+                        old_word((*bag), text_num, payload);
+                    }else{
+                        word_counter++;                        
+                        new_word_in_bag((*bag), text_num);
                     }
                 }
                 memset(word, 0, 255*sizeof(char));
@@ -38,8 +44,13 @@ void bow_it(char *buffer, sw_list *l, tree_node **tree){
                     if(word_letters > 0){
                         if(!is_stopword(l, word)){
                             insert_tree(tree, word, word_counter, &error);
-                            if(error == 0){
-                                word_counter++;
+                            if(error == 1){
+                                // Duplicate, word already in bag
+                                payload = search_tree((*tree), word);
+                                old_word((*bag), text_num, payload);
+                            }else{
+                                word_counter++;                        
+                                new_word_in_bag((*bag), text_num);
                             }    
                         }
                         memset(word, 0, 255*sizeof(char));
@@ -56,8 +67,13 @@ void bow_it(char *buffer, sw_list *l, tree_node **tree){
     if(word_letters > 0){ // a.k.a. there was no whitespace to indicate the need for printing
     // happened with buff_val
         insert_tree(tree, word, word_counter, &error);
-        if(error == 0){
-            word_counter++;
+        if(error == 1){
+            // Duplicate, word already in bag
+            payload = search_tree((*tree), word);
+            old_word((*bag), text_num, payload);
+        }else{
+            word_counter++;                        
+            new_word_in_bag((*bag), text_num);
         }
     }
     free(word);
