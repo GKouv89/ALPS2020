@@ -139,9 +139,9 @@ void test_all_bow_strctures(void){
                             }
                             remaining = remaining - bytes_read;
                         }
-                        // bow_it(array_buff, l, &tree, &bag, text_counter);
+                        bow_it(array_buff, l, &tree, &bag, text_counter);
                     }else{
-                        // bow_it(buff_val, l, &tree, &bag, text_counter);
+                        bow_it(buff_val, l, &tree, &bag, text_counter);
                     }
                 }
                 TEST_ASSERT(fclose(fp) == 0);
@@ -150,13 +150,13 @@ void test_all_bow_strctures(void){
         closedir(child_dir);
         current_folder = readdir(dir);
     }
-    for(int i = 1; i < VECTORS; i++){
-        printf("VECTOR %d.\n", i);
-        for(int j = 0; j < bag->vectors[i]->size; j++){
-            printf("word: %d frequency: %d\n", bag->vectors[0]->elements[j], bag->vectors[i]->elements[j]);            
-        }
-        printf("\n");
-    }
+    // for(int i = 1; i < VECTORS; i++){
+        // printf("VECTOR %d.\n", i);
+        // for(int j = 0; j < bag->vectors[i]->size; j++){
+            // printf("word: %d frequency: %d\n", bag->vectors[0]->elements[j], bag->vectors[i]->elements[j]);            
+        // }
+        // printf("\n");
+    // }
     print_tree(tree);
     destroy_tree(&tree);
     TEST_ASSERT(tree == NULL);
