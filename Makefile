@@ -38,6 +38,9 @@ bowtest:
 dicttest:
 	gcc $(FLAGS) tests/dicttest tests/dicttest.c BOW/dictionary.c
 
+allbowstructstest:
+	gcc $(FLAGS) tests/allbowtest tests/allBowStructsTest.c BOW/dictionary.c BOW/stopwords.c BOW/bow.c BOW/vectorOps.c BOW/stringOps.c -DVECTORS=6 
+
 run_all_tests:
 	make hashtest
 	make datatest

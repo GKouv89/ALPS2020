@@ -63,7 +63,7 @@ void print_tree(tree_node *tree){
     tree_node *temp = tree;
     if(!isEmpty_tree(temp)){
         print_tree(temp->left_child);
-        printf("%s\n", temp->node_cont.word);
+        printf("word: %s\tpayload: %d\n", temp->node_cont.word, temp->node_cont.payload);
         print_tree(temp->right_child);
 	}
 }
