@@ -1,5 +1,5 @@
 FLAGS = -g -o
-MODULES =  main.c parse.c datatypes.c hashmap.c set.c tuplist.c BOW/stringOps.c BOW/vectorOps.c BOW/stopwords.c
+MODULES =  main.c parse.c datatypes.c hashmap.c set.c tuplist.c negcl.c BOW/stringOps.c BOW/vectorOps.c BOW/stopwords.c
 
 medium:
 	gcc $(FLAGS) main $(MODULES) -DDATASET=\"sigmod_medium_labelled_dataset.csv\"
