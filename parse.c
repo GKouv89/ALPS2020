@@ -10,9 +10,6 @@
 #include "tuplist.h"
 #include "set.h"
 
-#include "BOW/stopwords.h"
-#include "BOW/stringOps.h"
-
 #define PATH "camera_specs/2013_camera_specs/" // WE SHALL ALLOW THE USER TO ENTER THE PATH THROUGH 
 // KEYBOARD INPUT, BUT LATER 
 
@@ -20,7 +17,7 @@
     #define DATASET "sigmod_large_labelled_dataset.csv"
 #endif
 
-void parser(hash_map* map){
+void parser(hash_map* map, sw_list *l, BoW *bag, tree_node **dict ){
     struct dirent *current_folder, *current_file;
     char *path, *file_path = NULL;
     char *id_buf; //Will be the buffer for the node's creation and will hold their id
@@ -63,20 +60,11 @@ void parser(hash_map* map){
     int val_capacity = 100;
     int remaining = val_capacity - 1;
     char *array_buff = malloc(val_capacity*sizeof(char));
-    
-    //NEW//
-    sw_list *l;
-    make_stopword_list(&l);
-    ///////
 
-    if(dir == NULL){
-        fprintf(stderr, "sth went wrong\n");
-        return;
-    }
+    assert(dir != NULL);
     current_folder = readdir(dir);
-    if(current_folder == NULL){
-        fprintf(stderr, "could not access 2013_camera_specs contents.\n");
-    }
+    assert(current_folder != NULL);
+    int text_counter = 0;
     
     if(strcmp(current_folder->d_name, ".") == 0){ // Bypassing cases of dot... 
         current_folder = readdir(dir);
@@ -133,6 +121,7 @@ void parser(hash_map* map){
 
                 fp = fopen(file_path,"r");
                 assert(fp != NULL);
+                text_counter++;
                 tuplist_create(&tulist, &error); //initializing tuplelist
                 assert(error!=1);
                 
@@ -145,7 +134,7 @@ void parser(hash_map* map){
                         break;
                     }
                     buff_name = strtok(buff_name, ":");
-                    bow_it(buff_name, l);
+                    bow_it(buff_name, l, dict, &bag, text_counter);
                     getline(&buff_val, &buff_val_size, fp);
                     if(strcmp(buff_val, " [\n") == 0){ // JSON Array
                         strcpy(array_buff, " [");
@@ -182,19 +171,14 @@ void parser(hash_map* map){
                             }
                             remaining = remaining - bytes_read;
                         }
-                        bow_it(array_buff, l);
+                        bow_it(array_buff, l, dict, &bag, text_counter);
                         tuplist_insert(&tulist, buff_name, array_buff);
                     }else{
-                        bow_it(buff_val, l);
+                        bow_it(buff_val, l, dict, &bag, text_counter);
                         tuplist_insert(&tulist, buff_name, buff_val);
                     }
                 }
-                
                 assert(fclose(fp) == 0);
-                // if(fclose(fp) != 0){
-                    // fprintf(stderr, "Couldn't close JSON file.\n");
-                // }
-                
                 pseudonode->content = tulist;
                 tulist = NULL;
                 add_to_bucket(map, hash_val, pseudonode);
@@ -203,13 +187,13 @@ void parser(hash_map* map){
         closedir(child_dir);
         current_folder = readdir(dir);
     }
+
     free(path);
     free(id_buf);
     free(line);
     free(buff_name);
     free(buff_val);
     closedir(dir);
-    destroy(&l);
 }
 
 void csvparser(hash_map* map, clique_list* all_cliques){

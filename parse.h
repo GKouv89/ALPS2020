@@ -4,6 +4,11 @@
 #include "hashmap.h"
 #include "set.h"
 
-void parser(hash_map*);
+#include "BOW/stopwords.h"
+#include "BOW/stringOps.h"
+#include "BOW/bow.h"
+#include "BOW/vectorOps.h"
+
+void parser(hash_map*, sw_list *, BoW *, tree_node **);
 void csvparser(hash_map*, clique_list*);
 #endif
