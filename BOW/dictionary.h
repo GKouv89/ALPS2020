@@ -17,4 +17,5 @@ int isEmpty_tree(tree_node *);
 void destroy_tree(tree_node **);
 void insert_tree(tree_node **, char *, int, int *);
 int search_tree(tree_node *, char *);
+void print_tree(tree_node *);
 #endif

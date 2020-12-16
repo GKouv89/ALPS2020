@@ -1,8 +1,8 @@
 FLAGS = -g -o
-MODULES =  main.c parse.c datatypes.c hashmap.c set.c tuplist.c BOW/stringOps.c BOW/vectorOps.c BOW/stopwords.c
+MODULES =  main.c parse.c datatypes.c hashmap.c set.c tuplist.c BOW/stringOps.c BOW/vectorOps.c BOW/stopwords.c BOW/bow.c BOW/dictionary.c
 
 medium:
-	gcc $(FLAGS) main $(MODULES) -DDATASET=\"sigmod_medium_labelled_dataset.csv\"
+	gcc $(FLAGS) main $(MODULES) -DDATASET=\"sigmod_medium_labelled_dataset.csv\" -DVECTORS=30000
 
 large:
 	gcc $(FLAGS) main $(MODULES)
@@ -27,7 +27,7 @@ csvparsetest:
 	gcc -o tests/csvparse tests/csvparse.c tuplist.c
 
 ctypetest:
-	gcc -g -o tests/ctype tests/ctypetest.c tuplist.c BOW/stringOps.c BOW/stopwords.c
+	gcc -g -o tests/ctype tests/ctypetest.c tuplist.c BOW/stringOps.c BOW/stopwords.c BOW/dictionary.c BOW/bow.c BOW/vectorOps.c -DVECTORS=2
 
 vectest:
 	gcc $(FLAGS) tests/vectest tests/vectest.c BOW/vectorOps.c
@@ -37,6 +37,9 @@ bowtest:
 
 dicttest:
 	gcc $(FLAGS) tests/dicttest tests/dicttest.c BOW/dictionary.c
+
+allbowstructstest:
+	gcc $(FLAGS) tests/allbowtest tests/allBowStructsTest.c BOW/dictionary.c BOW/stopwords.c BOW/bow.c BOW/vectorOps.c BOW/stringOps.c -DVECTORS=6 
 
 run_all_tests:
 	make hashtest

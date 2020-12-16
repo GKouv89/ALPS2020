@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include "dictionary.h"
 
@@ -26,12 +27,9 @@ void destroy_tree(tree_node **tree){
 }
 
 void insert_tree(tree_node **tree, char *word, int payload, int *error){
-	if(isEmpty_tree(*tree)){
-		*tree=malloc(sizeof(tree_node));
-		if(*tree==NULL){
-			*error=1;
-			return;
-		}
+    if(isEmpty_tree(*tree)){
+		*tree = malloc(sizeof(tree_node));
+		assert(*tree != NULL);
         (*tree)->node_cont.word = malloc(strlen(word) + 1);
         strcpy((*tree)->node_cont.word, word);
         (*tree)->node_cont.payload = payload;
@@ -59,4 +57,13 @@ int search_tree(tree_node *tree, char *word){
     }else if(strcmp(temp->node_cont.word, word) < 0){
     	search_tree(temp->right_child, word);
     }
+}
+
+void print_tree(tree_node *tree){
+    tree_node *temp = tree;
+    if(!isEmpty_tree(temp)){
+        print_tree(temp->left_child);
+        printf("word: %s\tpayload: %d\n", temp->node_cont.word, temp->node_cont.payload);
+        print_tree(temp->right_child);
+	}
 }
