@@ -31,7 +31,14 @@ int main(int argc, char* argv[]){
     csvparser(map, all_cliques);
     
     print_all_cliques(0, all_cliques);
-    
+    // print_tree(dict);
+    // for(int i = 1; i < VECTORS; i++){
+        // printf("VECTOR 237.\n");
+        // for(int j = 0; j < bag->vectors[237]->size; j++){
+            // printf("word: %d frequency: %d\n", bag->vectors[0]->elements[j], bag->vectors[237]->elements[j]);            
+        // }
+        // printf("\n");
+    // }
     destroy_map(&map);
     destroy_clique_list(&all_cliques);
     destroy_bow(&bag);

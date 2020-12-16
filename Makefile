@@ -5,7 +5,7 @@ medium:
 	gcc $(FLAGS) main $(MODULES) -DDATASET=\"sigmod_medium_labelled_dataset.csv\" -DVECTORS=30000
 
 large:
-	gcc $(FLAGS) main $(MODULES)
+	gcc $(FLAGS) main $(MODULES) -DVECTORS=30000
 
 run:
 	./main
