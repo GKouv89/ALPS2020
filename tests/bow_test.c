@@ -37,21 +37,24 @@ void test_createbag(void){
     }
 }
 
-void test_insert(void){
+void test_idf(void){
     BoW *bag;
     create_bow(&bag);
-    for(int i = 0; i < 8; i ++){
+    Vector *idf_vec;
+    create_vector(&idf_vec);
+    
+    for(int i = 0; i < 8; i++){
         if(first_sentence[i].word_no >= bag->vectors[0]->size){
-            new_word_in_bag(bag, 1);
+            new_word_in_bag(bag, 1, idf_vec);
         }else{
-            old_word(bag, 1, first_sentence[i].word_no);
+            old_word(bag, 1, first_sentence[i].word_no, idf_vec);
         }
     }
     for(int i = 0; i < 5; i++){
         if(second_sentence[i].word_no >= bag->vectors[0]->size){
-            new_word_in_bag(bag, 2);
+            new_word_in_bag(bag, 2, idf_vec);
         }else{
-            old_word(bag, 2, second_sentence[i].word_no);
+            old_word(bag, 2, second_sentence[i].word_no, idf_vec);
         }
     }
     printf("\n");
@@ -61,12 +64,26 @@ void test_insert(void){
         }
         printf("\n");
     }
+    printf("IDF vector\n");
+    for(int i = 0; i < idf_vec->size; i++){
+        switch(i){
+            case 1:
+            case 2:
+            case 4: TEST_ASSERT(idf_vec->elements[i] == 2);
+                    break;
+            default: TEST_ASSERT(idf_vec->elements[i] == 1);
+                    break;
+        }
+        printf("%d ", idf_vec->elements[i]);
+    }
+    printf("\n");
     destroy_bow(&bag);
     TEST_ASSERT(bag == NULL);
+    destroy_vector(&idf_vec);
 }
 
 TEST_LIST = {
     {"create", test_createbag},
-    {"insert_and_resize", test_insert},
+    {"idf", test_idf},
     {NULL, NULL}
 };

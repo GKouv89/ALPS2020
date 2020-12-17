@@ -14,7 +14,7 @@ typedef struct vector{
 
 void create_vector(Vector **);
 void new_word(Vector *, int *);
-void update_element(Vector *, int);
+void update_element(Vector *, int, int *);
 void resize_vector(Vector *);
 void destroy_vector(Vector **);
 #endif

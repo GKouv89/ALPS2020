@@ -12,6 +12,7 @@
 #include "BOW/bow.h"
 #include "BOW/dictionary.h"
 #include "BOW/stopwords.h"
+#include "BOW/vectorOps.h"
 
 int main(int argc, char* argv[]){
     srand(time(NULL));
@@ -26,6 +27,8 @@ int main(int argc, char* argv[]){
     make_stopword_list(&l);
     tree_node *dict;
     create_tree(&dict);
+    Vector *idf_vec;
+    create_vector(&idf_vec);
     
     parser(map, l, bag, &dict);
     csvparser(map, all_cliques);
@@ -44,4 +47,5 @@ int main(int argc, char* argv[]){
     destroy_bow(&bag);
     destroy(&l);
     destroy_tree(&dict);
+    destroy_vector(&idf_vec);
 }
