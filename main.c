@@ -30,10 +30,10 @@ int main(int argc, char* argv[]){
     Vector *idf_vec;
     create_vector(&idf_vec);
     
-    parser(map, l, bag, &dict);
+    parser(map, l, bag, &dict, idf_vec);
     csvparser(map, all_cliques);
     
-    print_all_cliques(0, all_cliques);
+    // print_all_cliques(0, all_cliques);
     // print_tree(dict);
     // for(int i = 1; i < VECTORS; i++){
         // printf("VECTOR 237.\n");
@@ -42,6 +42,10 @@ int main(int argc, char* argv[]){
         // }
         // printf("\n");
     // }
+    printf("IDF VECTOR\n");
+    for(int i = 0; i < idf_vec->size; i++){
+        printf("word %d appears in %d texts\n", i, idf_vec->elements[i]);
+    }
     destroy_map(&map);
     destroy_clique_list(&all_cliques);
     destroy_bow(&bag);

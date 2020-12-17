@@ -17,7 +17,7 @@
     #define DATASET "sigmod_large_labelled_dataset.csv"
 #endif
 
-void parser(hash_map* map, sw_list *l, BoW *bag, tree_node **dict ){
+void parser(hash_map* map, sw_list *l, BoW *bag, tree_node **dict, Vector *idf_vec){
     struct dirent *current_folder, *current_file;
     char *path, *file_path = NULL;
     char *id_buf; //Will be the buffer for the node's creation and will hold their id
@@ -134,7 +134,7 @@ void parser(hash_map* map, sw_list *l, BoW *bag, tree_node **dict ){
                         break;
                     }
                     buff_name = strtok(buff_name, ":");
-                    bow_it(buff_name, l, dict, &bag, text_counter);
+                    bow_it(buff_name, l, dict, &bag, text_counter, idf_vec);
                     getline(&buff_val, &buff_val_size, fp);
                     if(strcmp(buff_val, " [\n") == 0){ // JSON Array
                         strcpy(array_buff, " [");
@@ -171,10 +171,10 @@ void parser(hash_map* map, sw_list *l, BoW *bag, tree_node **dict ){
                             }
                             remaining = remaining - bytes_read;
                         }
-                        bow_it(array_buff, l, dict, &bag, text_counter);
+                        bow_it(array_buff, l, dict, &bag, text_counter, idf_vec);
                         tuplist_insert(&tulist, buff_name, array_buff);
                     }else{
-                        bow_it(buff_val, l, dict, &bag, text_counter);
+                        bow_it(buff_val, l, dict, &bag, text_counter, idf_vec);
                         tuplist_insert(&tulist, buff_name, buff_val);
                     }
                 }
