@@ -4,6 +4,7 @@
 #include "../BOW/stringOps.h"
 #include "../BOW/vectorOps.h"
 #include "../BOW/stopwords.h"
+#include "../TF-IDF/idfVectorOps.h"
 
 #define PATH "tests/bow_test_set/"
 
@@ -57,8 +58,8 @@ void test_all_bow_strctures(void){
     
     int text_counter = 0;
     
-    Vector *idf_vec;
-    create_vector(&idf_vec);
+    IDFVector *idf_vec;
+    create_idf_vector(&idf_vec);
     
     if(strcmp(current_folder->d_name, ".") == 0){ // Bypassing cases of dot... 
         current_folder = readdir(dir);
@@ -163,9 +164,16 @@ void test_all_bow_strctures(void){
     printf("IDF VECTOR\n");
     for(int i = 0; i < idf_vec->size; i++){
         if(i == 0 || i == 1){
-            TEST_ASSERT(idf_vec->elements[i] == 5);
+            TEST_ASSERT(idf_vec->elements[i] == (double) 5);
         }
-        printf("word %d appears in %d out of 5 texts\n", i, idf_vec->elements[i]);
+        printf("word %d appears in %d out of 5 texts\n", i, (int) idf_vec->elements[i]);
+    }
+    compute_idf_vals(idf_vec);
+    for(int i = 0; i < idf_vec->size; i++){
+        if(i == 0 || i == 1){
+            TEST_ASSERT(idf_vec->elements[i] == (double) 0);
+        }
+        printf("word %d has idf value of %lf\n", i, idf_vec->elements[i]);
     }
     // print_tree(tree);
     destroy_tree(&tree);
@@ -179,7 +187,7 @@ void test_all_bow_strctures(void){
     TEST_ASSERT(l == NULL);
     destroy_bow(&bag);
     TEST_ASSERT(bag == NULL);
-    destroy_vector(&idf_vec);
+    destroy_idf_vector(&idf_vec);
     TEST_ASSERT(idf_vec == NULL);
 }    
 

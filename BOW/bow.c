@@ -9,7 +9,7 @@ void create_bow(BoW **bag){
     }
 }
 
-void new_word_in_bag(BoW *bag, int vector_pos, Vector *idf_vec){
+void new_word_in_bag(BoW *bag, int vector_pos, IDFVector *idf_vec){
     /* We stumbled upon a new word
         First vector updated 
         If first vector is resized, we resize all other vectors, too 
@@ -28,18 +28,18 @@ void new_word_in_bag(BoW *bag, int vector_pos, Vector *idf_vec){
 
     idf_vec->size++;
     if(resizing){
-        resize_vector(idf_vec);
+        resize_idf_vector(idf_vec);
     }
     if(idf_incr){
-        update_element(idf_vec, idf_vec->size - 1, &idf_incr);
+        update_idf_vector(idf_vec, idf_vec->size - 1);
     }
 }
 
-void old_word(BoW *bag, int vector_pos, int word_no, Vector *idf_vec){
+void old_word(BoW *bag, int vector_pos, int word_no, IDFVector *idf_vec){
     int idf_incr;
     update_element(bag->vectors[vector_pos], word_no, &idf_incr);
     if(idf_incr){
-        update_element(idf_vec, word_no, &idf_incr);
+        update_idf_vector(idf_vec, word_no);
     }
 }
 

@@ -17,7 +17,7 @@
     #define DATASET "sigmod_large_labelled_dataset.csv"
 #endif
 
-void parser(hash_map* map, sw_list *l, BoW *bag, tree_node **dict, Vector *idf_vec){
+void parser(hash_map* map, sw_list *l, BoW *bag, tree_node **dict, IDFVector *idf_vec){
     struct dirent *current_folder, *current_file;
     char *path, *file_path = NULL;
     char *id_buf; //Will be the buffer for the node's creation and will hold their id

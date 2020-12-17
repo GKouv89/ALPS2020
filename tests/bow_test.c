@@ -1,6 +1,7 @@
 #include "acutest.h"
 #include "../BOW/bow.h"
 #include "../BOW/vectorOps.h"
+#include "../TF-IDF/idfVectorOps.h"
 
 struct word{
     int word_no;
@@ -40,8 +41,8 @@ void test_createbag(void){
 void test_idf(void){
     BoW *bag;
     create_bow(&bag);
-    Vector *idf_vec;
-    create_vector(&idf_vec);
+    IDFVector *idf_vec;
+    create_idf_vector(&idf_vec);
     
     for(int i = 0; i < 8; i++){
         if(first_sentence[i].word_no >= bag->vectors[0]->size){
@@ -69,17 +70,27 @@ void test_idf(void){
         switch(i){
             case 1:
             case 2:
-            case 4: TEST_ASSERT(idf_vec->elements[i] == 2);
+            case 4: TEST_ASSERT(idf_vec->elements[i] == (double) 2);
                     break;
-            default: TEST_ASSERT(idf_vec->elements[i] == 1);
+            default: TEST_ASSERT(idf_vec->elements[i] == (double) 1);
                     break;
         }
-        printf("%d ", idf_vec->elements[i]);
+        // printf("%lf ", idf_vec->elements[i]);
     }
     printf("\n");
+    compute_idf_vals(idf_vec);
+    for(int i = 0; i < idf_vec->size; i++){
+        switch(i){
+            case 1:
+            case 2:
+            case 4: TEST_ASSERT(idf_vec->elements[i] == (double) 0);
+                    break;
+        }
+        printf("%lf ", idf_vec->elements[i]);
+    }
     destroy_bow(&bag);
     TEST_ASSERT(bag == NULL);
-    destroy_vector(&idf_vec);
+    destroy_idf_vector(&idf_vec);
 }
 
 TEST_LIST = {

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 #include "vectorOps.h"
-
+#include "../TF-IDF/idfVectorOps.h"
 
 #ifndef VECTORS
     #define VECTORS 5
@@ -16,7 +16,7 @@ typedef struct bag_of_words{
 } BoW;
 
 void create_bow(BoW **);
-void new_word_in_bag(BoW *, int, Vector *);
-void old_word(BoW *, int, int, Vector *);
+void new_word_in_bag(BoW *, int, IDFVector *);
+void old_word(BoW *, int, int, IDFVector *);
 void destroy_bow(BoW **);
 #endif

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <assert.h>
 
 #include "datatypes.h"
 #include "parse.h"
@@ -13,6 +14,8 @@
 #include "BOW/dictionary.h"
 #include "BOW/stopwords.h"
 #include "BOW/vectorOps.h"
+
+#include "TF-IDF/idfVectorOps.h"
 
 int main(int argc, char* argv[]){
     srand(time(NULL));
@@ -27,13 +30,13 @@ int main(int argc, char* argv[]){
     make_stopword_list(&l);
     tree_node *dict;
     create_tree(&dict);
-    Vector *idf_vec;
-    create_vector(&idf_vec);
+    IDFVector *idf_vec;
+    create_idf_vector(&idf_vec);
     
     parser(map, l, bag, &dict, idf_vec);
     csvparser(map, all_cliques);
     
-    // print_all_cliques(0, all_cliques);
+    print_all_cliques(0, all_cliques);
     // print_tree(dict);
     // for(int i = 1; i < VECTORS; i++){
         // printf("VECTOR 237.\n");
@@ -42,14 +45,21 @@ int main(int argc, char* argv[]){
         // }
         // printf("\n");
     // }
-    printf("IDF VECTOR\n");
-    for(int i = 0; i < idf_vec->size; i++){
-        printf("word %d appears in %d texts\n", i, idf_vec->elements[i]);
-    }
+    // printf("IDF VECTOR\n");
+    // for(int i = 0; i < idf_vec->size; i++){
+        // printf("word %d appears in %d texts\n", i, (int)idf_vec->elements[i]);
+    // }
+    compute_idf_vals(idf_vec);
+    // for(int i = 0; i < idf_vec->size; i++){
+        // if(i == 0 || i == 1){
+            // assert(idf_vec->elements[i] == 0.0);
+        // }
+        // printf("word %d has idf value of %lf\n", i, idf_vec->elements[i]);
+    // }
     destroy_map(&map);
     destroy_clique_list(&all_cliques);
     destroy_bow(&bag);
     destroy(&l);
     destroy_tree(&dict);
-    destroy_vector(&idf_vec);
+    destroy_idf_vector(&idf_vec);
 }

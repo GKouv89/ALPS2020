@@ -5,7 +5,7 @@
 
 #include "stringOps.h"
 
-void bow_it(char *buffer, sw_list *l, tree_node **tree, BoW **bag, int text_num, Vector *idf_vec){
+void bow_it(char *buffer, sw_list *l, tree_node **tree, BoW **bag, int text_num, IDFVector *idf_vec){
     char *word = calloc(255, sizeof(char));
     char c;
     int word_letters = 0;
@@ -51,7 +51,7 @@ void bow_it(char *buffer, sw_list *l, tree_node **tree, BoW **bag, int text_num,
     // printf("unique word_counter :%d\n", word_counter);
 }
 
-void insert_in_structures(sw_list *l, tree_node **tree, BoW **bag, char *word, int text_num, int *word_counter, Vector *idf_vec){
+void insert_in_structures(sw_list *l, tree_node **tree, BoW **bag, char *word, int text_num, int *word_counter, IDFVector *idf_vec){
     int error;
     int payload;
     if(!is_stopword(l, word)){
