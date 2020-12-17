@@ -39,7 +39,6 @@ void update_element(Vector *vec, int pos, int *idf_incr){ // This one indicates 
     // printf("curr elem value = %d\n", vec->elements[pos]);
     (vec->elements[pos])++;
     if(vec->elements[pos] == 1){
-        printf("Word %d is contained in a text.\n", pos);
         *idf_incr = 1;
     }else{
         *idf_incr = 0;

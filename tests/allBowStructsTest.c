@@ -57,6 +57,9 @@ void test_all_bow_strctures(void){
     
     int text_counter = 0;
     
+    Vector *idf_vec;
+    create_vector(&idf_vec);
+    
     if(strcmp(current_folder->d_name, ".") == 0){ // Bypassing cases of dot... 
         current_folder = readdir(dir);
         if(strcmp(current_folder->d_name, "..") == 0){ // ...and dot-dot entries existing
@@ -102,7 +105,7 @@ void test_all_bow_strctures(void){
                         break;
                     }
                     buff_name = strtok(buff_name, ":");
-                    bow_it(buff_name, l, &tree, &bag, text_counter);
+                    bow_it(buff_name, l, &tree, &bag, text_counter, idf_vec);
                     getline(&buff_val, &buff_val_size, fp);
                     if(strcmp(buff_val, " [\n") == 0){ // JSON Array
                         strcpy(array_buff, " [");
@@ -139,9 +142,9 @@ void test_all_bow_strctures(void){
                             }
                             remaining = remaining - bytes_read;
                         }
-                        bow_it(array_buff, l, &tree, &bag, text_counter);
+                        bow_it(array_buff, l, &tree, &bag, text_counter, idf_vec);
                     }else{
-                        bow_it(buff_val, l, &tree, &bag, text_counter);
+                        bow_it(buff_val, l, &tree, &bag, text_counter, idf_vec);
                     }
                 }
                 TEST_ASSERT(fclose(fp) == 0);
@@ -157,7 +160,14 @@ void test_all_bow_strctures(void){
         // }
         // printf("\n");
     // }
-    print_tree(tree);
+    printf("IDF VECTOR\n");
+    for(int i = 0; i < idf_vec->size; i++){
+        if(i == 0 || i == 1){
+            TEST_ASSERT(idf_vec->elements[i] == 5);
+        }
+        printf("word %d appears in %d out of 5 texts\n", i, idf_vec->elements[i]);
+    }
+    // print_tree(tree);
     destroy_tree(&tree);
     TEST_ASSERT(tree == NULL);
     free(path);
@@ -169,6 +179,8 @@ void test_all_bow_strctures(void){
     TEST_ASSERT(l == NULL);
     destroy_bow(&bag);
     TEST_ASSERT(bag == NULL);
+    destroy_vector(&idf_vec);
+    TEST_ASSERT(idf_vec == NULL);
 }    
 
 TEST_LIST = {
