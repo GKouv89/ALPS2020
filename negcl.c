@@ -66,6 +66,7 @@ void neglist_add(/*neg_list* neglist, */list_node* repres01, list_node* repres02
 }
 
 void neglist_print(neg_list* negli){
+
     
 }
 
