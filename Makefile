@@ -33,7 +33,7 @@ vectest:
 	gcc $(FLAGS) tests/vectest tests/vectest.c BOW/vectorOps.c
 
 bowtest:
-	gcc $(FLAGS) tests/bowtest tests/bow_test.c BOW/vectorOps.c -DCAPACITY=5 -DVECTORS=3 BOW/bow.c TF-IDF/idfVectorOps.c -DFILES=2 -lm
+	gcc $(FLAGS) tests/bowtest tests/bow_test.c BOW/vectorOps.c -DCAPACITY=5 -DVECTORS=3 BOW/bow.c TF-IDF/idfVectorOps.c TF-IDF/tf.c -DTFVECTORS=2 -DFILES=2 -lm
 
 dicttest:
 	gcc $(FLAGS) tests/dicttest tests/dicttest.c BOW/dictionary.c

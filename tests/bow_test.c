@@ -2,6 +2,7 @@
 #include "../BOW/bow.h"
 #include "../BOW/vectorOps.h"
 #include "../TF-IDF/idfVectorOps.h"
+#include "../TF-IDF/tf.h"
 
 struct word{
     int word_no;
@@ -98,9 +99,27 @@ void test_idf(void){
         }
         printf("%lf ", idf_vec->elements[i]);
     }
+    printf("\n");
+    tf *tfarr;
+    create_tf(&tfarr, idf_vec->size);
+    TEST_ASSERT(tfarr->wordVec->size == idf_vec->size);
+    printf("TF wordVec\n");
+    for(int i = 0; i < tfarr->wordVec->size; i++){
+        printf("%d ", tfarr->wordVec->elements[i]);   
+    }
+    printf("\n");
+    compute_tf_idf(bag, tfarr, idf_vec);
+    for(int i = 0; i < TFVECTORS; i++){
+        for(int j = 0; j < tfarr->vectors[i]->size; j++){
+            printf("%.10lf ", tfarr->vectors[i]->elements[j]);            
+        }
+        printf("\n");
+    }
+    printf("\n");
     destroy_bow(&bag);
     TEST_ASSERT(bag == NULL);
     destroy_idf_vector(&idf_vec);
+    destroy_tf(&tfarr);
 }
 
 TEST_LIST = {
