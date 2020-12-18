@@ -1,14 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 
 #include "vectorOps.h"
 
 void create_vector(Vector **vec){
     *vec = malloc(sizeof(Vector));
+    (*vec)->name = NULL;
+    (*vec)->word_count = 0;
     (*vec)->size = 0;
     (*vec)->capacity = CAPACITY;
     (*vec)->elements = calloc((*vec)->capacity, sizeof(int));
+}
+
+void name_vector(Vector *vec, char *name){
+    vec->name = malloc(strlen(name) + 1);
+    strcpy(vec->name, name);
 }
 
 void new_word(Vector *vec, int *resizing){
@@ -40,6 +48,7 @@ void update_element(Vector *vec, int pos, int *idf_incr){ // This one indicates 
     (vec->elements[pos])++;
     if(vec->elements[pos] == 1){
         *idf_incr = 1;
+        vec->word_count++;
     }else{
         *idf_incr = 0;
     }
@@ -57,6 +66,8 @@ void resize_vector(Vector *vec){
 
 void destroy_vector(Vector **vec){
     free((*vec)->elements);
+    free((*vec)->name);
+    (*vec)->name = NULL;
     free(*vec);
     *vec = NULL;
 }

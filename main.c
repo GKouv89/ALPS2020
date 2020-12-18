@@ -36,7 +36,7 @@ int main(int argc, char* argv[]){
     parser(map, l, bag, &dict, idf_vec);
     csvparser(map, all_cliques);
     
-    print_all_cliques(0, all_cliques);
+    // print_all_cliques(0, all_cliques);
     // print_tree(dict);
     // for(int i = 1; i < VECTORS; i++){
         // printf("VECTOR 237.\n");
@@ -50,6 +50,9 @@ int main(int argc, char* argv[]){
         // printf("word %d appears in %d texts\n", i, (int)idf_vec->elements[i]);
     // }
     compute_idf_vals(idf_vec);
+    for(int i = 1; i < VECTORS; i++){
+        printf("File %s contains %d words\n", bag->vectors[i]->name, bag->vectors[i]->word_count);
+    }
     // for(int i = 0; i < idf_vec->size; i++){
         // if(i == 0 || i == 1){
             // assert(idf_vec->elements[i] == 0.0);

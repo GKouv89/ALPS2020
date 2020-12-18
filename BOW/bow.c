@@ -9,6 +9,10 @@ void create_bow(BoW **bag){
     }
 }
 
+void new_text_file(BoW *bag, int pos, char *name){
+    name_vector(bag->vectors[pos], name);
+}
+
 void new_word_in_bag(BoW *bag, int vector_pos, IDFVector *idf_vec){
     /* We stumbled upon a new word
         First vector updated 

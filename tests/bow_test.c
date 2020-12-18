@@ -45,6 +45,7 @@ void test_idf(void){
     create_idf_vector(&idf_vec);
     
     for(int i = 0; i < 8; i++){
+        new_text_file(bag, 1, "first_sentence");
         if(first_sentence[i].word_no >= bag->vectors[0]->size){
             new_word_in_bag(bag, 1, idf_vec);
         }else{
@@ -52,6 +53,7 @@ void test_idf(void){
         }
     }
     for(int i = 0; i < 5; i++){
+        new_text_file(bag, 2, "second_sentence");
         if(second_sentence[i].word_no >= bag->vectors[0]->size){
             new_word_in_bag(bag, 2, idf_vec);
         }else{
@@ -60,10 +62,18 @@ void test_idf(void){
     }
     printf("\n");
     for(int i = 0; i < 3; i++){
+        if(i == 0){
+            printf("WORDS                ");
+        }else{
+            printf("%s ", bag->vectors[i]->name);            
+        }
         for(int j = 0; j < bag->vectors[i]->size; j++){
             printf("%d ", bag->vectors[i]->elements[j]);
         }
         printf("\n");
+    }
+    for(int i = 1; i < 3; i++){
+        printf("Sentence %d contains %d words\n", i, bag->vectors[i]->word_count);
     }
     printf("IDF vector\n");
     for(int i = 0; i < idf_vec->size; i++){

@@ -122,6 +122,7 @@ void parser(hash_map* map, sw_list *l, BoW *bag, tree_node **dict, IDFVector *id
                 fp = fopen(file_path,"r");
                 assert(fp != NULL);
                 text_counter++;
+                new_text_file(bag, text_counter, id_buf);
                 tuplist_create(&tulist, &error); //initializing tuplelist
                 assert(error!=1);
                 

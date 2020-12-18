@@ -61,6 +61,10 @@ void test_all_bow_strctures(void){
     IDFVector *idf_vec;
     create_idf_vector(&idf_vec);
     
+    char *json_postfix;
+    int id_buf_len = 100;
+    char *id_buf = malloc(id_buf_len*sizeof(char));
+    
     if(strcmp(current_folder->d_name, ".") == 0){ // Bypassing cases of dot... 
         current_folder = readdir(dir);
         if(strcmp(current_folder->d_name, "..") == 0){ // ...and dot-dot entries existing
@@ -93,11 +97,25 @@ void test_all_bow_strctures(void){
             strcat(file_path, "/");
             strcat(file_path, current_file->d_name);
 
-            if((strcmp(current_file->d_name, ".") != 0) && (strcmp(current_file->d_name, "..") != 0)){ 
+            if((strcmp(current_file->d_name, ".") != 0) && (strcmp(current_file->d_name, "..") != 0)){
+                json_postfix = strchr(current_file->d_name, '.');
+                int sans_json_length = strlen(current_file->d_name) - strlen(json_postfix);
+                if(id_buf_len < strlen(current_folder->d_name) + sans_json_length +3 ){
+                    id_buf_len *= 2;
+                    temp_realloc = realloc(id_buf, id_buf_len*sizeof(char));
+                    TEST_ASSERT(temp_realloc != NULL);
+                    id_buf = temp_realloc;
+                }
+                strcpy(id_buf, current_folder->d_name);
+                strcat(id_buf, "//");
+                strncat(id_buf, current_file->d_name, sans_json_length);                
+                
                 fp = fopen(file_path,"r");
                 text_counter++;
                 TEST_ASSERT(fp != NULL);
-
+                
+                new_text_file(bag, text_counter, id_buf);
+                
                 bytes_read = getline(&line, &line_size, fp);
                 
                 while(1){
@@ -161,19 +179,22 @@ void test_all_bow_strctures(void){
         // }
         // printf("\n");
     // }
-    printf("IDF VECTOR\n");
-    for(int i = 0; i < idf_vec->size; i++){
-        if(i == 0 || i == 1){
-            TEST_ASSERT(idf_vec->elements[i] == (double) 5);
-        }
-        printf("word %d appears in %d out of 5 texts\n", i, (int) idf_vec->elements[i]);
-    }
+    // printf("IDF VECTOR\n");
+    // for(int i = 0; i < idf_vec->size; i++){
+        // if(i == 0 || i == 1){
+            // TEST_ASSERT(idf_vec->elements[i] == (double) 5);
+        // }
+        // printf("word %d appears in %d out of 5 texts\n", i, (int) idf_vec->elements[i]);
+    // }
     compute_idf_vals(idf_vec);
-    for(int i = 0; i < idf_vec->size; i++){
-        if(i == 0 || i == 1){
-            TEST_ASSERT(idf_vec->elements[i] == (double) 0);
-        }
-        printf("word %d has idf value of %lf\n", i, idf_vec->elements[i]);
+    // for(int i = 0; i < idf_vec->size; i++){
+        // if(i == 0 || i == 1){
+            // TEST_ASSERT(idf_vec->elements[i] == (double) 0);
+        // }
+        // printf("word %d has idf value of %lf\n", i, idf_vec->elements[i]);
+    // }
+    for(int i = 1; i < VECTORS; i++){
+        printf("File %s contains %d words\n", bag->vectors[i]->name, bag->vectors[i]->word_count);
     }
     // print_tree(tree);
     destroy_tree(&tree);

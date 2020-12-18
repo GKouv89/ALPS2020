@@ -7,12 +7,15 @@
 #endif
 
 typedef struct vector{
+    char *name;
+    int word_count;
     int capacity;
     int size;
     int *elements;
 } Vector;
 
 void create_vector(Vector **);
+void name_vector(Vector *, char *);
 void new_word(Vector *, int *);
 void update_element(Vector *, int, int *);
 void resize_vector(Vector *);
