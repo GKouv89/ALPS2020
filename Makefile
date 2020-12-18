@@ -27,7 +27,7 @@ csvparsetest:
 	gcc -o tests/csvparse tests/csvparse.c tuplist.c
 
 ngltest:
-	gcc -o tests/ngltest tests/ngltest.c negcl.c set.c datatypes.c hashmap.c parse.c tuplist.c
+	gcc $(FLAGS) tests/ngltest tests/ngltest.c negcl.c set.c datatypes.c hashmap.c -DBUCKETS=3 parse.c tuplist.c -DDATASET=\"sigmod_medium_labelled_dataset.csv\"
 
 ctypetest:
 	gcc -g -o tests/ctype tests/ctypetest.c tuplist.c BOW/stringOps.c BOW/stopwords.c
