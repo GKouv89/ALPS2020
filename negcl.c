@@ -6,9 +6,12 @@
 #include "negcl.h"
 
 
-void neglist_create(neg_list** ngl){
-    (*ngl) = malloc(sizeof(neg_list));
-    (*ngl)->front = NULL;
+void neglist_create(list_node** lnode){
+    (*lnode)->ngl = malloc(sizeof(neg_list));
+    (*lnode)->ngl->front = NULL;
+    (*lnode)->ngl->rear = NULL;
+    // (*lnode)->ngl->front->neg_clique == NULL;
+    // (*lnode)->ngl->rear->neg_clique == NULL;
 }
 
 neg_node* create_negnode(list_node* cld){
@@ -65,15 +68,37 @@ void neglist_add(/*neg_list* neglist, */list_node* repres01, list_node* repres02
     }
 }
 
-void neglist_print(neg_list* negli){
-
-    
+void neglist_print(list_node* repres){
+    neg_node* temp = repres->ngl->front;
+    while(temp){
+        printf("%s , %s , 0\n", repres->id, temp->neg_clique->id);
+        temp = temp->next_in_negclique;
+    }
 }
 
-void delete_negnode(neg_node** negliptr){
-    
+void delete_negnode(neg_node** negptr){
+    int error;
+    free((*negptr)->neg_clique);
+    (*negptr)->next_in_negclique = NULL;
+    free(*negptr);
+    *negptr = NULL;
 }
 
-void destroy_neglist(neg_list** negliptr){
-    
+void destroy_neglist(list_node** repres){
+    neg_node* temp = (*repres)->ngl->front;
+    if(temp != NULL && (*repres)->ngl->rear != NULL){
+        neg_node* next = NULL;
+        while(temp){
+            if(temp->next_in_negclique){
+                next = temp->next_in_negclique;
+                temp->next_in_negclique = NULL;
+            }
+            delete_negnode(&temp);
+            temp = next;
+        }
+    }
+    (*repres)->ngl->front = NULL;
+    (*repres)->ngl->rear = NULL;
+    free((*repres)->ngl);
+    (*repres)->ngl = NULL;
 }

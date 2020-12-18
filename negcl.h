@@ -17,10 +17,10 @@ typedef struct nglist{
         neg_node *rear;
 }neg_list;
 
-void neglist_create(neg_list**);
+void neglist_create(struct node**);
 neg_node* create_negnode(struct node *);
 void neglist_add(struct node*, struct node*);
-void neglist_print(neg_list*);
+void neglist_print(struct node*);
 void delete_negnode(neg_node**);
-void destroy_neglist(neg_list**);
+void destroy_neglist(struct node**);
 #endif
