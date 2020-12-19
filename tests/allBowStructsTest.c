@@ -5,6 +5,7 @@
 #include "../BOW/vectorOps.h"
 #include "../BOW/stopwords.h"
 #include "../TF-IDF/idfVectorOps.h"
+#include "../TF-IDF/tf.h"
 
 #define PATH "tests/bow_test_set/"
 
@@ -172,13 +173,6 @@ void test_all_bow_strctures(void){
         closedir(child_dir);
         current_folder = readdir(dir);
     }
-    // for(int i = 1; i < VECTORS; i++){
-        // printf("VECTOR %d.\n", i);
-        // for(int j = 0; j < bag->vectors[i]->size; j++){
-            // printf("word: %d frequency: %d\n", bag->vectors[0]->elements[j], bag->vectors[i]->elements[j]);            
-        // }
-        // printf("\n");
-    // }
     // printf("IDF VECTOR\n");
     // for(int i = 0; i < idf_vec->size; i++){
         // if(i == 0 || i == 1){
@@ -187,14 +181,19 @@ void test_all_bow_strctures(void){
         // printf("word %d appears in %d out of 5 texts\n", i, (int) idf_vec->elements[i]);
     // }
     compute_idf_vals(idf_vec);
-    // for(int i = 0; i < idf_vec->size; i++){
-        // if(i == 0 || i == 1){
-            // TEST_ASSERT(idf_vec->elements[i] == (double) 0);
-        // }
-        // printf("word %d has idf value of %lf\n", i, idf_vec->elements[i]);
+    // for(int i = 1; i < VECTORS; i++){
+        // printf("File %s contains %d words\n", bag->vectors[i]->name, bag->vectors[i]->word_count);
     // }
-    for(int i = 1; i < VECTORS; i++){
-        printf("File %s contains %d words\n", bag->vectors[i]->name, bag->vectors[i]->word_count);
+    tf *tfarr;
+    create_tf(&tfarr, idf_vec->size);
+    TEST_ASSERT(tfarr->wordVec->size == idf_vec->size);
+    printf("TF wordVec\n");
+    compute_tf_idf(bag, tfarr, idf_vec);
+    for(int i = 0; i < TFVECTORS; i++){
+        printf("TFVECTOR %d\n", i);
+        for(int j = 0; j < tfarr->vectors[i]->size; j++){
+            printf("word %d has TF value of %lf\n", j, tfarr->vectors[i]->elements[j]);
+        }
     }
     // print_tree(tree);
     destroy_tree(&tree);
@@ -210,6 +209,7 @@ void test_all_bow_strctures(void){
     TEST_ASSERT(bag == NULL);
     destroy_idf_vector(&idf_vec);
     TEST_ASSERT(idf_vec == NULL);
+    destroy_tf(&tfarr);
 }    
 
 TEST_LIST = {

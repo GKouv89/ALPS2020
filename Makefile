@@ -1,11 +1,11 @@
 FLAGS = -g -o
-MODULES =  main.c parse.c datatypes.c hashmap.c set.c tuplist.c BOW/stringOps.c BOW/vectorOps.c BOW/stopwords.c BOW/bow.c BOW/dictionary.c TF-IDF/idfVectorOps.c -lm
+MODULES =  main.c parse.c datatypes.c hashmap.c set.c tuplist.c BOW/stringOps.c BOW/vectorOps.c BOW/stopwords.c BOW/bow.c BOW/dictionary.c TF-IDF/idfVectorOps.c TF-IDF/tf.c -lm
 
 medium:
-	gcc $(FLAGS) main $(MODULES) -DDATASET=\"sigmod_medium_labelled_dataset.csv\" -DVECTORS=30000
+	gcc $(FLAGS) main $(MODULES) -DDATASET=\"sigmod_medium_labelled_dataset.csv\" -DVECTORS=29788 -DTFVECTORS=29787
 
 large:
-	gcc $(FLAGS) main $(MODULES) -DVECTORS=30000
+	gcc $(FLAGS) main $(MODULES) -DVECTORS=30000 -DTFVECTORS=30000
 
 run:
 	./main
@@ -39,7 +39,7 @@ dicttest:
 	gcc $(FLAGS) tests/dicttest tests/dicttest.c BOW/dictionary.c
 
 allbowstructstest:
-	gcc $(FLAGS) tests/allbowtest tests/allBowStructsTest.c BOW/dictionary.c BOW/stopwords.c BOW/bow.c BOW/vectorOps.c BOW/stringOps.c -DVECTORS=6 TF-IDF/idfVectorOps.c -DFILES=5 -lm
+	gcc $(FLAGS) tests/allbowtest tests/allBowStructsTest.c BOW/dictionary.c BOW/stopwords.c BOW/bow.c BOW/vectorOps.c BOW/stringOps.c -DVECTORS=6 TF-IDF/idfVectorOps.c -DFILES=5 TF-IDF/tf.c -lm
 
 run_all_tests:
 	make hashtest

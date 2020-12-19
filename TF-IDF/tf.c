@@ -33,10 +33,10 @@ void compute_tf_idf(BoW *bag, tf *tfarr, IDFVector *idf_vec){
         for(int j = 0; j < bag->vectors[i]->size; j++){
             tfarr->vectors[i]->elements[j] = bag->vectors[i+1]->elements[j];
             tfarr->vectors[i]->elements[j] /= bag->vectors[i+1]->word_count;
+            tfarr->vectors[i]->elements[j] *= idf_vec->elements[j];
         }
         tfarr->vectors[i]->size = bag->vectors[i]->size;
     }
-    /* IDF PART IS YET TO COME */
 }
 
 void destroy_tf(tf **tfarr){

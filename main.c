@@ -16,6 +16,7 @@
 #include "BOW/vectorOps.h"
 
 #include "TF-IDF/idfVectorOps.h"
+#include "TF-IDF/tf.h"
 
 int main(int argc, char* argv[]){
     srand(time(NULL));
@@ -50,8 +51,19 @@ int main(int argc, char* argv[]){
         // printf("word %d appears in %d texts\n", i, (int)idf_vec->elements[i]);
     // }
     compute_idf_vals(idf_vec);
-    for(int i = 1; i < VECTORS; i++){
-        printf("File %s contains %d words\n", bag->vectors[i]->name, bag->vectors[i]->word_count);
+    // for(int i = 1; i < VECTORS; i++){
+        // printf("File %s contains %d words\n", bag->vectors[i]->name, bag->vectors[i]->word_count);
+    // }
+    tf *tfarr;
+    create_tf(&tfarr, idf_vec->size);
+    compute_tf_idf(bag, tfarr, idf_vec);
+    for(int i = 0; i < TFVECTORS; i++){
+        printf("text file no %d\n", i);
+        for(int j = 0; j < tfarr->vectors[i]->size; j++){
+            if(tfarr->vectors[i]->elements[j] != (double) 0){
+                printf("word %d has tf-idf value %lf\n", j, tfarr->vectors[i]->elements[j]);
+            }
+        }
     }
     // for(int i = 0; i < idf_vec->size; i++){
         // if(i == 0 || i == 1){
