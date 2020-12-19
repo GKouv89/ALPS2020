@@ -56,14 +56,9 @@ int main(int argc, char* argv[]){
     // }
     tf *tfarr;
     create_tf(&tfarr, idf_vec->size);
-    compute_tf_idf(bag, tfarr, idf_vec);
-    for(int i = 0; i < TFVECTORS; i++){
-        printf("text file no %d\n", i);
-        for(int j = 0; j < tfarr->vectors[i]->size; j++){
-            if(tfarr->vectors[i]->elements[j] != (double) 0){
-                printf("word %d has tf-idf value %lf\n", j, tfarr->vectors[i]->elements[j]);
-            }
-        }
+    IDFVector *important_words = compute_tf_idf(bag, tfarr, idf_vec);
+    for(int i = 0; i < important_words->size; i++){
+        printf("word no %d has avg tf-idf val of %lf\n", i, important_words->elements[i]);
     }
     // for(int i = 0; i < idf_vec->size; i++){
         // if(i == 0 || i == 1){
@@ -77,4 +72,5 @@ int main(int argc, char* argv[]){
     destroy(&l);
     destroy_tree(&dict);
     destroy_idf_vector(&idf_vec);
+    destroy_idf_vector(&important_words);
 }

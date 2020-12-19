@@ -18,6 +18,6 @@ typedef struct textFreq{
 } tf;
 
 void create_tf(tf **, int);
-void compute_tf_idf(BoW *, tf *, IDFVector *);
+IDFVector* compute_tf_idf(BoW *, tf *, IDFVector *);
 void destroy_tf(tf **);
 #endif

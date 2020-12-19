@@ -108,18 +108,23 @@ void test_idf(void){
         printf("%d ", tfarr->wordVec->elements[i]);   
     }
     printf("\n");
-    compute_tf_idf(bag, tfarr, idf_vec);
+    IDFVector *important_words = compute_tf_idf(bag, tfarr, idf_vec);
     for(int i = 0; i < TFVECTORS; i++){
         for(int j = 0; j < tfarr->vectors[i]->size; j++){
             printf("%.10lf ", tfarr->vectors[i]->elements[j]);            
         }
         printf("\n");
     }
+    printf("Most important words\n");
+    for(int i = 0; i < important_words->size; i++){
+        printf("%.10lf ", important_words->elements[i]);
+    }
     printf("\n");
     destroy_bow(&bag);
     TEST_ASSERT(bag == NULL);
     destroy_idf_vector(&idf_vec);
     destroy_tf(&tfarr);
+    destroy_idf_vector(&important_words);
 }
 
 TEST_LIST = {

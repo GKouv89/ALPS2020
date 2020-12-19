@@ -188,12 +188,9 @@ void test_all_bow_strctures(void){
     create_tf(&tfarr, idf_vec->size);
     TEST_ASSERT(tfarr->wordVec->size == idf_vec->size);
     printf("TF wordVec\n");
-    compute_tf_idf(bag, tfarr, idf_vec);
-    for(int i = 0; i < TFVECTORS; i++){
-        printf("TFVECTOR %d\n", i);
-        for(int j = 0; j < tfarr->vectors[i]->size; j++){
-            printf("word %d has TF value of %lf\n", j, tfarr->vectors[i]->elements[j]);
-        }
+    IDFVector *important_words = compute_tf_idf(bag, tfarr, idf_vec);
+    for(int i = 0; i < important_words->size; i++){
+        printf("avg tf-idf of word %d is %lf\n", i, important_words->elements[i]);
     }
     // print_tree(tree);
     destroy_tree(&tree);
@@ -210,6 +207,7 @@ void test_all_bow_strctures(void){
     destroy_idf_vector(&idf_vec);
     TEST_ASSERT(idf_vec == NULL);
     destroy_tf(&tfarr);
+    destroy_idf_vector(&important_words);
 }    
 
 TEST_LIST = {

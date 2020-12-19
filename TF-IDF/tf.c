@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 
 #include "tf.h"
 
@@ -28,15 +29,33 @@ void create_tf(tf **tfarr, int words){
     }
 }
 
-void compute_tf_idf(BoW *bag, tf *tfarr, IDFVector *idf_vec){
+IDFVector* compute_tf_idf(BoW *bag, tf *tfarr, IDFVector *idf_vec){
+    IDFVector *important_words;
+    create_idf_vector(&important_words);
+    while(important_words->capacity < idf_vec->size){
+        important_words->capacity *= 2;
+    }
+
+    double *temp = realloc(important_words->elements, important_words->capacity*sizeof(double));
+    assert(temp != NULL);
+    important_words->elements = temp;
+    memset(important_words->elements, 0, important_words->capacity*sizeof(double));
+    
     for(int i = 0; i < TFVECTORS; i++){
         for(int j = 0; j < bag->vectors[i]->size; j++){
             tfarr->vectors[i]->elements[j] = bag->vectors[i+1]->elements[j];
             tfarr->vectors[i]->elements[j] /= bag->vectors[i+1]->word_count;
             tfarr->vectors[i]->elements[j] *= idf_vec->elements[j];
+            
+            important_words->elements[j] += tfarr->vectors[i]->elements[j];
         }
         tfarr->vectors[i]->size = bag->vectors[i]->size;
     }
+    important_words->size = tfarr->wordVec->size;
+    for(int i = 0; i < important_words->size; i++){
+        important_words->elements[i] /= FILES;
+    }
+    return important_words;
 }
 
 void destroy_tf(tf **tfarr){
