@@ -69,7 +69,9 @@ void print_bucket_no_of_entries(hash_map* map){
 
 void destroy_map(hash_map** map){
     for(int i = 0; i < BUCKETS; i++){
+        printf("BUCKET %d about to be destroyed\n", i);
         destroy_list(&((*map)->map[i].bucket_list));
     }
+    printf("all buckets destroyed\n");
     free(*map);
 }

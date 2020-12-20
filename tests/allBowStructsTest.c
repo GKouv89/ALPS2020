@@ -196,7 +196,12 @@ void test_all_bow_strctures(void){
     for(int i = 0; i < 100; i++){
       printf("word no. %d has avg tf-idf of %lf\n", wordVec->elements[i], important_words->elements[i]);
     }
-    print_tree(tree);
+    sort_important_words_indices(wordVec, 0, wordVec->size - 1);
+    printf("Important words sorted by increasing index\n");
+    for(int i = 0; i < wordVec->size; i++){
+      printf("%d\n", wordVec->elements[i]);
+    }
+    // print_tree(tree);
     destroy_tree(&tree);
     TEST_ASSERT(tree == NULL);
     free(path);

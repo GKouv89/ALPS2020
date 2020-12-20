@@ -40,31 +40,59 @@ int main(int argc, char* argv[]){
     create_idf_vector(&idf_vec);
     
     parser(map, l, bag, &dict, idf_vec);
+    printf("Words parsed, dictionary done, BoW too.\n");
     csvparser(map, all_cliques);
+    printf("Positive association cliques OK\n");
     
     // print_all_cliques(0, all_cliques);
     compute_idf_vals(idf_vec);
+    printf("IDF completed\n");
     tf *tfarr;
     create_tf(&tfarr, idf_vec->size);
+    printf("TF array completed\n");
     IDFVector *important_words = compute_tf_idf(bag, tfarr, idf_vec);
+    printf("AVG TF-IDF values computed\n");
+    destroy_bow(&bag);
+    printf("destroyed BoW\n");
+    
     Vector *wordVec = copy_vector(tfarr->wordVec);
     sort_avg_tf_idf(wordVec, important_words, 0, wordVec->size - 1);
-    wordVec = crop_vector(wordVec, IMPWORDS);
-    important_words = crop_idf_vector(important_words, IMPWORDS);
-    printf("MOST IMPORTANT WORDS AFTER CROPPING\n");
-    for(int i = 0; i < IMPWORDS; i++){
-        printf("word no %d has avg tf-idf val of %lf\n", wordVec->elements[i],important_words->elements[i]);
-    }
-    // print_tree(dict);
-    // tf *tfarr_new;
-    // create_tf(&tfarr_new, IMPWORDS);
-
-    destroy_map(&map);
-    destroy_clique_list(&all_cliques);
-    destroy_bow(&bag);
-    destroy(&l);
-    destroy_tree(&dict);
-    destroy_idf_vector(&idf_vec);
+    printf("AVG TF-IDF values sorted\n");
+    
+    Vector *new_wordVec = crop_vector(wordVec, IMPWORDS);
+    printf("wordVec cropped\n");
     destroy_vector(&wordVec);
-    // destroy_idf_vector(&important_words);
+    
+    /* A BUG IN THIS PART OF THE CODE: POSSIBLY CROP_IDF_VECTOR */
+    IDFVector *new_important_words = crop_idf_vector(important_words, IMPWORDS);
+    printf("important words cropped\n");
+    /* A BUG IN THIS PART OF THE CODE: POSSIBLY CROP_IDF_VECTOR */        // destroy_idf_vector(&important_words);
+
+    
+    // printf("MOST IMPORTANT WORDS AFTER CROPPING\n");
+    // for(int i = 0; i < IMPWORDS; i++){
+        // printf("word no %d has avg tf-idf val of %lf\n", new_wordVec->elements[i],new_important_words->elements[i]);
+    // }
+    // // print_tree(dict);
+    // // tf *tfarr_new;
+    // // create_tf(&tfarr_new, IMPWORDS);
+    
+    // sort_important_words_indices(new_wordVec, 0, new_wordVec->size - 1);
+    // printf("IMPORTANT WORDS SORTED BY INCREASING INDEX\n");
+    // for(int i = 0; i < new_wordVec->size; i++){
+      // printf("%d\n", new_wordVec->elements[i]);
+    // }
+    // printf("DONE WITH IMPORTANT WORDS SORTED BLAH BLAH\n");
+    destroy_map(&map);
+    printf("Destroyed map\n");
+    destroy(&l);
+    printf("Destroyed stopword list\n");
+    destroy_clique_list(&all_cliques);
+    printf("destroyed positive cliques\n");
+    destroy_tree(&dict);
+    printf("destroyed tree\n");
+    destroy_idf_vector(&idf_vec);
+    printf("destroyed idf vector\n");
+    // destroy_vector(&new_wordVec);
+    // destroy_idf_vector(&new_important_words);
 }

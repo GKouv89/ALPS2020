@@ -28,7 +28,6 @@ IDFVector* crop_idf_vector(IDFVector *vec, int size){
     temp->elements[i] = vec->elements[i];
   }
   temp->size = size;
-  free(vec);
   return temp;
 }
 

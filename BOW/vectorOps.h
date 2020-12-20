@@ -18,6 +18,7 @@ void create_vector(Vector **);
 void name_vector(Vector *, char *);
 Vector* copy_vector(Vector *);
 Vector* crop_vector(Vector *, int);
+void sort_important_words_indices(Vector *, int, int);
 void new_word(Vector *, int *);
 void update_element(Vector *, int, int *);
 void resize_vector(Vector *);

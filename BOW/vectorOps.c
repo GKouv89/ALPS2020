@@ -45,7 +45,6 @@ Vector* crop_vector(Vector *vec, int size){
     temp->elements[i] = vec->elements[i];
   }
   temp->size = size;
-  free(vec);
   return temp;
 }
 
@@ -93,6 +92,38 @@ void resize_vector(Vector *vec){
         vec->elements[i] = 0;
     }
 }
+
+void sort_important_words_indices(Vector *wordVec, int first, int last){
+  int i, j, pivot, temp_i;
+  
+  if(first < last){
+    pivot = first;
+    i = first;
+    j = last;
+    
+    while(i < j){
+      while(wordVec->elements[i] <= wordVec->elements[pivot] && i < last){
+        i++;
+      }
+      while(wordVec->elements[j] > wordVec->elements[pivot]){
+        j--;
+      }
+      if(i < j){      
+        temp_i = wordVec->elements[i];
+        wordVec->elements[i] = wordVec->elements[j];
+        wordVec->elements[j] = temp_i;
+      }
+    }
+
+    temp_i = wordVec->elements[pivot];
+    wordVec->elements[pivot] = wordVec->elements[j];
+    wordVec->elements[j] = temp_i;
+    
+    sort_important_words_indices(wordVec, first, j-1);
+    sort_important_words_indices(wordVec, j+1, last);
+  }
+}
+
 
 void destroy_vector(Vector **vec){
     free((*vec)->elements);

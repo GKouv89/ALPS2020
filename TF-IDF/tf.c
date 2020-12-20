@@ -98,45 +98,6 @@ void sort_avg_tf_idf(Vector *wordVec, IDFVector* important_words, int first, int
   }
 }
 
-// void sort_important_words_by_index(){
-  // int i, j, pivot, temp_i;
-  // double temp_d;
-  
-  // if(first < last){
-    // pivot = first;
-    // i = first;
-    // j = last;
-    
-    // while(i < j){
-      // while(important_words->elements[i] > important_words->elements[pivot]){
-        // i++;
-      // }
-      // while(important_words->elements[j] <= important_words->elements[pivot] && j > first){
-        // j--;
-      // }
-      // if(i < j){
-        // temp_d = important_words->elements[i];
-        // important_words->elements[i] = important_words->elements[j];
-        // important_words->elements[j] = temp_d;
-      
-        // temp_i = wordVec->elements[i];
-        // wordVec->elements[i] = wordVec->elements[j];
-        // wordVec->elements[j] = temp_i;
-      // }
-    // }
-    
-    // temp_d = important_words->elements[pivot];
-    // important_words->elements[pivot] = important_words->elements[j];
-    // important_words->elements[j] = temp_d;
-    
-    // temp_i = wordVec->elements[pivot];
-    // wordVec->elements[pivot] = wordVec->elements[j];
-    // wordVec->elements[j] = temp_i;
-    
-    // sort_avg_tf_idf(wordVec, important_words, first, j-1);
-    // sort_avg_tf_idf(wordVec, important_words, j+1, last);
-  // }
-// }
 
 // void size_down_tf_idf(tf *tfarr, tf *tfarr_new, Vector *wordVec, IDFVector *important_words){
   
