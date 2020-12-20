@@ -190,7 +190,9 @@ void test_all_bow_strctures(void){
     IDFVector *important_words = compute_tf_idf(bag, tfarr, idf_vec);
     Vector *wordVec = copy_vector(tfarr->wordVec);
     sort_avg_tf_idf(wordVec, important_words, 0, wordVec->size - 1);
-    printf("\nAfter sorting, 100 most important words\n");
+    wordVec = crop_vector(wordVec, 100);
+    important_words = crop_idf_vector(important_words, 100);
+    printf("\nAfter sorting and cropping, 100 most important words\n");
     for(int i = 0; i < 100; i++){
       printf("word no. %d has avg tf-idf of %lf\n", wordVec->elements[i], important_words->elements[i]);
     }

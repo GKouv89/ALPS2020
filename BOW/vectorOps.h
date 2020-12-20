@@ -17,6 +17,7 @@ typedef struct vector{
 void create_vector(Vector **);
 void name_vector(Vector *, char *);
 Vector* copy_vector(Vector *);
+Vector* crop_vector(Vector *, int);
 void new_word(Vector *, int *);
 void update_element(Vector *, int, int *);
 void resize_vector(Vector *);

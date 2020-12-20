@@ -129,6 +129,12 @@ void test_idf(void){
     for(int i = 0; i < important_words->size; i++){
       printf("%lf ", important_words->elements[i]);
     }
+    printf("\nAfter crop\n");
+    wordVec = crop_vector(wordVec, 1);
+    important_words = crop_idf_vector(important_words, 1);
+    for(int i = 0; i < wordVec->size; i++){
+      printf("word no %d has avg tf-idf value of %lf\n", wordVec->elements[i], important_words->elements[i]);
+    }
     printf("\n");
     destroy_bow(&bag);
     TEST_ASSERT(bag == NULL);

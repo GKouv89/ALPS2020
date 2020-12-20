@@ -16,6 +16,7 @@ typedef struct idf_vector{
 } IDFVector;
 
 void create_idf_vector(IDFVector **);
+IDFVector* crop_idf_vector(IDFVector *, int);
 void update_idf_vector(IDFVector *, int);
 void resize_idf_vector(IDFVector *);
 void compute_idf_vals(IDFVector *);

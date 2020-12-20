@@ -18,6 +18,11 @@
 #include "TF-IDF/idfVectorOps.h"
 #include "TF-IDF/tf.h"
 
+#ifndef IMPWORDS
+  #define IMPWORDS 1000
+#endif
+
+
 int main(int argc, char* argv[]){
     srand(time(NULL));
     
@@ -38,23 +43,28 @@ int main(int argc, char* argv[]){
     csvparser(map, all_cliques);
     
     // print_all_cliques(0, all_cliques);
-    print_tree(dict);
     compute_idf_vals(idf_vec);
     tf *tfarr;
     create_tf(&tfarr, idf_vec->size);
     IDFVector *important_words = compute_tf_idf(bag, tfarr, idf_vec);
     Vector *wordVec = copy_vector(tfarr->wordVec);
     sort_avg_tf_idf(wordVec, important_words, 0, wordVec->size - 1);
-    printf("MOST IMPORTANT WORDS\n");
-    for(int i = 0; i < wordVec->size; i++){
-        printf("word no %d has avg tf-idf val of %lf\n", wordVec->elements[i], important_words->elements[i]);
+    wordVec = crop_vector(wordVec, IMPWORDS);
+    important_words = crop_idf_vector(important_words, IMPWORDS);
+    printf("MOST IMPORTANT WORDS AFTER CROPPING\n");
+    for(int i = 0; i < IMPWORDS; i++){
+        printf("word no %d has avg tf-idf val of %lf\n", wordVec->elements[i],important_words->elements[i]);
     }
+    // print_tree(dict);
+    // tf *tfarr_new;
+    // create_tf(&tfarr_new, IMPWORDS);
+
     destroy_map(&map);
     destroy_clique_list(&all_cliques);
     destroy_bow(&bag);
     destroy(&l);
     destroy_tree(&dict);
     destroy_idf_vector(&idf_vec);
-    destroy_idf_vector(&important_words);
     destroy_vector(&wordVec);
+    // destroy_idf_vector(&important_words);
 }

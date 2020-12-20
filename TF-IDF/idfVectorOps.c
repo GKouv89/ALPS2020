@@ -17,6 +17,21 @@ void update_idf_vector(IDFVector *vec, int pos){
     (vec->elements[pos])++;
 }
 
+IDFVector* crop_idf_vector(IDFVector *vec, int size){
+  IDFVector *temp;
+  create_idf_vector(&temp);
+  temp->capacity = size;
+  double *temp_d = realloc(temp->elements, temp->capacity*sizeof(int));
+  assert(temp_d != NULL);
+  temp->elements = temp_d;
+  for(int i = 0; i < size; i++){
+    temp->elements[i] = vec->elements[i];
+  }
+  temp->size = size;
+  free(vec);
+  return temp;
+}
+
 void resize_idf_vector(IDFVector *vec){
     vec->capacity = 2 * vec->capacity;
     double *temp = realloc(vec->elements, vec->capacity*sizeof(double));

@@ -34,6 +34,21 @@ Vector* copy_vector(Vector *vec){
   return vec_copy;
 }
 
+Vector* crop_vector(Vector *vec, int size){
+  Vector *temp;
+  create_vector(&temp);
+  temp->capacity = size;
+  int *temp_i = realloc(temp->elements, temp->capacity*sizeof(int));
+  assert(temp_i != NULL);
+  temp->elements = temp_i;
+  for(int i = 0; i < size; i++){
+    temp->elements[i] = vec->elements[i];
+  }
+  temp->size = size;
+  free(vec);
+  return temp;
+}
+
 void new_word(Vector *vec, int *resizing){
     /* 
         Added a new word to bow. This updates the 'top' vector, that contains the number of the word
