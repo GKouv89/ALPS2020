@@ -77,7 +77,12 @@ void neglist_add(/*neg_list* neglist, */list_node* repres01, list_node* repres02
 
 void neglist_print(list_node* repres){
     list_node *rep_temp = repres;
-    neg_node* temp = repres->ngl->front;
+    neg_node* temp;
+    if(repres->ngl->front!=NULL){
+        temp = repres->ngl->front;
+    }else{
+        temp = NULL;
+    }
     list_node *neg_temp;
     while(temp){
         rep_temp = repres;

@@ -16,7 +16,7 @@ int main(int argc, char* argv[]){
     clique_list* all_cliques;
     create_clique_list(&all_cliques);
 
-    // parser(map);
+    parser(map);
     csvparser(map, all_cliques);
     
     print_all_cliques(0, all_cliques);
