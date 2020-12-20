@@ -19,5 +19,6 @@ typedef struct textFreq{
 
 void create_tf(tf **, int);
 IDFVector* compute_tf_idf(BoW *, tf *, IDFVector *);
+void sort_avg_tf_idf(Vector *, IDFVector*, int, int);
 void destroy_tf(tf **);
 #endif

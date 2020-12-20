@@ -38,34 +38,17 @@ int main(int argc, char* argv[]){
     csvparser(map, all_cliques);
     
     // print_all_cliques(0, all_cliques);
-    // print_tree(dict);
-    // for(int i = 1; i < VECTORS; i++){
-        // printf("VECTOR 237.\n");
-        // for(int j = 0; j < bag->vectors[237]->size; j++){
-            // printf("word: %d frequency: %d\n", bag->vectors[0]->elements[j], bag->vectors[237]->elements[j]);            
-        // }
-        // printf("\n");
-    // }
-    // printf("IDF VECTOR\n");
-    // for(int i = 0; i < idf_vec->size; i++){
-        // printf("word %d appears in %d texts\n", i, (int)idf_vec->elements[i]);
-    // }
+    print_tree(dict);
     compute_idf_vals(idf_vec);
-    // for(int i = 1; i < VECTORS; i++){
-        // printf("File %s contains %d words\n", bag->vectors[i]->name, bag->vectors[i]->word_count);
-    // }
     tf *tfarr;
     create_tf(&tfarr, idf_vec->size);
     IDFVector *important_words = compute_tf_idf(bag, tfarr, idf_vec);
-    for(int i = 0; i < important_words->size; i++){
-        printf("word no %d has avg tf-idf val of %lf\n", i, important_words->elements[i]);
+    Vector *wordVec = copy_vector(tfarr->wordVec);
+    sort_avg_tf_idf(wordVec, important_words, 0, wordVec->size - 1);
+    printf("MOST IMPORTANT WORDS\n");
+    for(int i = 0; i < wordVec->size; i++){
+        printf("word no %d has avg tf-idf val of %lf\n", wordVec->elements[i], important_words->elements[i]);
     }
-    // for(int i = 0; i < idf_vec->size; i++){
-        // if(i == 0 || i == 1){
-            // assert(idf_vec->elements[i] == 0.0);
-        // }
-        // printf("word %d has idf value of %lf\n", i, idf_vec->elements[i]);
-    // }
     destroy_map(&map);
     destroy_clique_list(&all_cliques);
     destroy_bow(&bag);
@@ -73,4 +56,5 @@ int main(int argc, char* argv[]){
     destroy_tree(&dict);
     destroy_idf_vector(&idf_vec);
     destroy_idf_vector(&important_words);
+    destroy_vector(&wordVec);
 }

@@ -19,6 +19,21 @@ void name_vector(Vector *vec, char *name){
     strcpy(vec->name, name);
 }
 
+Vector* copy_vector(Vector *vec){
+  Vector *vec_copy;
+  create_vector(&vec_copy);
+  vec_copy->capacity = vec->capacity;
+  int *temp = realloc(vec_copy->elements, vec_copy->capacity*sizeof(int));
+  assert(temp != NULL);
+  vec_copy->elements = temp;
+  memset(vec_copy->elements, 0, vec_copy->capacity*sizeof(int));
+  for(int i = 0; i < vec->size; i++){
+    vec_copy->elements[i] = vec->elements[i];
+  }
+  vec_copy->size = vec->size;
+  return vec_copy;
+}
+
 void new_word(Vector *vec, int *resizing){
     /* 
         Added a new word to bow. This updates the 'top' vector, that contains the number of the word

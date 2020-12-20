@@ -119,9 +119,20 @@ void test_idf(void){
     for(int i = 0; i < important_words->size; i++){
         printf("%.10lf ", important_words->elements[i]);
     }
+    printf("\nAfter sorting\n");
+    Vector *wordVec = copy_vector(tfarr->wordVec);
+    sort_avg_tf_idf(wordVec, important_words, 0, wordVec->size - 1);
+    for(int i = 0; i < wordVec->size; i++){
+      printf("%d      ", wordVec->elements[i]);
+    }
+    printf("\n");
+    for(int i = 0; i < important_words->size; i++){
+      printf("%lf ", important_words->elements[i]);
+    }
     printf("\n");
     destroy_bow(&bag);
     TEST_ASSERT(bag == NULL);
+    destroy_vector(&wordVec);
     destroy_idf_vector(&idf_vec);
     destroy_tf(&tfarr);
     destroy_idf_vector(&important_words);
