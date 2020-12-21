@@ -264,6 +264,7 @@ void csvparser(hash_map* map, clique_list* all_cliques){
         site_buff1 = malloc(100*sizeof(char));
         free(site_buff2);
         site_buff2 = malloc(100*sizeof(char));
+        chars_written = 0;
     } 
     if(fclose(fp)!= 0){
         fprintf(stderr, "Couldn't close csv file.\n");
