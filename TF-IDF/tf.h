@@ -14,7 +14,7 @@
 
 typedef struct textFreq{
     Vector *wordVec;
-    IDFVector *vectors[VECTORS];
+    IDFVector *vectors[TFVECTORS];
 } tf;
 
 void create_tf(tf **, int);

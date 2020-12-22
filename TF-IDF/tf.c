@@ -8,9 +8,10 @@ void create_tf(tf **tfarr, int words){
     *tfarr = malloc(sizeof(tf));
     create_vector(&(*tfarr)->wordVec);
     
-    while((*tfarr)->wordVec->capacity < words){
-        (*tfarr)->wordVec->capacity *= 2;
-    }
+    // while((*tfarr)->wordVec->capacity < words){
+        // (*tfarr)->wordVec->capacity *= 2;
+    // }
+    (*tfarr)->wordVec->capacity = words;
     int *temp = realloc((*tfarr)->wordVec->elements, (*tfarr)->wordVec->capacity*sizeof(int));
     assert(temp != NULL);
     (*tfarr)->wordVec->elements = temp;
@@ -18,14 +19,12 @@ void create_tf(tf **tfarr, int words){
         (*tfarr)->wordVec->elements[i] = i;
     }
     (*tfarr)->wordVec->size = words;    
-    
-    double *tempd;
+
     for(int i = 0; i < TFVECTORS; i++){
-        create_idf_vector(&(*tfarr)->vectors[i]);
-        (*tfarr)->vectors[i]->capacity = (*tfarr)->wordVec->capacity;
-        tempd = realloc((*tfarr)->vectors[i]->elements, (*tfarr)->vectors[i]->capacity*sizeof(double));
-        assert(tempd != NULL);
-        (*tfarr)->vectors[i]->elements = tempd;
+      (*tfarr)->vectors[i] = malloc(sizeof(IDFVector));
+      (*tfarr)->vectors[i]->size = words;
+      (*tfarr)->vectors[i]->capacity = words;
+      (*tfarr)->vectors[i]->elements = calloc((*tfarr)->vectors[i]->capacity, sizeof(double));
     }
 }
 

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include <math.h>
 
@@ -21,12 +22,13 @@ IDFVector* crop_idf_vector(IDFVector *vec, int size){
   IDFVector *temp;
   create_idf_vector(&temp);
   temp->capacity = size;
-  double *temp_d = realloc(temp->elements, temp->capacity*sizeof(int));
+  double *temp_d = realloc(temp->elements, temp->capacity*sizeof(double));
   assert(temp_d != NULL);
   temp->elements = temp_d;
-  for(int i = 0; i < size; i++){
-    temp->elements[i] = vec->elements[i];
-  }
+  // for(int i = 0; i < size; i++){
+    // temp->elements[i] = vec->elements[i];
+  // }
+  memcpy(temp->elements, vec->elements, temp->capacity*sizeof(double));
   temp->size = size;
   return temp;
 }

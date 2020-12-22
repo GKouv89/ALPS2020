@@ -2,11 +2,13 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <malloc.h>
 
 #include "vectorOps.h"
 
 void create_vector(Vector **vec){
     *vec = malloc(sizeof(Vector));
+    size_t vec_size = malloc_usable_size(*vec);
     (*vec)->name = NULL;
     (*vec)->word_count = 0;
     (*vec)->size = 0;
