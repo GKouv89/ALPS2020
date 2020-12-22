@@ -67,7 +67,7 @@ struct dirent *current_folder, *current_file;
     
     //NEW//
     sw_list *l;
-    make_stopword_list(&l);
+    // make_stopword_list(&l);
     ///////
 
     if(dir == NULL){
@@ -146,7 +146,7 @@ struct dirent *current_folder, *current_file;
                         break;
                     }
                     buff_name = strtok(buff_name, ":");
-                    bow_it(buff_name, l);
+                    // bow_it(buff_name, l);
                     getline(&buff_val, &buff_val_size, fp);
                     if(strcmp(buff_val, " [\n") == 0){ // JSON Array
                         strcpy(array_buff, " [");
@@ -183,10 +183,10 @@ struct dirent *current_folder, *current_file;
                             }
                             remaining = remaining - bytes_read;
                         }
-                        bow_it(array_buff, l);
+                        // bow_it(array_buff, l);
                         tuplist_insert(&tulist, buff_name, array_buff);
                     }else{
-                        bow_it(buff_val, l);
+                        // bow_it(buff_val, l);
                         tuplist_insert(&tulist, buff_name, buff_val);
                     }
                 }
@@ -210,7 +210,7 @@ struct dirent *current_folder, *current_file;
     free(buff_name);
     free(buff_val);
     closedir(dir);
-    destroy(&l);
+    // destroy(&l);
 }
 
 void csvparser(hash_map* map, clique_list* all_cliques){
@@ -292,10 +292,19 @@ void csvparser(hash_map* map, clique_list* all_cliques){
         site_buff1 = malloc(100*sizeof(char));
         free(site_buff2);
         site_buff2 = malloc(100*sizeof(char));
+        chars_written = 0;
     } 
     
     //reseting file pointer to make negative relationship clique
     fseek(fp, 0, SEEK_SET);
+    do{
+        c = fgetc(fp);
+    }while(c != '\n');
+    free(site_buff1);
+    site_buff1 = malloc(100*sizeof(char));
+    free(site_buff2);
+    site_buff2 = malloc(100*sizeof(char));
+    flag=0;
     while(1){
         while((c = fgetc(fp))!=','){
             // if EOF is read, it will be done here, instead of reading the first 
@@ -327,10 +336,18 @@ void csvparser(hash_map* map, clique_list* all_cliques){
         }
         
         matching = fgetc(fp);
+
         if(matching == '0'){
             list_node *a, *b;
             a = find_root(find_node(map, site_buff1));
             b = find_root(find_node(map, site_buff2));
+            // if(a != NULL){
+                // printf("%s",a->id);
+            // }
+            // if(b != NULL){
+                // printf("\t%s\t0\n",b->id);
+            // }
+            
             if(a->ngl == NULL){
                 neglist_create(&a);
             }
@@ -345,6 +362,7 @@ void csvparser(hash_map* map, clique_list* all_cliques){
         site_buff1 = malloc(100*sizeof(char));
         free(site_buff2);
         site_buff2 = malloc(100*sizeof(char));
+        chars_written = 0;
     }
     
     

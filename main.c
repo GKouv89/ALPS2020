@@ -8,6 +8,7 @@
 #include "hashmap.h"
 #include "tuplist.h"
 #include "set.h"
+#include "negcl.h"
 
 int main(int argc, char* argv[]){
     srand(time(NULL));
@@ -19,7 +20,14 @@ int main(int argc, char* argv[]){
     parser(map);
     csvparser(map, all_cliques);
     
-    print_all_cliques(0, all_cliques);
+    // print_all_cliques(0, all_cliques);
+    clique_list_node* temp=all_cliques->front;
+    while(temp!=NULL){
+        neglist_print(temp->representative);
+        temp=temp->next;
+    }
+    
+    
     destroy_map(&map);
     destroy_clique_list(&all_cliques);
 }

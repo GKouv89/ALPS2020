@@ -20,7 +20,7 @@ void tuplist_create(tuplelist **tl, int *error){
 }
 
 node_tuple* tuplist_create_node(char* buffname, char* buffval){
-    node_tuple* node = malloc(sizeof(node));
+    node_tuple* node = malloc(sizeof(node_tuple));
     node->name = malloc(strlen(buffname)+1); //allocating buffer size + 1
     strcpy(node->name, buffname); //coping atr name from buffer to node
     node->value = malloc(strlen(buffval)+1);
