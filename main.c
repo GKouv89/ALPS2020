@@ -20,12 +20,15 @@ int main(int argc, char* argv[]){
     parser(map);
     csvparser(map, all_cliques);
     
-    // print_all_cliques(0, all_cliques);
-    clique_list_node* temp=all_cliques->front;
-    while(temp!=NULL){
-        neglist_print(temp->representative);
-        temp=temp->next;
-    }
+    print_all_cliques(0, all_cliques);
+    // medium 46666 with first row
+    // large 341930 -//-
+    
+    // clique_list_node* temp=all_cliques->front;
+    // while(temp!=NULL){
+        // neglist_print(temp->representative);
+        // temp=temp->next;
+    // }
     
     
     destroy_map(&map);

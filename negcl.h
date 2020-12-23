@@ -10,6 +10,7 @@ typedef struct ngnode{
     struct node *neg_clique; 
     // representative of each final positive relation clique will be here
     struct ngnode *next_in_negclique;
+    int printed;
 }neg_node; //nodes for negative relationship cliques
 
 typedef struct nglist{

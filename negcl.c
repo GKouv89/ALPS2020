@@ -21,6 +21,7 @@ neg_node* create_negnode(list_node* cld){
     // new_node->neg_clique = malloc(sizeof(clique_list_node));
     new_node->neg_clique = cld;
     new_node->next_in_negclique = NULL;
+    new_node->printed = 1;
     return new_node;
 }
 
@@ -48,7 +49,7 @@ void neglist_add(/*neg_list* neglist, */list_node* repres01, list_node* repres02
         neg_node *temp;
         temp = repres01->ngl->front;
         int flag = 0; //we assume that repres02 isn't included in repres01's neglist 
-        while(temp->next_in_negclique != NULL){
+        while(temp != NULL){//->next_in_negclique != NULL){
             if(strcmp(temp->neg_clique->id,repres02->id)==0){
                 flag = 1;
                 break;
@@ -89,16 +90,30 @@ void neglist_print(list_node* repres){
     while(temp){
         rep_temp = repres;
         neg_temp = temp->neg_clique;
-        while(rep_temp){
-            while(neg_temp){
-                printf("%s, %s, 0\n", rep_temp->id, neg_temp->id);
-                neg_temp = neg_temp->next_in_clique;
+        
+        if(temp->printed){
+            neg_node* sernode = neg_temp->ngl->front;
+            while(sernode){//searching for repres in neg_temp's ngl to avoid printing duplicates
+                if(strcmp(sernode->neg_clique->id,repres->id)==0){
+                    sernode->printed = 0;
+                    break;
+                }
+                sernode = sernode->next_in_negclique;
             }
-            rep_temp = rep_temp->next_in_clique;
-            neg_temp = temp->neg_clique;
+            
+            ///
+            while(rep_temp){
+                while(neg_temp){
+                    printf("%s, %s, 0\n", rep_temp->id, neg_temp->id);
+                    neg_temp = neg_temp->next_in_clique;
+                }
+                rep_temp = rep_temp->next_in_clique;
+                neg_temp = temp->neg_clique;
+            }
         }
         temp = temp->next_in_negclique;
     }
+    //printf("printed all neg list representatives of %s\n",repres->id);
 }
 
 void delete_negnode(neg_node** negptr){
