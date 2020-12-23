@@ -9,6 +9,7 @@
 #include "hashmap.h"
 #include "tuplist.h"
 #include "set.h"
+#include "negcl.h"
 
 #include "BOW/bow.h"
 #include "BOW/dictionary.h"
@@ -44,7 +45,16 @@ int main(int argc, char* argv[]){
     csvparser(map, all_cliques);
     printf("Positive association cliques OK\n");
     
-    // print_all_cliques(0, all_cliques);
+    print_all_cliques(0, all_cliques);
+    // medium 46666 with first row
+    // large 341930 -//-
+    
+    // clique_list_node* temp=all_cliques->front;
+    // while(temp!=NULL){
+        // neglist_print(temp->representative);
+        // temp=temp->next;
+    // }
+    
     compute_idf_vals(idf_vec);
     printf("IDF completed\n");
     tf *tfarr;
@@ -60,7 +70,7 @@ int main(int argc, char* argv[]){
     printf("AVG TF-IDF values sorted\n");
     destroy_idf_vector(&important_words);
     printf("Important word vector destroyed\n");
-    
+
     Vector *new_wordVec = crop_vector(wordVec, IMPWORDS);
     printf("wordVec cropped\n");
     destroy_vector(&wordVec);
@@ -82,6 +92,7 @@ int main(int argc, char* argv[]){
     printf("Destroyed tf array\n");
     destroy_tf(&tfarr_mini);
     printf("Destroyed mini tf array\n");
+
     destroy_map(&map);
     printf("Destroyed map\n");
     destroy(&l);

@@ -9,6 +9,7 @@
 #include "hashmap.h"
 #include "tuplist.h"
 #include "set.h"
+#include "negcl.h"
 
 #define PATH "camera_specs/2013_camera_specs/" // WE SHALL ALLOW THE USER TO ENTER THE PATH THROUGH 
 // KEYBOARD INPUT, BUT LATER 
@@ -258,6 +259,18 @@ void csvparser(hash_map* map, clique_list* all_cliques){
             b = find_node(map, site_buff2);
             join_sets(all_cliques, a, b);
         }
+        // else{
+            // list_node *a, *b;
+            // a = find_root(find_node(map, site_buff1));
+            // b = find_root(find_node(map, site_buff2));
+            // if(a->ngl == NULL){
+                // neglist_create(&a);
+            // }
+            // if(b->ngl == NULL){
+                // neglist_create(&b);
+            // }
+            // neglist_add(a,b);     
+        // }
         c = fgetc(fp); // removing \n from being added at the
                        // start of next buffer
         free(site_buff1);
@@ -266,8 +279,81 @@ void csvparser(hash_map* map, clique_list* all_cliques){
         site_buff2 = malloc(100*sizeof(char));
         chars_written = 0;
     } 
+    
+    //reseting file pointer to make negative relationship clique
+    fseek(fp, 0, SEEK_SET);
+    do{
+        c = fgetc(fp);
+    }while(c != '\n');
+    free(site_buff1);
+    site_buff1 = malloc(100*sizeof(char));
+    free(site_buff2);
+    site_buff2 = malloc(100*sizeof(char));
+    flag=0;
+    while(1){
+        while((c = fgetc(fp))!=','){
+            // if EOF is read, it will be done here, instead of reading the first 
+            // column of a new line.
+            if(feof(fp)){
+                flag = 1;
+                break;
+            }
+            chars_written++;
+            if(chars_written == 1){
+                strcpy(site_buff1, (char*)&c);
+            }else{
+                strcat(site_buff1, (char*)&c);
+            }
+        }
+        if(flag){ // If flag==1 then we've reached 
+                  //the last (blank) line in the file and EOF
+            break;
+        }
+        chars_written = 0;
+        
+        while((c = fgetc(fp))!=','){ //no need to check for EOF here
+            chars_written++;
+            if(chars_written == 1){
+                strcpy(site_buff2, (char*)&c);
+            }else{
+                strcat(site_buff2, (char*)&c);
+            }
+        }
+        
+        matching = fgetc(fp);
+
+        if(matching == '0'){
+            list_node *a, *b;
+            a = find_root(find_node(map, site_buff1));
+            b = find_root(find_node(map, site_buff2));
+            // if(a != NULL){
+                // printf("%s",a->id);
+            // }
+            // if(b != NULL){
+                // printf("\t%s\t0\n",b->id);
+            // }
+            
+            if(a->ngl == NULL){
+                neglist_create(&a);
+            }
+            if(b->ngl == NULL){
+                neglist_create(&b);
+            }
+            neglist_add(a,b);     
+        }
+        c = fgetc(fp); // removing \n from being added at the
+                       // start of next buffer
+        free(site_buff1);
+        site_buff1 = malloc(100*sizeof(char));
+        free(site_buff2);
+        site_buff2 = malloc(100*sizeof(char));
+        chars_written = 0;
+    }
+    
+    
     if(fclose(fp)!= 0){
         fprintf(stderr, "Couldn't close csv file.\n");
     }
     
 }
+
