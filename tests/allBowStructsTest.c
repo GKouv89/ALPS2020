@@ -173,35 +173,43 @@ void test_all_bow_strctures(void){
         closedir(child_dir);
         current_folder = readdir(dir);
     }
-    // printf("IDF VECTOR\n");
-    // for(int i = 0; i < idf_vec->size; i++){
-        // if(i == 0 || i == 1){
-            // TEST_ASSERT(idf_vec->elements[i] == (double) 5);
-        // }
-        // printf("word %d appears in %d out of 5 texts\n", i, (int) idf_vec->elements[i]);
-    // }
     compute_idf_vals(idf_vec);
-    // for(int i = 1; i < VECTORS; i++){
-        // printf("File %s contains %d words\n", bag->vectors[i]->name, bag->vectors[i]->word_count);
-    // }
     tf *tfarr;
     create_tf(&tfarr, idf_vec->size);
     TEST_ASSERT(tfarr->wordVec->size == idf_vec->size);
     IDFVector *important_words = compute_tf_idf(bag, tfarr, idf_vec);
+    
+    printf("FIRST TF-IDF TABLE\n");
+    for(int i = 0; i < tfarr->wordVec->size; i++){
+      printf("word no. %d: ", tfarr->wordVec->elements[i]);
+      for(int j = 0; j < TFVECTORS; j++){
+        printf("%lf ", tfarr->vectors[j]->elements[i]);
+      }
+      printf("\n");
+    }
+    
     Vector *wordVec = copy_vector(tfarr->wordVec);
     sort_avg_tf_idf(wordVec, important_words, 0, wordVec->size - 1);
     wordVec = crop_vector(wordVec, 100);
-    important_words = crop_idf_vector(important_words, 100);
-    printf("\nAfter sorting and cropping, 100 most important words\n");
-    for(int i = 0; i < 100; i++){
-      printf("word no. %d has avg tf-idf of %lf\n", wordVec->elements[i], important_words->elements[i]);
-    }
+    // important_words = crop_idf_vector(important_words, 100);
     sort_important_words_indices(wordVec, 0, wordVec->size - 1);
-    printf("Important words sorted by increasing index\n");
-    for(int i = 0; i < wordVec->size; i++){
-      printf("%d\n", wordVec->elements[i]);
+    // printf("Important words sorted by increasing index\n");
+    
+    tf *tfarr_mini;
+    create_tf(&tfarr_mini, 100);
+    TEST_ASSERT(tfarr_mini->wordVec->size == 100);
+    size_down_tf_idf(tfarr, tfarr_mini, wordVec);
+    destroy_tf(&tfarr);
+    printf("MINI TF-IDF TABLE\n");
+    for(int i = 0; i < tfarr_mini->wordVec->size; i++){
+      printf("word no. %d: ", tfarr_mini->wordVec->elements[i]);
+      for(int j = 0; j < TFVECTORS; j++){
+        printf("%lf ", tfarr_mini->vectors[j]->elements[i]);
+      }
+      printf("\n");
     }
     // print_tree(tree);
+    destroy_tf(&tfarr_mini);
     destroy_tree(&tree);
     TEST_ASSERT(tree == NULL);
     free(path);
@@ -215,7 +223,6 @@ void test_all_bow_strctures(void){
     TEST_ASSERT(bag == NULL);
     destroy_idf_vector(&idf_vec);
     TEST_ASSERT(idf_vec == NULL);
-    destroy_tf(&tfarr);
     destroy_idf_vector(&important_words);
     destroy_vector(&wordVec);
 }    

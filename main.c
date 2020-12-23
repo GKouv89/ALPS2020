@@ -44,7 +44,7 @@ int main(int argc, char* argv[]){
     csvparser(map, all_cliques);
     printf("Positive association cliques OK\n");
     
-    print_all_cliques(0, all_cliques);
+    // print_all_cliques(0, all_cliques);
     compute_idf_vals(idf_vec);
     printf("IDF completed\n");
     tf *tfarr;
@@ -58,34 +58,30 @@ int main(int argc, char* argv[]){
     Vector *wordVec = copy_vector(tfarr->wordVec);
     sort_avg_tf_idf(wordVec, important_words, 0, wordVec->size - 1);
     printf("AVG TF-IDF values sorted\n");
+    destroy_idf_vector(&important_words);
+    printf("Important word vector destroyed\n");
     
     Vector *new_wordVec = crop_vector(wordVec, IMPWORDS);
     printf("wordVec cropped\n");
     destroy_vector(&wordVec);
     
-    // /* A BUG IN THIS PART OF THE CODE: POSSIBLY CROP_IDF_VECTOR */
-    IDFVector *new_important_words = crop_idf_vector(important_words, IMPWORDS);
-    printf("important words cropped\n");
-    /* A BUG IN THIS PART OF THE CODE: POSSIBLY CROP_IDF_VECTOR */    
-    destroy_idf_vector(&important_words);
-    printf("Important word vector destroyed\n");
-    
-    // printf("MOST IMPORTANT WORDS AFTER CROPPING\n");
-    // for(int i = 0; i < IMPWORDS; i++){
-        // printf("word no %d has avg tf-idf val of %lf\n", new_wordVec->elements[i],new_important_words->elements[i]);
-    // }
-    // // print_tree(dict);
-    // // tf *tfarr_new;
-    // // create_tf(&tfarr_new, IMPWORDS);
+    // print_tree(dict);
     
     sort_important_words_indices(new_wordVec, 0, new_wordVec->size - 1);
-    printf("IMPORTANT WORDS SORTED BY INCREASING INDEX\n");
-    for(int i = 0; i < new_wordVec->size; i++){
-      printf("%d\n", new_wordVec->elements[i]);
-    }
-    printf("DONE WITH IMPORTANT WORDS SORTED BLAH BLAH\n");
+    // printf("IMPORTANT WORDS SORTED BY INCREASING INDEX\n");
+    // for(int i = 0; i < new_wordVec->size; i++){
+      // printf("%d\n", new_wordVec->elements[i]);
+    // }
+    // printf("DONE WITH IMPORTANT WORDS SORTED BY INCREASING INDEX\n");
+
+    tf *tfarr_mini;
+    create_tf(&tfarr_mini, IMPWORDS);
+    size_down_tf_idf(tfarr, tfarr_mini, new_wordVec);
+    printf("TF-IDF mini array calculated\n");
     destroy_tf(&tfarr);
     printf("Destroyed tf array\n");
+    destroy_tf(&tfarr_mini);
+    printf("Destroyed mini tf array\n");
     destroy_map(&map);
     printf("Destroyed map\n");
     destroy(&l);
@@ -98,6 +94,4 @@ int main(int argc, char* argv[]){
     printf("destroyed idf vector\n");
     destroy_vector(&new_wordVec);
     printf("destroyed new_wordVec\n");
-    destroy_idf_vector(&new_important_words);
-    printf("destroyed new_important_words\n");
 }

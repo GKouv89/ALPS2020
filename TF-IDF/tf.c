@@ -98,9 +98,16 @@ void sort_avg_tf_idf(Vector *wordVec, IDFVector* important_words, int first, int
 }
 
 
-// void size_down_tf_idf(tf *tfarr, tf *tfarr_new, Vector *wordVec, IDFVector *important_words){
-  
-// }
+void size_down_tf_idf(tf *tfarr, tf *tfarr_new, Vector *wordVec/*, IDFVector *important_words*/){
+  int position;
+  for(int i = 0; i < wordVec->size; i++){
+    position = wordVec->elements[i];
+    tfarr_new->wordVec->elements[i] = tfarr->wordVec->elements[position];
+    for(int j = 0; j < TFVECTORS; j++){
+      tfarr_new->vectors[j]->elements[i] = tfarr->vectors[j]->elements[position];
+    }
+  }
+}
 
 void destroy_tf(tf **tfarr){
     destroy_vector(&(*tfarr)->wordVec);

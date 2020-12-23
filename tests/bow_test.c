@@ -129,18 +129,31 @@ void test_idf(void){
     for(int i = 0; i < important_words->size; i++){
       printf("%lf ", important_words->elements[i]);
     }
-    printf("\nAfter crop\n");
-    wordVec = crop_vector(wordVec, 1);
-    important_words = crop_idf_vector(important_words, 1);
-    for(int i = 0; i < wordVec->size; i++){
-      printf("word no %d has avg tf-idf value of %lf\n", wordVec->elements[i], important_words->elements[i]);
+    wordVec = crop_vector(wordVec, 3);
+    sort_important_words_indices(wordVec, 0, wordVec->size - 1);
+    
+    tf *tfarr_mini;
+    create_tf(&tfarr_mini, wordVec->size);
+    TEST_ASSERT(tfarr_mini->wordVec->size == 3);
+    size_down_tf_idf(tfarr, tfarr_mini, wordVec);
+    destroy_tf(&tfarr);
+    
+    printf("AFTER SIZING DOWN\n");
+    for(int i = 0; i < tfarr_mini->wordVec->size; i++){
+      printf("%d\t", tfarr_mini->wordVec->elements[i]);
     }
     printf("\n");
+    for(int i = 0; i < TFVECTORS; i++){
+      for(int j = 0; j < tfarr_mini->vectors[i]->size; j++){
+        printf("%lf ", tfarr_mini->vectors[i]->elements[j]);
+      }
+      printf("\n");
+    }
+    destroy_tf(&tfarr_mini);
     destroy_bow(&bag);
     TEST_ASSERT(bag == NULL);
     destroy_vector(&wordVec);
     destroy_idf_vector(&idf_vec);
-    destroy_tf(&tfarr);
     destroy_idf_vector(&important_words);
 }
 
