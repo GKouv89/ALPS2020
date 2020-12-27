@@ -6,6 +6,7 @@
 
 typedef struct node{
     char* id; // this will be of the format folder_name//file_numeric_id
+    int vec_num;
     tuplelist *content;
     struct node *previous; // previous in hash bucket overflow list
     struct node *next; // next in hash bucket overflow list
@@ -24,7 +25,7 @@ typedef struct list{
 } info_list;
 
 void list_create(info_list**);
-list_node* create_node(char*);
+list_node* create_node(char*, int);
 void list_add(info_list*, list_node*);
 void list_print(info_list*);
 void delete_node(list_node**);

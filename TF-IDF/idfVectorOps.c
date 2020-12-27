@@ -8,6 +8,7 @@
 
 void create_idf_vector(IDFVector **vec){
     *vec = malloc(sizeof(IDFVector));
+    (*vec)->name = NULL;
     (*vec)->size = 0;
     (*vec)->capacity = CAPACITY;
     (*vec)->elements = calloc((*vec)->capacity, sizeof(double));
@@ -55,6 +56,7 @@ void compute_idf_vals(IDFVector *idf_vec){
 }
 
 void destroy_idf_vector(IDFVector **vec){
+    free((*vec)->name);
     free((*vec)->elements);
     free(*vec);
     *vec = NULL;

@@ -5,12 +5,6 @@
 #include <assert.h>
 #include "parse.h"
 
-#include "datatypes.h"
-#include "hashmap.h"
-#include "tuplist.h"
-#include "set.h"
-#include "negcl.h"
-
 #define PATH "camera_specs/2013_camera_specs/" // WE SHALL ALLOW THE USER TO ENTER THE PATH THROUGH 
 // KEYBOARD INPUT, BUT LATER 
 
@@ -118,7 +112,7 @@ void parser(hash_map* map, sw_list *l, BoW *bag, tree_node **dict, IDFVector *id
                 int hash_val = hash_function(map, id_buf);
 
                 // NODE CREATION
-                list_node* pseudonode = create_node(id_buf);
+                list_node* pseudonode = create_node(id_buf, text_counter);
 
                 fp = fopen(file_path,"r");
                 assert(fp != NULL);

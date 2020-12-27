@@ -10,6 +10,7 @@
 #endif
 
 typedef struct idf_vector{
+    char *name;
     int capacity;
     int size;
     double *elements;

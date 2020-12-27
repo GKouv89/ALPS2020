@@ -41,6 +41,8 @@ IDFVector* compute_tf_idf(BoW *bag, tf *tfarr, IDFVector *idf_vec){
     memset(important_words->elements, 0, important_words->capacity*sizeof(double));
     
     for(int i = 0; i < TFVECTORS; i++){
+        tfarr->vectors[i]->name = malloc((strlen(bag->vectors[i+1]->name) + 1)*sizeof(char));
+        strcpy(tfarr->vectors[i]->name, bag->vectors[i+1]->name);
         for(int j = 0; j < bag->vectors[i]->size; j++){
             tfarr->vectors[i]->elements[j] = bag->vectors[i+1]->elements[j];
             tfarr->vectors[i]->elements[j] /= bag->vectors[i+1]->word_count;
@@ -100,6 +102,10 @@ void sort_avg_tf_idf(Vector *wordVec, IDFVector* important_words, int first, int
 
 void size_down_tf_idf(tf *tfarr, tf *tfarr_new, Vector *wordVec/*, IDFVector *important_words*/){
   int position;
+  for(int i = 0; i < TFVECTORS; i++){
+    tfarr_new->vectors[i]->name = malloc((strlen(tfarr->vectors[i]->name) + 1)*sizeof(char));
+    strcpy(tfarr_new->vectors[i]->name, tfarr->vectors[i]->name);
+  }
   for(int i = 0; i < wordVec->size; i++){
     position = wordVec->elements[i];
     tfarr_new->wordVec->elements[i] = tfarr->wordVec->elements[position];

@@ -3,6 +3,9 @@
 
 #include "hashmap.h"
 #include "set.h"
+#include "datatypes.h"
+#include "tuplist.h"
+#include "negcl.h"
 
 #include "BOW/stopwords.h"
 #include "BOW/stringOps.h"

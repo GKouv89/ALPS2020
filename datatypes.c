@@ -10,10 +10,11 @@ void list_create(info_list** list){
     (*list)->rear = NULL;
 }
 
-list_node* create_node(char* temp_id){
+list_node* create_node(char* temp_id, int vecNum){
     list_node* new_node = malloc(sizeof(list_node));
     new_node->id = malloc((strlen(temp_id) + 1)*sizeof(char));
     strcpy(new_node->id, temp_id);
+    new_node->vec_num = vecNum;
     new_node->content = NULL;
     new_node->ngl = NULL;
     new_node->previous = new_node->next = new_node->parent = new_node->next_in_clique = NULL;
