@@ -9,7 +9,7 @@
 #define TRAINING_SET "TrainingSet.csv"
 #define VALIDATION_SET "ValidationSet.csv"
 #define EPOCHS 5
-#define EPSILON 0.05
+#define EPSILON 0.001
 
 #include "TF-IDF/idfVectorOps.h"
 #include "TF-IDF/tf.h"
@@ -20,7 +20,7 @@ double coefficients[COEFF_AMOUNT];
 void init_coefficients();
 void train(hash_map *, tf *);
 double sigmoid(double );
-double f(IDFVector *, IDFVector *);
-int update_coefficients(double, double, IDFVector *, IDFVector *);
+double f(IDFVector *);
+int update_coefficients(double, double, IDFVector *);
 void validate(hash_map *, tf *);
 #endif

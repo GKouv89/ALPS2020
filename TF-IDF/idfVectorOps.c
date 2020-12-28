@@ -55,6 +55,21 @@ void compute_idf_vals(IDFVector *idf_vec){
     }
 }
 
+IDFVector* concatenate_idf_vectors(IDFVector *vec1, IDFVector *vec2){
+  IDFVector *new_vector = malloc(sizeof(IDFVector));
+  new_vector->size = vec1->size + vec2->size;
+  new_vector->capacity = vec1->capacity + vec2->capacity;
+  assert(new_vector->size == new_vector->capacity);
+  new_vector->elements = calloc(new_vector->capacity, sizeof(double));
+  for(int i = 0; i < vec1->size; i++){
+    new_vector->elements[i] = vec1->elements[i];
+  }
+  for(int i = 0; i < vec2->size; i++){
+    new_vector->elements[vec1->size + i] = vec2->elements[i];
+  }
+  return new_vector;
+}
+
 void destroy_idf_vector(IDFVector **vec){
     free((*vec)->name);
     free((*vec)->elements);

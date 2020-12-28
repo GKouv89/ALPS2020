@@ -44,7 +44,7 @@ int main(int argc, char* argv[]){
     csvparser(map, all_cliques);
     fprintf(stderr, "Positive association cliques OK\n");
     
-    print_all_cliques(0, all_cliques);
+    // print_all_cliques(0, all_cliques);
     // medium 46666 with first row
     // large 341930 -//-
     
