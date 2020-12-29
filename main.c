@@ -100,6 +100,8 @@ int main(int argc, char* argv[]){
       // fprintf(stderr, "%lf\n", coefficients[i]);
     // }
     validate(map, tfarr_mini);
+    fprintf(stderr, "TEST SET\n");
+    test(map, tfarr_mini);
     
     destroy_tf(&tfarr_mini);
     fprintf(stderr, "Destroyed mini tf array\n");

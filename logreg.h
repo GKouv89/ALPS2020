@@ -8,6 +8,7 @@
 #define COEFF_AMOUNT 2*IMPWORDS+1
 #define TRAINING_SET "TrainingSet.csv"
 #define VALIDATION_SET "ValidationSet.csv"
+#define TEST_SET "TestSet.csv"
 #define EPOCHS 5
 #define EPSILON 0.001
 
@@ -23,4 +24,5 @@ double sigmoid(double );
 double f(IDFVector *);
 int update_coefficients(double, double, IDFVector *);
 void validate(hash_map *, tf *);
+void test(hash_map *, tf *);
 #endif

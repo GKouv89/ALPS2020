@@ -3,6 +3,7 @@
 #include "../BOW/vectorOps.h"
 #include "../TF-IDF/idfVectorOps.h"
 #include "../TF-IDF/tf.h"
+#include "../logreg.h"
 
 struct word{
     int word_no;
@@ -138,7 +139,7 @@ void test_idf(void){
     size_down_tf_idf(tfarr, tfarr_mini, wordVec);
     destroy_tf(&tfarr);
     
-    printf("AFTER SIZING DOWN\n");
+    printf("\nAFTER SIZING DOWN\n");
     for(int i = 0; i < tfarr_mini->wordVec->size; i++){
       printf("%d\t", tfarr_mini->wordVec->elements[i]);
     }
@@ -149,6 +150,28 @@ void test_idf(void){
       }
       printf("\n");
     }
+    IDFVector *new_vec = concatenate_idf_vectors(tfarr_mini->vectors[0], tfarr_mini->vectors[1]);
+    printf("\nAFTER CONCAT\n");
+    for(int i = 0; i < new_vec->size; i++){
+      printf("%lf ", new_vec->elements[i]);
+    }
+    printf("\n");
+    double prediction = sigmoid(f(new_vec));
+    printf("prediction: %.16lf\n", prediction);
+    double ground_truth = 1;
+    printf("NEW COEFFICIENTS\n");
+    update_coefficients(prediction, ground_truth, new_vec);
+    for(int i = 0; i < COEFF_AMOUNT; i++){
+      printf("%.16lf ", coefficients[i]);
+    }
+    prediction = sigmoid(f(new_vec));
+    printf("\n2nd prediction: %.16lf\n", prediction);
+    printf("NEW COEFFICIENTS\n");
+    update_coefficients(prediction, ground_truth, new_vec);
+    for(int i = 0; i < COEFF_AMOUNT; i++){
+      printf("%.16lf ", coefficients[i]);
+    }
+    printf("\n");
     destroy_tf(&tfarr_mini);
     destroy_bow(&bag);
     TEST_ASSERT(bag == NULL);
