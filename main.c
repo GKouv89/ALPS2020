@@ -95,10 +95,12 @@ int main(int argc, char* argv[]){
       assert(coefficients[i] == 0);
     }
     train(map, tfarr_mini);
-    fprintf(stderr, "Match between tf-idf vectors and file names is OK\n");
-    for(int i = 0; i < COEFF_AMOUNT; i++){
-      fprintf(stderr, "%lf\n", coefficients[i]);
-    }
+    // fprintf(stderr, "Match between tf-idf vectors and file names is OK\n");
+    // for(int i = 0; i < COEFF_AMOUNT; i++){
+      // fprintf(stderr, "%lf\n", coefficients[i]);
+    // }
+    validate(map, tfarr_mini);
+    
     destroy_tf(&tfarr_mini);
     fprintf(stderr, "Destroyed mini tf array\n");
 
