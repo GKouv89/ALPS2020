@@ -3,6 +3,7 @@
 
 #include "set.h"
 #include "hashmap.h"
+#include "stdlib.h"
 
 void create_clique_list(clique_list** list){
     (*list) = malloc(sizeof(clique_list));
@@ -111,30 +112,153 @@ list_node* join_sets(clique_list* l, list_node* a, list_node* b){
 
 void print_all_cliques(int opt, clique_list* l){
     clique_list_node *temp = l->front;
+    clique_list_node *temp2 = l->front;
+
+    FILE *fp1; // for positive relationship cliques
+    FILE *fp2; // for negative relationship cliques
+    FILE *fp3; // For random order results
+    
+    FILE *trainp; // Pointer to Training Set
+    FILE *validp; // Pointer to Validation Set
+    FILE *testp; // Pointer to Test Set
+    
+    // Preparing files for result splitting 
+    fp1 = fopen("poscliques.csv","w+");
+    fp2 = fopen("negcliques.csv","w+");
+    fp3 = fopen("randresults.csv","w+");
+    
+    trainp = fopen("TrainingSet.csv","w+");
+    validp = fopen("ValidationSet.csv","w+");
+    testp = fopen("TestSet.csv","w+");
+    
+    if(fp1 == NULL){
+        fprintf(stderr, "Couldn't open poscliques.csv file.\n");
+    }
+    if(fp2 == NULL){
+        fprintf(stderr, "Couldn't open negcliques.csv file.\n");
+    }
+    if(fp3 == NULL){
+        fprintf(stderr, "Couldn't randresults.csv file.\n");
+    }
+    
     printf("left_spec_id, right_spec_id\n");
     // if(opt==1){
         while(temp){
-            // printf("\n");
-            print_clique(opt, temp->representative);
+            // // printf("\n");
+            print_clique(opt, temp->representative, fp1);
             temp = temp->next;
         }
     // }else{
         temp = l->front;
         while(temp){
-            // printf("\n");
-            neglist_print(temp->representative);
+            // // printf("\n");
+            neglist_print(temp->representative, fp2);
             temp = temp->next;
         }
     // }
+    //Creating random order results file
+    int randomizer;
+    double setnum;
+    char *temps;
+    size_t *n;
+    temps = malloc(300*sizeof(char));
+    fseek(fp1, 0, SEEK_SET);
+    fseek(fp2, 0, SEEK_SET);
+    randomizer = (rand()%2);
+    while(feof(fp1)!=1 && feof(fp2)!=1){
+        if(randomizer==1){
+            getline(&temps,n,fp1);
+            fprintf(fp3,"%s",temps);
+            setnum =(double)rand()/(double)RAND_MAX;
+            if(setnum<0.6){ //add line to training set
+                fprintf(trainp,"%s",temps);
+            }else if(0.6<=setnum && setnum<0.8){ //add line to validation set
+                fprintf(validp,"%s",temps);
+            }else{ //add line to test set
+                fprintf(testp,"%s",temps);
+            }
+            free(temps);
+            temps = malloc(300*sizeof(char));
+            randomizer = (rand()%2);
+        }else{
+            getline(&temps,n,fp2);
+            fprintf(fp3,"%s",temps);
+            setnum =(double)rand()/(double)RAND_MAX;
+            if(setnum<0.6){ //add line to training set
+                fprintf(trainp,"%s",temps);
+            }else if(0.6<=setnum && setnum<0.8){ //add line to validation set
+                fprintf(validp,"%s",temps);
+            }else{ //add line to test set
+                fprintf(testp,"%s",temps);
+            }
+            free(temps);
+            temps = malloc(300*sizeof(char));
+            randomizer = (rand()%2);
+        }
+    }
+    if(feof(fp1)){
+        while(feof(fp2)!=1){
+            getline(&temps,n,fp2);
+            fprintf(fp3,"%s",temps);
+            setnum =(double)rand()/(double)RAND_MAX;
+            if(setnum<0.6){ //add line to training set
+                fprintf(trainp,"%s",temps);
+            }else if(0.6<=setnum && setnum<0.8){ //add line to validation set
+                fprintf(validp,"%s",temps);
+            }else{ //add line to test set
+                fprintf(testp,"%s",temps);
+            }
+            free(temps);
+            temps = malloc(300*sizeof(char));
+            randomizer = (rand()%2);
+        }
+    }else if(feof(fp2)){
+        while(feof(fp1)!=1){
+            getline(&temps,n,fp1);
+            fprintf(fp3,"%s",temps);
+            setnum =(double)rand()/(double)RAND_MAX;
+            if(setnum<0.6){ //add line to training set
+                fprintf(trainp,"%s",temps);
+            }else if(0.6<=setnum && setnum<0.8){ //add line to validation set
+                fprintf(validp,"%s",temps);
+            }else{ //add line to test set
+                fprintf(testp,"%s",temps);
+            }
+            free(temps);
+            temps = malloc(300*sizeof(char));
+            randomizer = (rand()%2);
+        }
+    }
+    
+    ////////////////////////////////////
+    
+    if(fclose(fp1)!= 0){
+        fprintf(stderr, "Couldn't close poscliques.csv file.\n");
+    }
+    if(fclose(fp2)!= 0){
+        fprintf(stderr, "Couldn't close negcliques.csv file.\n");
+    }
+    if(fclose(fp3)!= 0){
+        fprintf(stderr, "Couldn't close randresults.csv file.\n");
+    }
+    if(fclose(trainp)!= 0){
+        fprintf(stderr, "Couldn't close TrainingSet.csv file.\n");
+    }
+    if(fclose(validp)!= 0){
+        fprintf(stderr, "Couldn't close ValidationSet.csv file.\n");
+    }
+    if(fclose(testp)!= 0){
+        fprintf(stderr, "Couldn't close TestSet.csv file.\n");
+    }
 }
 
-void print_clique(int opt, list_node *root){
+void print_clique(int opt, list_node *root, FILE* fp){
     list_node *temp = root;
     list_node *temp_2;
     while(temp != NULL){
         temp_2 = temp->next_in_clique;
         while(temp_2 != NULL){
-            printf("%s, %s\n", temp->id, temp_2->id);
+            fprintf(fp,"%s, %s, 1\n", temp->id, temp_2->id);
             temp_2 = temp_2->next_in_clique;
         }
         temp = temp->next_in_clique;

@@ -77,7 +77,7 @@ void neglist_add(/*neg_list* neglist, */list_node* repres01, list_node* repres02
     }
 }
 
-void neglist_print(list_node* repres){
+void neglist_print(list_node* repres, FILE* fp){
     list_node *rep_temp = repres;
     neg_node* temp;
     if(repres->ngl!=NULL){
@@ -104,7 +104,7 @@ void neglist_print(list_node* repres){
             ///
             while(rep_temp){
                 while(neg_temp){
-                    printf("%s, %s, 0\n", rep_temp->id, neg_temp->id);
+                    fprintf(fp,"%s, %s, 0\n", rep_temp->id, neg_temp->id);
                     neg_temp = neg_temp->next_in_clique;
                 }
                 rep_temp = rep_temp->next_in_clique;

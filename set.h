@@ -22,7 +22,7 @@ void insert_master(clique_list*, list_node*);
 void remove_master(clique_list*, list_node*);
 list_node* find_root(list_node*);
 list_node* join_sets(clique_list*, list_node*, list_node*);
-void print_clique(int, list_node*);
+void print_clique(int, list_node*, FILE*);
 void print_all_cliques(int, clique_list*);
 void delete_clique_node(clique_list_node**);
 void destroy_clique_list(clique_list **);

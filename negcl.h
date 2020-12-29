@@ -21,7 +21,7 @@ typedef struct nglist{
 void neglist_create(struct node**);
 neg_node* create_negnode(struct node *);
 void neglist_add(struct node*, struct node*);
-void neglist_print(struct node*);
+void neglist_print(struct node*, FILE*);
 void delete_negnode(neg_node**);
 void destroy_neglist(struct node**);
 #endif
