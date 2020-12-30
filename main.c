@@ -94,7 +94,7 @@ int main(int argc, char* argv[]){
     for(int i = 0; i < COEFF_AMOUNT; i++){
       assert(coefficients[i] == 0);
     }
-    train(map, tfarr_mini);
+    // train(map, tfarr_mini);
     fprintf(stderr, "Match between tf-idf vectors and file names is OK\n");
     for(int i = 0; i < COEFF_AMOUNT; i++){
       fprintf(stderr, "%lf\n", coefficients[i]);
