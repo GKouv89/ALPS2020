@@ -21,7 +21,7 @@ void test_list_add(void){
     list_create(&list);
     TEST_CHECK(list != NULL);
     for(int i = 0; i < 5; i++){
-        node = create_node(testvectors[i].character);
+        node = create_node(testvectors[i].character, i);
         list_add(list, node);
     }
     list_node* temp = list->front;

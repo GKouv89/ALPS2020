@@ -2,6 +2,7 @@
 #include "../set.h"
 #include "../datatypes.h"
 #include "../hashmap.h"
+#include "../negcl.h"
 
 struct csv_line{
     char* left_spec;
@@ -113,11 +114,11 @@ void test_singular_clique_creation(void){
     list_node* node;
     int hash;
     for(int i = 0; i < 10; i++){
-        node = create_node(lines[i].right_spec);
+        node = create_node(lines[i].right_spec, i);
         hash = hash_function(map,lines[i].right_spec);
         add_to_bucket(map, hash, node);
     }
-    node = create_node(lines[0].left_spec);
+    node = create_node(lines[0].left_spec, 10);
     hash = hash_function(map,lines[0].left_spec);
     add_to_bucket(map, hash, node);
     print_bucket_no_of_entries(map);
@@ -145,10 +146,12 @@ void test_clique_insert(void){
     TEST_CHECK(list->front == NULL);
     TEST_CHECK(list->rear == NULL);
     list_node* node;
+	// Here, vector number argument passed to create_node does not contain a valid value,
+	// but that is not necessary for this test
     for(int i = 0; i < 9; i++){
-        node = create_node(mult_input[i].left_spec);
+        node = create_node(mult_input[i].left_spec, i);
         insert_master(list, node);
-        node = create_node(mult_input[i].right_spec);
+        node = create_node(mult_input[i].right_spec, i);
         insert_master(list, node);
     }
     clique_list_node* temp = list->front;
@@ -169,13 +172,13 @@ void test_clique_remove(void){
     TEST_CHECK(list->front == NULL);
     TEST_CHECK(list->rear == NULL);
     list_node *node0, *node1, *node2, *node3;
-    node0 = create_node(mult_input[0].left_spec);
+    node0 = create_node(mult_input[0].left_spec, 0);
     insert_master(list, node0);
-    node1 = create_node(mult_input[0].right_spec);
+    node1 = create_node(mult_input[0].right_spec, 1);
     insert_master(list, node1);
-    node2 = create_node(mult_input[1].left_spec);
+    node2 = create_node(mult_input[1].left_spec, 2);
     insert_master(list, node2);
-    node3 = create_node(mult_input[1].right_spec);
+    node3 = create_node(mult_input[1].right_spec, 3);
     insert_master(list, node3);
     
     remove_master(list, node1); // test a simple removal, 2nd element
@@ -196,11 +199,13 @@ void test_multiple_clique_creation(void){
     hash_map* map = create_map();
     list_node* node;
     int hash;
+	// Here, vector number argument passed to create_node does not contain a valid value
+	// but for this sort of test, we can ignore that
     for(int i = 0; i < 9; i++){
-        node = create_node(mult_input[i].left_spec);
+        node = create_node(mult_input[i].left_spec, i);
         hash = hash_function(map,mult_input[i].left_spec);
         add_to_bucket(map, hash, node);
-        node = create_node(mult_input[i].right_spec);
+        node = create_node(mult_input[i].right_spec, i);
         hash = hash_function(map,mult_input[i].right_spec);
         add_to_bucket(map, hash, node);
     }

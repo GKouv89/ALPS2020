@@ -82,11 +82,13 @@ void test_negclique_creation(void){
     hash_map* map = create_map();
     list_node* node;
     int hash;
+	// Vector number argument for create_node function does not
+	// contain a valid value, but for this part of testing we can safely ignore that
     for(int i = 0; i < 12; i++){
-        node = create_node(lines[i].right_spec);
+        node = create_node(lines[i].right_spec, i);
         hash = hash_function(map,lines[i].right_spec);
         add_to_bucket(map, hash, node);
-        node = create_node(lines[i].left_spec);
+        node = create_node(lines[i].left_spec, i);
         hash = hash_function(map,lines[i].left_spec);
         add_to_bucket(map, hash, node);
     }
