@@ -46,8 +46,6 @@ void main(){
     char *temps;
     size_t *n;
     temps = malloc(300*sizeof(char));
-    // fseek(fp1, 0, SEEK_SET);
-    // fseek(fp2, 0, SEEK_SET);
     randomizer = (rand()%2);
     while(feof(fp1)!=1 && feof(fp2)!=1){
         if(randomizer==1){
