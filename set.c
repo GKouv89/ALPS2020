@@ -111,7 +111,7 @@ list_node* join_sets(clique_list* l, list_node* a, list_node* b){
 
 void print_all_cliques(int opt, clique_list* l){
     clique_list_node *temp = l->front;
-    printf("left_spec_id, right_spec_id\n");
+    printf("left_spec_id, right_spec_id, label\n");
     // if(opt==1){
         while(temp){
             // printf("\n");

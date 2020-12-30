@@ -8,10 +8,6 @@
 #define PATH "camera_specs/2013_camera_specs/" // WE SHALL ALLOW THE USER TO ENTER THE PATH THROUGH 
 // KEYBOARD INPUT, BUT LATER 
 
-#ifndef DATASET
-    #define DATASET "sigmod_large_labelled_dataset.csv"
-#endif
-
 void parser(hash_map* map, sw_list *l, BoW *bag, tree_node **dict, IDFVector *idf_vec){
     struct dirent *current_folder, *current_file;
     char *path, *file_path = NULL;

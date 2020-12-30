@@ -4,13 +4,19 @@
 #include <assert.h>
 #include <math.h>
 #include "logreg.h"
+#include "parse.h"
 
 void init_coefficients(){
   memset(coefficients, 0, COEFF_AMOUNT*sizeof(double));
 }
 
 void train(hash_map *map, tf *tfarr_new){
-  FILE *fp = fopen(TRAINING_SET, "r");
+  FILE *fp;
+  if(strstr(DATASET, "medium") != NULL){
+    fp = fopen(TRAINING_SET_MEDIUM, "r");
+  }else{
+    fp = fopen(TRAINING_SET_LARGE, "r");
+  }
   assert(fp != NULL);
   size_t line_size = 1024;
   size_t bytes_read;
@@ -71,7 +77,12 @@ void train(hash_map *map, tf *tfarr_new){
 }
 
 void validate(hash_map *map, tf *tfarr_new){
-  FILE *fp = fopen(VALIDATION_SET, "r");
+  FILE *fp;
+  if(strstr(DATASET, "medium") != NULL){
+    fp = fopen(VALIDATION_SET_MEDIUM, "r");
+  }else{
+    fp = fopen(VALIDATION_SET_LARGE, "r");
+  }
   assert(fp != NULL);
   size_t line_size = 1024;
   size_t bytes_read;
@@ -151,7 +162,12 @@ void validate(hash_map *map, tf *tfarr_new){
 }
 
 void test(hash_map *map, tf *tfarr_new){
-  FILE *fp = fopen(TEST_SET, "r");
+  FILE *fp;
+  if(strstr(DATASET, "medium") != NULL){
+    fp = fopen(TEST_SET_MEDIUM, "r");
+  }else{
+    fp = fopen(TEST_SET_LARGE, "r");
+  }
   assert(fp != NULL);
   size_t line_size = 1024;
   size_t bytes_read;

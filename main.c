@@ -48,12 +48,6 @@ int main(int argc, char* argv[]){
     // medium 46666 with first row
     // large 341930 -//-
     
-    // clique_list_node* temp=all_cliques->front;
-    // while(temp!=NULL){
-        // neglist_print(temp->representative);
-        // temp=temp->next;
-    // }
-    
     compute_idf_vals(idf_vec);
     fprintf(stderr, "IDF completed\n");
     tf *tfarr;
@@ -61,8 +55,12 @@ int main(int argc, char* argv[]){
     fprintf(stderr, "TF array completed\n");
     IDFVector *important_words = compute_tf_idf(bag, tfarr, idf_vec);
     fprintf(stderr, "AVG TF-IDF values computed\n");
-    // destroy_bow(&bag);
-    // fprintf(stderr, "destroyed BoW\n");
+    destroy_bow(&bag);
+    fprintf(stderr, "destroyed BoW\n");
+    destroy(&l);
+    fprintf(stderr, "Destroyed stopword list\n");
+    destroy_tree(&dict);
+    fprintf(stderr, "destroyed dictionary\n");
     
     Vector *wordVec = copy_vector(tfarr->wordVec);
     sort_avg_tf_idf(wordVec, important_words, 0, wordVec->size - 1);
@@ -73,22 +71,15 @@ int main(int argc, char* argv[]){
     Vector *new_wordVec = crop_vector(wordVec, IMPWORDS);
     fprintf(stderr, "wordVec cropped\n");
     destroy_vector(&wordVec);
-    
-    // print_tree(dict);
-    
+
     sort_important_words_indices(new_wordVec, 0, new_wordVec->size - 1);
-    // fprintf(stderr, "IMPORTANT WORDS SORTED BY INCREASING INDEX\n");
-    // for(int i = 0; i < new_wordVec->size; i++){
-      // fprintf(stderr, "%d\n", new_wordVec->elements[i]);
-    // }
-    // fprintf(stderr, "DONE WITH IMPORTANT WORDS SORTED BY INCREASING INDEX\n");
 
     tf *tfarr_mini;
     create_tf(&tfarr_mini, IMPWORDS);
     size_down_tf_idf(tfarr, tfarr_mini, new_wordVec);
     fprintf(stderr, "TF-IDF mini array calculated\n");
-    // destroy_tf(&tfarr);
-    // fprintf(stderr, "Destroyed tf array\n");
+    destroy_tf(&tfarr);
+    fprintf(stderr, "Destroyed tf array\n");
     
     init_coefficients();
     for(int i = 0; i < COEFF_AMOUNT; i++){
@@ -104,12 +95,8 @@ int main(int argc, char* argv[]){
 
     destroy_map(&map);
     fprintf(stderr, "Destroyed map\n");
-    destroy(&l);
-    fprintf(stderr, "Destroyed stopword list\n");
     destroy_clique_list(&all_cliques);
-    fprintf(stderr, "destroyed positive cliques\n");
-    destroy_tree(&dict);
-    fprintf(stderr, "destroyed tree\n");
+    fprintf(stderr, "destroyed cliques\n");
     destroy_idf_vector(&idf_vec);
     fprintf(stderr, "destroyed idf vector\n");
     destroy_vector(&new_wordVec);
