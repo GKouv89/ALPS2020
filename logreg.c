@@ -20,16 +20,12 @@ void train(hash_map *map, tf *tfarr_new){
   list_node *temp_1, *temp_2; 
   int ground_truth;
   int label_1 = 0;
-  int stop;
   double prediction;
   
   int prediction_count = 0;
-  double avg_prediction;
   
-  // while(1){
   for(int i = 0; i < EPOCHS; i++){
     fprintf(stderr, "NEW EPOCH\n");
-    printf("NEW EPOCH\n");
     bytes_read = getline(&line_buffer, &line_size, fp);
     while(bytes_read != -1){
       line = line_buffer;
@@ -47,26 +43,24 @@ void train(hash_map *map, tf *tfarr_new){
       assert(strcmp(tfarr_new->vectors[temp_1->vec_num]->name, file_name_1) ==  0);
       assert(strcmp(tfarr_new->vectors[temp_2->vec_num]->name, file_name_2) ==  0);
       ground_truth = atoi(line);
+      if(ground_truth == 1 && i == 0){
+        label_1++;
+      }
       
       IDFVector *temp_vector=concatenate_idf_vectors(tfarr_new->vectors[temp_1->vec_num], tfarr_new->vectors[temp_2->vec_num]);
       assert(temp_vector->size == COEFF_AMOUNT - 1);
       prediction = sigmoid(f(temp_vector));
-      // printf("prediction: %.16lf\t ground_truth: %d\n", prediction, ground_truth);
-      stop = update_coefficients(prediction, (double) ground_truth, temp_vector);
+      update_coefficients(prediction, (double) ground_truth, temp_vector);
       free(temp_vector->elements);
       free(temp_vector);
-      prediction_count++;
-      avg_prediction += prediction;
-      if(stop){
-        break;
+      if(i == 0){
+        prediction_count++;        
       }
       bytes_read = getline(&line_buffer, &line_size, fp);
     }
-    fprintf(stderr, "Average prediction: %.16lf\n", avg_prediction/prediction_count);
-    if(stop){
-      fprintf(stderr, "Stopped because of convergence, next epoch would have been the %d one\n", i);
-      fprintf(stderr, "Predictions made: %d\n", prediction_count);
-      break;
+    if(i == 0){
+      fprintf(stderr, "%% of ones to all: %.10lf\n", ((double)label_1/(double)(prediction_count))*100);
+      fprintf(stderr, "%% of zeros to all: %.10lf\n", ((double)(prediction_count - label_1)/(double)(prediction_count))*100);      
     }
     validate(map, tfarr_new);
     fseek(fp, 0, SEEK_SET);
@@ -127,12 +121,10 @@ void validate(hash_map *map, tf *tfarr_new){
         max_zero_pred = prediction;
       }
     }
-    printf("prediction: %.16lf\t ground_truth: %d\n", prediction, ground_truth);
     free(temp_vector->elements);
     free(temp_vector);
     
     if(prediction > 0.00041){
-    // if(prediction > 0.43){
       prediction = 1.0;
     }else{
       prediction = 0.0;
@@ -150,12 +142,10 @@ void validate(hash_map *map, tf *tfarr_new){
     
     bytes_read = getline(&line_buffer, &line_size, fp);
   }
-  fprintf(stderr, "Accuracy: %.10lf\n", ((double)correct_predictions/(double)all_predictions)*100);
+  fprintf(stderr, "Accuracy: %.10lf %%\n", ((double)correct_predictions/(double)all_predictions)*100);
   fprintf(stderr, "Ratio of ones to zeros: %.10lf\n", ((double)label_1/(double)(all_predictions - label_1))*100);
-  fprintf(stderr, "Ratio of ones guessed correctly: %.10lf\n", ((double)no_of_ones_guessed_correctly/(double)label_1)*100);
-  fprintf(stderr, "Ratio of zeros guessed correctly: %.10lf\n", ((double)no_of_zeros_guessed_correctly/(double)(all_predictions - label_1)*100));
-  // fprintf(stderr, "Maximum possiblity for ground truth zero: %.10lf\n", max_zero_pred);
-  // fprintf(stderr, "Maximum possiblity for ground truth one: %.10lf\n", max_one_pred);
+  fprintf(stderr, "%% of ones guessed correctly: %.10lf %%\n", ((double)no_of_ones_guessed_correctly/(double)label_1)*100);
+  fprintf(stderr, "%% of zeros guessed correctly: %.10lf %%\n", ((double)no_of_zeros_guessed_correctly/(double)(all_predictions - label_1)*100));
   assert(fclose(fp) == 0);
   free(line_buffer);
 }
@@ -211,12 +201,10 @@ void test(hash_map *map, tf *tfarr_new){
         max_zero_pred = prediction;
       }
     }
-    printf("prediction: %.16lf\t ground_truth: %d\n", prediction, ground_truth);
     free(temp_vector->elements);
     free(temp_vector);
     
     if(prediction > 0.00041){
-    // if(prediction > 0.43){
       prediction = 1.0;
     }else{
       prediction = 0.0;
@@ -234,20 +222,16 @@ void test(hash_map *map, tf *tfarr_new){
     
     bytes_read = getline(&line_buffer, &line_size, fp);
   }
-  fprintf(stderr, "Accuracy: %.10lf\n", ((double)correct_predictions/(double)all_predictions)*100);
-  fprintf(stderr, "Ratio of ones to zeros: %.10lf\n", ((double)label_1/(double)(all_predictions - label_1))*100);
-  fprintf(stderr, "Ratio of ones guessed correctly: %.10lf\n", ((double)no_of_ones_guessed_correctly/(double)label_1)*100);
-  fprintf(stderr, "Ratio of zeros guessed correctly: %.10lf\n", ((double)no_of_zeros_guessed_correctly/(double)(all_predictions - label_1)*100));
-  // fprintf(stderr, "Maximum possiblity for ground truth zero: %.10lf\n", max_zero_pred);
-  // fprintf(stderr, "Maximum possiblity for ground truth one: %.10lf\n", max_one_pred);
+  fprintf(stderr, "Accuracy: %.10lf %%\n", ((double)correct_predictions/(double)all_predictions)*100);
+  fprintf(stderr, "Ratio of ones to zeros: %.10lf\n", ((double)label_1/(double)(all_predictions - label_1)));
+  fprintf(stderr, "Ratio of ones guessed correctly: %.10lf %%\n", ((double)no_of_ones_guessed_correctly/(double)label_1)*100);
+  fprintf(stderr, "Ratio of zeros guessed correctly: %.10lf %%\n", ((double)no_of_zeros_guessed_correctly/(double)(all_predictions - label_1)*100));
   assert(fclose(fp) == 0);
   free(line_buffer);
 }
 
 double f(IDFVector *vec){
   double result = coefficients[0];
-  // printf("COEFF_AMOUNT: %d\n", COEFF_AMOUNT);
-  // printf("vec->size: %d\n", vec->size);
   for(int i = 0; i < COEFF_AMOUNT-1; i++){
     result += coefficients[i+1]*vec->elements[i];
   }
@@ -260,7 +244,7 @@ double sigmoid(double f_x){
   return 1/denominator;
 }
 
-int update_coefficients(double prediction, double ground_truth, IDFVector *vec){
+void update_coefficients(double prediction, double ground_truth, IDFVector *vec){
   double coefficients_old[COEFF_AMOUNT];
   double coefficient_diffs[COEFF_AMOUNT];
   memset(coefficient_diffs, 0, COEFF_AMOUNT*sizeof(double));
@@ -275,21 +259,5 @@ int update_coefficients(double prediction, double ground_truth, IDFVector *vec){
   }
   for(int i = 0; i < COEFF_AMOUNT; i++){
     coefficient_diffs[i] = coefficients[i] - coefficients_old[i];
-    // printf("coefficient_diffs[%d] = %.16lf\n", i, coefficient_diffs[i]);
   }
-
-  double norm = 0;
-  double square = 0;
-  for(int i = 0; i < COEFF_AMOUNT; i++){
-    square = coefficient_diffs[i]*coefficient_diffs[i];
-    norm = norm + square;
-    // printf("coefficient_diffs[%d]^2 = %.16lf\n", i, coefficient_diffs[i]*coefficient_diffs[i]);
-    // norm += coefficient_diffs[i]*coefficient_diffs[i];
-  }
-  norm = sqrt(norm);
-  // fprintf(stderr, "norm is : %.16lf\n", norm);
-  // if(norm < EPSILON){
-    // return 1;
-  // }
-  return 0;
 }

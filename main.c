@@ -44,7 +44,7 @@ int main(int argc, char* argv[]){
     csvparser(map, all_cliques);
     fprintf(stderr, "Positive association cliques OK\n");
     
-    // print_all_cliques(0, all_cliques);
+    print_all_cliques(0, all_cliques);
     // medium 46666 with first row
     // large 341930 -//-
     
@@ -95,10 +95,6 @@ int main(int argc, char* argv[]){
       assert(coefficients[i] == 0);
     }
     train(map, tfarr_mini);
-    // fprintf(stderr, "Match between tf-idf vectors and file names is OK\n");
-    // for(int i = 0; i < COEFF_AMOUNT; i++){
-      // fprintf(stderr, "%lf\n", coefficients[i]);
-    // }
     validate(map, tfarr_mini);
     fprintf(stderr, "TEST SET\n");
     test(map, tfarr_mini);

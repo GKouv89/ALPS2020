@@ -134,7 +134,7 @@ void print_clique(int opt, list_node *root){
     while(temp != NULL){
         temp_2 = temp->next_in_clique;
         while(temp_2 != NULL){
-            printf("%s, %s\n", temp->id, temp_2->id);
+            printf("%s, %s, 1\n", temp->id, temp_2->id);
             temp_2 = temp_2->next_in_clique;
         }
         temp = temp->next_in_clique;
