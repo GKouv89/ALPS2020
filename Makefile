@@ -69,6 +69,7 @@ run_all_tests:
 
 clean:
 	rm -f *.o main
+	rm -f *.o splitter
 
 clean_tests:
 	rm -f tests/*.o tests/hash_test tests/data_test tests/cliques tests/csvparse tests/arrayparse tests/ctype tests/bowtest tests/dicttest tests/allbowtest

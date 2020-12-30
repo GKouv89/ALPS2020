@@ -6,12 +6,12 @@
 #endif
 
 #define COEFF_AMOUNT 2*IMPWORDS+1
-#define TRAINING_SET_MEDIUM "TrainingSet_medium.csv"
-#define VALIDATION_SET_MEDIUM "ValidationSet_medium.csv"
-#define TEST_SET_MEDIUM "TestSet_medium.csv"
-#define TRAINING_SET_LARGE "TrainingSet.csv"
-#define VALIDATION_SET_LARGE "ValidationSet.csv"
-#define TEST_SET_LARGE "TestSet.csv"
+#define TRAINING_SET_MEDIUM "ML_Sets/TrainingSet_medium.csv"
+#define VALIDATION_SET_MEDIUM "ML_Sets/ValidationSet_medium.csv"
+#define TEST_SET_MEDIUM "ML_Sets/TestSet_medium.csv"
+#define TRAINING_SET_LARGE "ML_Sets/TrainingSet.csv"
+#define VALIDATION_SET_LARGE "ML_Sets/ValidationSet.csv"
+#define TEST_SET_LARGE "ML_Sets/TestSet.csv"
 #define EPOCHS 5
 
 #include "TF-IDF/idfVectorOps.h"

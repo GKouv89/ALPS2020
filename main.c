@@ -85,11 +85,12 @@ int main(int argc, char* argv[]){
     for(int i = 0; i < COEFF_AMOUNT; i++){
       assert(coefficients[i] == 0);
     }
+
     train(map, tfarr_mini);
     validate(map, tfarr_mini);
     fprintf(stderr, "TEST SET\n");
     test(map, tfarr_mini);
-    
+
     destroy_tf(&tfarr_mini);
     fprintf(stderr, "Destroyed mini tf array\n");
 
