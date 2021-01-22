@@ -11,3 +11,11 @@ void create_queue_element(qelem **new_elem, void (*routine)(void *), char *file_
   strcpy((*new_elem)->file_name, file_name);
   job_id_counter++;
 }
+
+void destroy_queue_element(qelem **elem){
+  free((*elem)->file_name);
+  (*elem)->file_name = NULL;
+  (*elem)->routine = NULL;
+  free(*elem);
+  *elem = NULL;
+}

@@ -4,7 +4,7 @@
 #include "queueelement.h"
 
 typedef struct qnode {
-	qelem content;
+	qelem *content;
 	struct qnode *next;
 	struct qnode *prev;
 } qnode;
@@ -15,7 +15,7 @@ typedef struct queue {
 } queue;
 
 int queue_empty(queue *);
-qnode* queue_create_node(qelem);
+qnode* queue_create_node(qelem *);
 void queue_create(queue **, int *);
 void queue_insert(queue *, qelem);
 void queue_destroy_node(qnode **);

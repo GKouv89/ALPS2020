@@ -10,7 +10,7 @@ int queue_empty(queue *q)
 	return(q->front == NULL);
 }
 
-qnode* queue_create_node(qelem item)
+qnode* queue_create_node(qelem *item)
 {
 	qnode* qn = malloc(sizeof(qnode));
 	qn->content = item;
@@ -40,16 +40,19 @@ void queue_destroy_node(qnode **qn)
 void queue_destroy(queue **q)
 {
 	qnode* temp;
-	while ((*q)->front) {
-		temp = (*q)->front;
-		(*q)->front = (*q)->front->next;
-		queue_destroy_node(&temp);
-	}
+	// while ((*q)->front) {
+		// temp = (*q)->front;
+		// (*q)->front = (*q)->front->next;
+		// queue_destroy_node(&temp);
+	// }
+  // for our application, we will have to 
+  // make sure no jobs are left in the queue
+  assert(queue_empty(*q) == 1);
 	free(*q);
 	*q = NULL;
 }
 
-void queue_insert(queue *q, qelem item) //inserts node at rear of queue
+void queue_insert(queue *q, qelem *item) //inserts node at rear of queue
 {
 	assert(q);
 	qnode* qn = queue_create_node(item);
@@ -64,10 +67,10 @@ void queue_insert(queue *q, qelem item) //inserts node at rear of queue
 }
 	
 
-qelem queue_remove(queue *q, int *error)
+qelem* queue_remove(queue *q, int *error)
 {
 	qnode* qn;
-	qelem item = 0;
+	qelem *item;
 
 	assert(q);
 	if (queue_empty(q)) {

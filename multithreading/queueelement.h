@@ -10,5 +10,6 @@ typedef struct Job{
   p_thread_t thread_id;
 }qelem;
 
-void create_queue_element(qelem **);
+void create_queue_element(qelem **, void *(void *), char *);
+void destroy_queue_element(qelem **);
 #endif
