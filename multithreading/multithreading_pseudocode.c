@@ -1,25 +1,49 @@
-struct Job{
-  int job_id;
-  (void *)routine; //this is supposedly a function pointer
-  FILE *fp; // data on which the routine will be performed on
-  int thread_id;
-}
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 
+#include "queueelement.h"
+#include "queue.h"
+#include "scheduler.h"
+#include <pthreads.h>
+#include "../TF-IDF/tf.h"
+#include "../hashmap.h"
 
-JobScheduler* initialize_scheduler(int execution_threads){
-  JobScheduler new = allocate memory for scheduler;
+JobScheduler* initialize_scheduler(int execution_threads, hash_map* map, tf* tfar){
+  JobScheduler new = malloc(sizeof(JobScheduler));
   new->execution_threads = execution_threads;
   new->threads_complete = 0;
+  new->time_to_work = 1; // We assume that all can take a job in the beginning 
+  new->read_from_coeff_array = 1; //Set to 1 in order to calculate coefficients first and then accuracy
+  
+  //Storing Hashmap and Tf array in scheduler
+  new->map = map;
+  new->tf_array = tfar;
+  ///////////////////////////////////////////
   // create job queue
-  new->tids = create an array of execution_threads+1 elements
-  the additional element will be the main thread
-  new->mutex = PTHREAD_MUTEX_INITIALIZER;
-  new->cond = PTHREAD_COND_INITIALIZER;
+  int qerror;
+  queue_create(&(new->q),&qerror);
+  if(qerror){
+      printf("Failed to create job queue!\n");
+  }
+  /////////////////////
+  //Thread array
+  pthread_t threads[execution_threads];
+  new->tids = threads;
+  // new->tids = malloc(sizeof(pthread_t)*execution_threads);
+  ///////////////
+  // Initialization of mutexes and cond variables
+  new->are_calcs_done_cond = PTHREAD_COND_INITIALIZER;
+  new->can_i_take_a_job = PTHREAD_COND_INITIALIZER;
+  new->queue_mutex = PTHREAD_MUTEX_INITIALIZER;
+  new->threads_complete_mutex = PTHREAD_MUTEX_INITIALIZER;
+  /////////////////////////////////////////////////
 }
 
-int submit_job(JobScheduler* sch, Job* j){
+int submit_job(JobScheduler* sch, qelem* j){
   // this function is responsible for adding jobs to the queue
   // will be called multiple times from main
+  queue_insert(sch->q,j);
 }
 
 (void *) threadWork(void *arg){
@@ -68,6 +92,7 @@ int destroy_scheduler(JobScheduler* sch){
   // destroy cond vars and semaphores - is it necessary before thread destruction?
   // destroy all threads
   // destroy queue
+  queue_destroy(&(sch->q));
   // destroy pthread tids
   // destroy scheduler itself
 }
