@@ -1,6 +1,15 @@
-#include <pthreads.h>
+#ifndef SCHEDULER_H
+#define SCHEDULER_H
+
+#include <pthread.h>
+#include <unistd.h>
 #include "../TF-IDF/tf.h"
 #include "../hashmap.h"
+#include "routines.h"
+#include "queueelement.h"
+#include "queue.h"
+
+#define COEFF_AMOUNT 2001
 
 typedef struct scheduler{
   int execution_threads;
@@ -15,4 +24,14 @@ typedef struct scheduler{
   pthread_cond_t can_i_take_a_job;
   pthread_mutex_t queue_mutex;
   pthread_mutex_t threads_complete_mutex;
+  // Common structures for all threads/jobs.
+  double coefficients[COEFF_AMOUNT];
+  int *thread_correct_predictions; // needs to be allocated execution_threads amount of columns
+  int all_correct_predictions; // sum of thread_correct_predictions' elements per execution_threads no. of batches
+  int test_batches; // how many batches of testing we have done, will divide final value of all_correct_predictions
+  double threads_coeffs[][COEFF_AMOUNT];
 }JobScheduler;
+
+JobScheduler* initialize_scheduler(int, hash_map*, tf*);
+
+#endif

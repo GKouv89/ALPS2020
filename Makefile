@@ -1,6 +1,7 @@
 FLAGS = -g -o
+LINKS = -lpthread -lm
 MODULES =  parse.c datatypes.c hashmap.c set.c tuplist.c negcl.c BOW/stringOps.c BOW/vectorOps.c BOW/stopwords.c BOW/bow.c BOW/dictionary.c TF-IDF/idfVectorOps.c TF-IDF/tf.c logreg.c -lm
-
+MULTI_MODS = datatypes.o tuplist.o hashmap.o BOW/vectorOps.o TF-IDF/tf.o TF-IDF/idfVectorOps.o multithreading/multithreading_pseudocode.o multithreading/queue.o multithreading/queueelement.o multithreading/routines.o
 
 medium:
 	gcc $(FLAGS) main main.c $(MODULES) -DDATASET=\"sigmod_medium_labelled_dataset.csv\" -DVECTORS=29788 -DTFVECTORS=29787
@@ -14,6 +15,12 @@ run:
 run_out_file:
 	rm -f output.csv
 	./main >> output.csv
+
+%.o: %.c
+	gcc -g -c $< -o $@ -lpthread
+
+multi: tests/multithreading_tests/mult.o $(MULTI_MODS)
+	gcc $(FLAGS) tests/multithreading_tests/mult tests/multithreading_tests/mult.o $(MULTI_MODS) $(LINKS)
 
 hashtest:
 	gcc -o tests/hash_test tests/HashMap_test.c hashmap.c datatypes.c tuplist.c
@@ -61,3 +68,5 @@ clean:
 
 clean_tests:
 	rm -f tests/*.o tests/hash_test tests/data_test tests/cliques tests/csvparse tests/arrayparse tests/ctype tests/bowtest tests/dicttest tests/allbowtest tests/ngltest
+	rm -f TF-IDF/*.o BOW/*.o multithreading/*.o *.o
+	rm -f tests/multithreading_tests/mult tests/multithreading_tests/*.o
