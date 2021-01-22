@@ -5,6 +5,7 @@
 #include "routines.h"
 
 void train(hash_map *map, tf *tfarr_new, char *file_name, double curr_coeffs[], double res_coeffs[]){
+  printf("%s\n", file_name);
   FILE *fp = fopen(file_name, "r");
   assert(fp != NULL);
   size_t line_size = 1024;

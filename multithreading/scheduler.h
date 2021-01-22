@@ -29,9 +29,11 @@ typedef struct scheduler{
   int *thread_correct_predictions; // needs to be allocated execution_threads amount of columns
   int all_correct_predictions; // sum of thread_correct_predictions' elements per execution_threads no. of batches
   int test_batches; // how many batches of testing we have done, will divide final value of all_correct_predictions
-  double threads_coeffs[][COEFF_AMOUNT];
+  double (*threads_coeffs)[COEFF_AMOUNT];
 }JobScheduler;
 
 JobScheduler* initialize_scheduler(int, hash_map*, tf*);
-
+int submit_job(JobScheduler*, qelem*);
+int execute_all_jobs(JobScheduler*);
+int destroy_scheduler(JobScheduler*);
 #endif

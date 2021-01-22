@@ -21,7 +21,7 @@ qnode* queue_create_node(qelem *item)
 
 void queue_create(queue **q, int *error)
 {
-	if (*q) {
+	if (*q != NULL) {
 		*error = 1;
 	} else {
 		*error = 0;
