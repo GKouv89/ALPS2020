@@ -98,7 +98,7 @@ int destroy_scheduler(JobScheduler* sch){
 }
 
 
-void decreament(int batchsize){
+void decrement(int batchsize){
     FILE* fp = fopen("../ML_Sets/TrainingSet_medium.csv", "r");
     assert(fp != NULL);
     FILE* tempfile;
