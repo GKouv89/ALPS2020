@@ -96,3 +96,52 @@ int destroy_scheduler(JobScheduler* sch){
   // destroy pthread tids
   // destroy scheduler itself
 }
+
+
+void decreament(int batchsize){
+    FILE* fp = fopen("../ML_Sets/TrainingSet_medium.csv", "r");
+    assert(fp != NULL);
+    FILE* tempfile;
+    int i;
+    int ncount;
+    char* filename;
+    char* line;
+    size_t sizel = 300;
+    int batchsize = 512;
+    line = malloc(sizeof(char)*sizel);
+    filename = malloc(sizeof("batch1000.csv"));
+    ncount = 1;
+    while(1){
+        i = 0;
+        sprintf(filename,"batch%d.csv",ncount);
+        tempfile = fopen(filename, "w+");
+        ncount++;
+        while(i<batchsize){
+            getline(&line, &sizel, fp);
+            fputs(line,tempfile);
+            i++;
+        }
+        if(feof(fp)){
+            break;
+        }
+        assert(fclose(tempfile) == 0);
+        
+    }
+    assert(fclose(fp) == 0);
+}
+
+// int main(int argc, char* argv[]){
+    // FILE* fp = fopen("TrainingSet_medium.csv", "r");
+    // char c;
+    // int batchsize = 512;
+    // int count = 0;
+    // for (c = getc(fp); c != EOF; c = getc(fp)){
+        // if (c == '\n'){ // Increment count if this character is newline 
+            // count = count + 1; 
+        // }
+    // }
+    // // Close the file 
+    // filenum = (28122/batchsize) +1;
+    // printf("Num of lines: %d\n%d\n", count, filenum);
+    // fclose(fp); 
+// }
