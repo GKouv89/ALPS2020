@@ -1,8 +1,10 @@
+#include <string.h>
 #include <assert.h>
-#include "logreg.h"
-#include "parse.h"
+#include <math.h>
+#include "scheduler.h"
+#include "routines.h"
 
-void train(hash_map *map, tf *tfarr_new, char *file_name, double res_coeffs[]){
+void train(hash_map *map, tf *tfarr_new, char *file_name, double curr_coeffs[], double res_coeffs[]){
   FILE *fp = fopen(file_name, "r");
   assert(fp != NULL);
   size_t line_size = 1024;
@@ -35,13 +37,13 @@ void train(hash_map *map, tf *tfarr_new, char *file_name, double res_coeffs[]){
       assert(strcmp(tfarr_new->vectors[temp_1->vec_num]->name, file_name_1) ==  0);
       assert(strcmp(tfarr_new->vectors[temp_2->vec_num]->name, file_name_2) ==  0);
       ground_truth = atoi(line);
-      if(ground_truth == 1 && i == 0){
+      if(ground_truth == 1){
         label_1++;
       }
       
       IDFVector *temp_vector=concatenate_idf_vectors(tfarr_new->vectors[temp_1->vec_num], tfarr_new->vectors[temp_2->vec_num]);
       assert(temp_vector->size == COEFF_AMOUNT - 1);
-      prediction = sigmoid(f(temp_vector));
+      prediction = sigmoid(f(temp_vector, curr_coeffs));
       update_coefficients(res_coeffs, prediction, (double) ground_truth, temp_vector);
       free(temp_vector->elements);
       free(temp_vector);
@@ -52,7 +54,7 @@ void train(hash_map *map, tf *tfarr_new, char *file_name, double res_coeffs[]){
   free(line_buffer);
 }
 
-double test(hash_map *map, tf *tfarr_new, char *file_name){
+double test(hash_map *map, tf *tfarr_new, char *file_name, double res_coeffs[]){
   FILE *fp = fopen(file_name, "r");
   assert(fp != NULL);
   size_t line_size = 1024;
@@ -92,7 +94,7 @@ double test(hash_map *map, tf *tfarr_new, char *file_name){
     IDFVector *temp_vector=concatenate_idf_vectors(tfarr_new->vectors[temp_1->vec_num], tfarr_new->vectors[temp_2->vec_num]);
     assert(temp_vector->size == COEFF_AMOUNT - 1);
     
-    prediction = sigmoid(f(temp_vector));
+    prediction = sigmoid(f(temp_vector, res_coeffs));
     free(temp_vector->elements);
     free(temp_vector);
     
@@ -120,10 +122,10 @@ double test(hash_map *map, tf *tfarr_new, char *file_name){
   return correct_predictions;
 }
 
-double f(IDFVector *vec){
-  double result = coefficients[0];
+double f(IDFVector *vec, double res_coeffs[]){
+  double result = res_coeffs[0];
   for(int i = 0; i < COEFF_AMOUNT-1; i++){
-    result += coefficients[i+1]*vec->elements[i];
+    result += res_coeffs[i+1]*vec->elements[i];
   }
   return result;
 }
