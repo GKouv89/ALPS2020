@@ -47,45 +47,85 @@ int submit_job(JobScheduler* sch, qelem* j){
 }
 
 (void *) threadWork(void *arg){
-  lock queue_mutex
+  JobScheduler *myScheduler = arg;
+  qelem *aJob;
+  int error;
+  
+  pthread_mutex_lock(&queue_mutex); 
   while(time_to_work == 0){
     pthread_cond_wait(&can_i_take_a_job, &queue_mutex); 
   }
-  if(queue is not empty){    
-    take first job from queue;
+  if(queue_empty(arg->q)){    
+    aJob = queue_remove(q, &error);
+    assert(error == 0);
+  }else{
+    return NULL;
   }
-  unlock queue_mutex
-  cond_var_signal(&can_i_take_a_job, &queue_mutex);
+  pthread_mutex_unlock(&queue_mutex); 
+  pthread_cond_signal(&can_i_take_a_job, &queue_mutex);
 
-  run job
-  store result in suitable place, depending on if training or testing
-  lock threads_complete_mutex
-  threads_complete++
-  unlock threads_complete_mutex
-  cond_var_signal(&are_calcs_done_cond, &threads_complete_mutex);
+  int i;
+  for(i = 0; i < myScheduler->execution_threads; i++){
+    if(myScheduler->tids[i] == pthread_self()){
+      break;
+    }
+  }
+  assert(i < myScheduler->execution_threads);
   
+  if(aJob->typeofjob == train){
+    memset(threads_coeffs[i], 0, COEFF_AMOUNT*sizeof(double));
+    train(myScheduler->map, myScheduler->tfarr_new, aJob->file_name, threads_coeffs[i]);
+  }else if(aJob->typeofjob == test){
+    read_from_coeff_array == 1;
+    thread_accuracies[i] = test(myScheduler->map, myScheduler->tfarr_new, aJob->file_name);
+  }
+  
+  pthread_mutex_lock(&threads_complete_mutex);
+  threads_complete++;
+  if(aJob->typeofjob == test){
+    myScheduler->test_batches++;
+  }
+  destroy_queue_element(&aJob);
+  pthread_mutex_unlock(&threads_complete_mutex);
+  pthread_cond_signal(&are_calcs_done_cond, &threads_complete_mutex);  
 }
 
 
 int execute_all_jobs(JobScheduler* sch){
-  create all threads;
+  for(int i = 0; i < sch->execution_threads; i++){
+    pthread_create(sch->tids[i], NULL, threadWork, (void*)sch );
+  }
   
-  lock threads_complete_mutex 
+  pthread_mutex_lock(&threads_complete_mutex); 
   while(threads_complete != execution_threads){
     pthread_cond_wait(&are_calcs_done_cond, &threads_complete_mutex); 
   }
   time_to_work = 0;
   if(read_from_coeff_array == 1){
+    double coefficients_temp[COEFF_AMOUNT];
     // calculate new coefficients (still in training phase)
+    for(int i = 0; i < COEFF_AMOUNT; i++){
+      for(int j = 0; j < sch->execution_threads; j++){
+        coefficients_temp[i] += threads_coeffs[i][j];
+      }
+      coefficients_temp[i] = coefficients_temp[i]/((double)sch->execution_threads);
+      coefficients_temp[i] *= 0.1; // learning rate
+    }
+    for(int i = 0; i < COEFF_AMOUNT; i++){
+      coefficients[i] = coefficients[i] - coefficients_temp[i];
+    }
   }else{
-    // calculate overall accuracy
+    for(int i = 0; i < sch->execution_threads; i++){
+      all_correct_predictions += thread_correct_predictions[i];
+    }
   }
   threads_complete = 0;
-  unlock threads_complete_mutex 
-  cond_var_signal(&are_calcs_done_cond, &threads_complete_mutex);
+  pthread_mutex_unlock(&threads_complete_mutex); 
+  pthread_cond_signal(&are_calcs_done_cond, &threads_complete_mutex);
   time_to_work = 1;
-  cond_var_signal(&can_i_take_a_job, &queue_mutex);
+  pthread_cond_signal(&can_i_take_a_job, &queue_mutex);
   
+  // the order of the two pthread_cond_signal may have to change
 }
 
 int destroy_scheduler(JobScheduler* sch){

@@ -3,9 +3,12 @@
 
 #include <pthread.h>
 
+typedef enum typeofjob {train, validate, test};
+
 typedef struct Job{
   int job_id;
-  void (*routine)(void *); //this is supposedly a function pointer
+  // void (*routine)(void *); //this is supposedly a function pointer
+  typeofjob type; 
   char *file_name; // data on which the routine will be performed on
   p_thread_t thread_id;
 }qelem;
