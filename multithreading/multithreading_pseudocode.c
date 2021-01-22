@@ -153,3 +153,35 @@ int destroy_scheduler(JobScheduler* sch){
   // destroy pthread tids
   // destroy scheduler itself
 }
+
+void decrement(int batchsize){
+    FILE* fp = fopen("../ML_Sets/TrainingSet_medium.csv", "r");
+    assert(fp != NULL);
+    FILE* tempfile;
+    int i;
+    int ncount;
+    char* filename;
+    char* line;
+    size_t sizel = 300;
+    int batchsize = 512;
+    line = malloc(sizeof(char)*sizel);
+    filename = malloc(sizeof("batch1000.csv"));
+    ncount = 1;
+    while(1){
+        i = 0;
+        sprintf(filename,"batch%d.csv",ncount);
+        tempfile = fopen(filename, "w+");
+        ncount++;
+        while(i<batchsize){
+            getline(&line, &sizel, fp);
+            fputs(line,tempfile);
+            i++;
+        }
+        if(feof(fp)){
+            break;
+        }
+        assert(fclose(tempfile) == 0);
+        
+    }
+    assert(fclose(fp) == 0);
+}
