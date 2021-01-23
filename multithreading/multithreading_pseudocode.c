@@ -157,10 +157,10 @@ int execute_all_jobs(JobScheduler* sch){
       }
       // printf("new coeffs done\n");
       pthread_mutex_lock(&sch->print_mutex);
-      for(int i = 0; i < COEFFAMOUNT; i++){
-        printf("%lf ", sch->coefficients[i]);
-      }
-      printf("\n");
+      // for(int i = 0; i < COEFFAMOUNT; i++){
+        // printf("%lf ", sch->coefficients[i]);
+      // }
+      // printf("\n");
       pthread_mutex_unlock(&sch->print_mutex);
     }
     // else{

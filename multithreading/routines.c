@@ -48,7 +48,7 @@ int train(hash_map *map, tf *tfarr_new, char *file_name, double curr_coeffs[], d
       free(temp_vector->elements);
       free(temp_vector);
       prediction_count++;
-      bytes_read = getline(&line_buffer, &line_size, fp);
+      // bytes_read = getline(&line_buffer, &line_size, fp);
     // }
   }
   assert(fclose(fp) == 0);

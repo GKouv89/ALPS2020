@@ -46,6 +46,9 @@ struct tfidf_vector tfidf_array[] = {
 void test_scheduler_creation(){
   tf *tfarr;
   create_tf(&tfarr, 7);
+  FILE* mergfile;
+  mergfile = fopen("tests/multithreading_tests/mergbatch.txt","r");
+  TEST_ASSERT(mergfile!= NULL);
   for(int i = 0; i < TFVECTORS; i++){
     for(int j = 0; j < 7; j++){
       tfarr->vectors[i]->elements[j] = tfidf_array[i].value[j];
@@ -69,7 +72,74 @@ void test_scheduler_creation(){
     create_queue_element(&newJob, training, file_name);
     submit_job(sch, newJob);
   }
+  
   execute_all_jobs(sch);
+  
+  double curr_coeffs[COEFFAMOUNT];
+  for(int i = 0; i<COEFFAMOUNT; i++){
+      curr_coeffs[i] = 0;
+  }
+  double res_coeffs[COEFFAMOUNT];
+  for(int i = 0; i<COEFFAMOUNT; i++){
+      res_coeffs[i] = 0;
+  }
+  
+  //////////////////////////////////////
+  // Linear execution to test correctness of results
+  size_t line_size = 1024;
+  size_t bytes_read;
+  char *line_buffer = malloc(line_size*sizeof(char));
+  char *line, *file_toked;
+  char *file_name_1, *file_name_2;
+  list_node *temp_1, *temp_2; 
+  int ground_truth;
+  int label_1 = 0;
+  double prediction;
+  double cross_entropy;
+  while(!feof(mergfile)){
+    for(int i = 0; i<4; i++){ // batchsize is 4 but because we have 2 threads, each batch is broken into 2 files
+        bytes_read = getline(&line_buffer, &line_size, mergfile);
+        line = line_buffer;
+        file_name_1 = strtok_r(line, ",", &line);
+        file_toked = strtok_r(line, ",", &line);
+        file_name_2 = strtok_r(file_toked, " ", &file_toked);
+        temp_1 = find_node(map, file_name_1);
+        temp_2 = find_node(map, file_name_2);
+        TEST_ASSERT(temp_1 != NULL);
+        TEST_ASSERT(temp_2 != NULL);
+        TEST_ASSERT(temp_1->vec_num >= 0);
+        TEST_ASSERT(temp_2->vec_num >= 0);
+        TEST_ASSERT(strcmp(tfarr->vectors[temp_1->vec_num]->name, file_name_1) ==  0);
+        TEST_ASSERT(strcmp(tfarr->vectors[temp_2->vec_num]->name, file_name_2) ==  0);
+        ground_truth = atoi(line);
+        if(ground_truth == 1){
+          label_1++;
+        }
+        IDFVector *temp_vector=concatenate_idf_vectors(tfarr->vectors[temp_1->vec_num], tfarr->vectors[temp_2->vec_num]);
+        TEST_ASSERT(temp_vector->size == COEFFAMOUNT - 1);
+        prediction = sigmoid(f(temp_vector, curr_coeffs));
+        // update_coefficients(res_coeffs, prediction, (double) ground_truth, temp_vector);
+        cross_entropy = prediction - ground_truth;
+        res_coeffs[0] +=  cross_entropy;
+        for(int i = 0; i < COEFFAMOUNT - 1; i++){
+          res_coeffs[i+1] += cross_entropy*(temp_vector->elements[i]);
+        }
+        free(temp_vector->elements);
+        free(temp_vector); 
+    }
+    for(int i = 0; i < COEFFAMOUNT; i++){
+        res_coeffs[i] = res_coeffs[i]/((double)4);
+        res_coeffs[i] *= 0.1; // learning rate
+    }
+    for(int i = 0; i < COEFFAMOUNT; i++){
+        curr_coeffs[i] = curr_coeffs[i] - res_coeffs[i];
+    }
+    for(int i = 0; i<COEFFAMOUNT; i++){
+      res_coeffs[i] = 0;
+    }
+  }
+  free(line_buffer);
+  fclose(mergfile);
   free(node_id);
   free(file_name);
   destroy_map(&map);
