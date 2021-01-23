@@ -15,7 +15,7 @@
 
 typedef struct scheduler{
   int execution_threads;
-  int time_to_work; // boolean value, indicates threads can take job from pool
+  int *time_to_work; // boolean values, indicate if thread[i] can take job from pool
   int threads_complete; // number of threads that have finished execution in current iteration
   int read_from_coeff_array; // boolean value, shows what type of result we expect from threads (coefficients or accuracy?)
   // Common data for all threads //

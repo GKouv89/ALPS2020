@@ -12,7 +12,10 @@ JobScheduler* initialize_scheduler(int execution_threads, hash_map* map, tf* tfa
   JobScheduler *new = malloc(sizeof(JobScheduler));
   new->execution_threads = execution_threads;
   new->threads_complete = 0;
-  new->time_to_work = 1; // We assume that all can take a job in the beginning 
+  new->time_to_work = malloc(execution_threads*sizeof(int)); // We assume that all can take a job in the beginning 
+  for(int i = 0; i < execution_threads; i++){
+    new->time_to_work[i] = 1;
+  }
   new->read_from_coeff_array = 1; //Set to 1 in order to calculate coefficients first and then accuracy
   
   //Storing Hashmap and Tf array in scheduler
@@ -63,24 +66,9 @@ void* threadWork(void *arg){
   JobScheduler *myScheduler = arg;
   qelem *aJob;
   int error;
+  int i;
   while(!queue_empty(myScheduler->q)){
     printf("in threadWork\n");
-    pthread_mutex_lock(&myScheduler->can_i_take_a_job_mutex);
-    while(myScheduler->time_to_work == 0){
-      printf("queue cond variable false\n");
-      pthread_cond_wait(&myScheduler->can_i_take_a_job, &myScheduler->can_i_take_a_job_mutex); 
-    }
-    printf("queue cond variable true\n");
-    pthread_mutex_lock(&myScheduler->queue_mutex);
-    printf("in queue critical_area\n"); 
-    aJob = queue_remove(myScheduler->q, &error);
-    assert(error == 0);
-    printf("job popped\n");
-    pthread_mutex_unlock(&myScheduler->queue_mutex); 
-    pthread_cond_signal(&myScheduler->can_i_take_a_job);
-    pthread_mutex_unlock(&myScheduler->can_i_take_a_job_mutex);
-
-    int i;
     for(i = 0; i < myScheduler->execution_threads; i++){
       if(myScheduler->tids[i] == pthread_self()){
         break;
@@ -88,6 +76,24 @@ void* threadWork(void *arg){
     }
     printf("i = %d\n", i);
     assert(i < myScheduler->execution_threads);
+
+    pthread_mutex_lock(&myScheduler->can_i_take_a_job_mutex);
+    while(myScheduler->time_to_work[i] == 0){
+      printf("queue cond variable false\n");
+      pthread_cond_wait(&myScheduler->can_i_take_a_job, &myScheduler->can_i_take_a_job_mutex); 
+    }
+    printf("queue cond variable true\n");
+    pthread_mutex_lock(&myScheduler->queue_mutex);
+    printf("in queue critical_area\n"); 
+    aJob = queue_remove(myScheduler->q, &error);
+    if(error == 1){
+      return NULL;
+    }
+    printf("job popped\n");
+    pthread_mutex_unlock(&myScheduler->queue_mutex); 
+    pthread_cond_signal(&myScheduler->can_i_take_a_job);
+    pthread_mutex_unlock(&myScheduler->can_i_take_a_job_mutex);
+
     
     if(aJob->type == training){
       for(int j = 0; j < COEFFAMOUNT; j++){
@@ -102,12 +108,10 @@ void* threadWork(void *arg){
     pthread_mutex_lock(&myScheduler->threads_complete_mutex);
     printf("thread complete\n");
     myScheduler->threads_complete++;
-    // if(aJob->type == testing){
-      // myScheduler->test_batches++;
-    // }
+    myScheduler->time_to_work[i] = 0;
     destroy_queue_element(&aJob);
-    pthread_mutex_unlock(&myScheduler->threads_complete_mutex);
     pthread_cond_signal(&myScheduler->are_calcs_done_cond);  
+    pthread_mutex_unlock(&myScheduler->threads_complete_mutex);
   }
   return NULL;
 }
@@ -125,7 +129,6 @@ int execute_all_jobs(JobScheduler* sch){
       pthread_cond_wait(&sch->are_calcs_done_cond, &sch->threads_complete_mutex); 
     }
     printf("calcs are done cond var is true\n");
-    sch->time_to_work = 0;
     if(sch->read_from_coeff_array == 1){
       int batch_size = 0;
       for(int i = 0; i < sch->execution_threads; i++){
@@ -135,6 +138,13 @@ int execute_all_jobs(JobScheduler* sch){
       for(int i = 0; i < COEFFAMOUNT; i++){
         coefficients_temp[i] = 0;
       }
+      // for(int i = 0; i < sch->execution_threads; i++){
+        // printf("thread no %d returned sum of: \n", i);
+        // for(int j = 0; j < COEFFAMOUNT; j++){
+          // printf("%lf ", sch->threads_coeffs[i][j]);
+        // }
+        // printf("\n");
+      // }
       // calculate new coefficients (still in training phase)
       for(int i = 0; i < COEFFAMOUNT; i++){
         for(int j = 0; j < sch->execution_threads; j++){
@@ -147,6 +157,10 @@ int execute_all_jobs(JobScheduler* sch){
         sch->coefficients[i] = sch->coefficients[i] - coefficients_temp[i];
       }
       printf("new coeffs done\n");
+      for(int i = 0; i < COEFFAMOUNT; i++){
+        printf("%lf ", sch->coefficients[i]);
+      }
+      printf("\n");
     }
     // else{
       // for(int i = 0; i < sch->execution_threads; i++){
@@ -154,10 +168,12 @@ int execute_all_jobs(JobScheduler* sch){
       // }
     // }
     sch->threads_complete = 0;
-    sch->time_to_work = 1;
-    // pthread_cond_signal(&sch->are_calcs_done_cond);
+    for(int i = 0; i < sch->execution_threads; i++){
+      sch->time_to_work[i] = 1;
+    }
     printf("new loop of batches about to begin\n");
-    pthread_cond_signal(&sch->can_i_take_a_job);
+    // pthread_cond_signal(&sch->can_i_take_a_job);
+    pthread_cond_signal(&sch->are_calcs_done_cond);
     pthread_mutex_unlock(&sch->threads_complete_mutex); 
   }
   // the order of the two pthread_cond_signal may have to change
