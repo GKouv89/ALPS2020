@@ -25,9 +25,9 @@ int train(hash_map *map, tf *tfarr_new, char *file_name, double curr_coeffs[], d
       line = line_buffer;
       file_name_1 = strtok_r(line, ",", &line);
       file_toked = strtok_r(line, ",", &line);
-      // while(memchr(file_toked, ' ', strlen(file_toked)) != NULL){
+      while(memchr(file_toked, ' ', strlen(file_toked)) != NULL){
         file_name_2 = strtok_r(file_toked, " ", &file_toked);
-      // }
+      }
       temp_1 = find_node(map, file_name_1);
       temp_2 = find_node(map, file_name_2);
       assert(temp_1 != NULL);
@@ -80,9 +80,9 @@ double test(hash_map *map, tf *tfarr_new, char *file_name, double res_coeffs[], 
     line = line_buffer;
     file_name_1 = strtok_r(line, ",", &line);
     file_toked = strtok_r(line, ",", &line);
-    // while(memchr(file_toked, ' ', strlen(file_toked)) != NULL){
+    while(memchr(file_toked, ' ', strlen(file_toked)) != NULL){
       file_name_2 = strtok_r(file_toked, " ", &file_toked);
-    // }
+    }
     temp_1 = find_node(map, file_name_1);
     temp_2 = find_node(map, file_name_2);
     assert(temp_1 != NULL);
