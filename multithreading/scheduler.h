@@ -28,6 +28,7 @@ typedef struct scheduler{
   pthread_cond_t can_i_take_a_job;
   pthread_mutex_t queue_mutex;
   pthread_mutex_t threads_complete_mutex;
+  pthread_mutex_t can_i_take_a_job_mutex;
   // Common structures for all threads/jobs to write their results in/read stuff from.
   double coefficients[COEFFAMOUNT]; // the common coefficients that every thread *starts* with
   /* thread_predictions: array, one element per thread
