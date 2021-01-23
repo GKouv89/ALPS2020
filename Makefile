@@ -20,7 +20,7 @@ run_out_file:
 	gcc -g -c $< -o $@ -lpthread
 
 multi: tests/multithreading_tests/mult.o $(MULTI_MODS)
-	gcc $(FLAGS) tests/multithreading_tests/mult tests/multithreading_tests/mult.o $(MULTI_MODS) -DBUCKETS=2 $(LINKS) 
+	gcc $(FLAGS) tests/multithreading_tests/mult tests/multithreading_tests/mult.o $(MULTI_MODS) -DBUCKETS=2  $(LINKS) 
 
 hashtest:
 	gcc -o tests/hash_test tests/HashMap_test.c hashmap.c datatypes.c tuplist.c

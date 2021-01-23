@@ -4,7 +4,7 @@
 #include "scheduler.h"
 #include "routines.h"
 
-void train(hash_map *map, tf *tfarr_new, char *file_name, double curr_coeffs[], double res_coeffs[]){
+int train(hash_map *map, tf *tfarr_new, char *file_name, double curr_coeffs[], double res_coeffs[]){
   printf("%s\n", file_name);
   FILE *fp = fopen(file_name, "r");
   assert(fp != NULL);
@@ -26,9 +26,9 @@ void train(hash_map *map, tf *tfarr_new, char *file_name, double curr_coeffs[], 
       line = line_buffer;
       file_name_1 = strtok_r(line, ",", &line);
       file_toked = strtok_r(line, ",", &line);
-      while(memchr(file_toked, ' ', strlen(file_toked)) != NULL){
+      // while(memchr(file_toked, ' ', strlen(file_toked)) != NULL){
         file_name_2 = strtok_r(file_toked, " ", &file_toked);
-      }
+      // }
       temp_1 = find_node(map, file_name_1);
       temp_2 = find_node(map, file_name_2);
       assert(temp_1 != NULL);
@@ -43,16 +43,18 @@ void train(hash_map *map, tf *tfarr_new, char *file_name, double curr_coeffs[], 
       }
       
       IDFVector *temp_vector=concatenate_idf_vectors(tfarr_new->vectors[temp_1->vec_num], tfarr_new->vectors[temp_2->vec_num]);
-      assert(temp_vector->size == COEFF_AMOUNT - 1);
+      assert(temp_vector->size == COEFFAMOUNT - 1);
       prediction = sigmoid(f(temp_vector, curr_coeffs));
       update_coefficients(res_coeffs, prediction, (double) ground_truth, temp_vector);
       free(temp_vector->elements);
       free(temp_vector);
+      prediction_count++;
       bytes_read = getline(&line_buffer, &line_size, fp);
     // }
   }
   assert(fclose(fp) == 0);
   free(line_buffer);
+  return prediction_count;
 }
 
 double test(hash_map *map, tf *tfarr_new, char *file_name, double res_coeffs[]){
@@ -93,7 +95,7 @@ double test(hash_map *map, tf *tfarr_new, char *file_name, double res_coeffs[]){
     ground_truth = atoi(line);
     
     IDFVector *temp_vector=concatenate_idf_vectors(tfarr_new->vectors[temp_1->vec_num], tfarr_new->vectors[temp_2->vec_num]);
-    assert(temp_vector->size == COEFF_AMOUNT - 1);
+    assert(temp_vector->size == COEFFAMOUNT - 1);
     
     prediction = sigmoid(f(temp_vector, res_coeffs));
     free(temp_vector->elements);
@@ -125,7 +127,7 @@ double test(hash_map *map, tf *tfarr_new, char *file_name, double res_coeffs[]){
 
 double f(IDFVector *vec, double res_coeffs[]){
   double result = res_coeffs[0];
-  for(int i = 0; i < COEFF_AMOUNT-1; i++){
+  for(int i = 0; i < COEFFAMOUNT-1; i++){
     result += res_coeffs[i+1]*vec->elements[i];
   }
   return result;
@@ -140,7 +142,7 @@ double sigmoid(double f_x){
 void update_coefficients(double res_coeffs[], double prediction, double ground_truth, IDFVector *vec){
   double cross_entropy = prediction - ground_truth;
   res_coeffs[0] +=  cross_entropy;
-  for(int i = 0; i < COEFF_AMOUNT - 1; i++){
+  for(int i = 0; i < COEFFAMOUNT - 1; i++){
     res_coeffs[i+1] += cross_entropy*(vec->elements[i]);
   }
 }

@@ -9,7 +9,9 @@
 #include "queueelement.h"
 #include "queue.h"
 
-#define COEFF_AMOUNT 2001
+#ifndef COEFFAMOUNT
+  #define COEFFAMOUNT 15
+#endif
 
 typedef struct scheduler{
   int execution_threads;
@@ -27,7 +29,7 @@ typedef struct scheduler{
   pthread_mutex_t queue_mutex;
   pthread_mutex_t threads_complete_mutex;
   // Common structures for all threads/jobs to write their results in/read stuff from.
-  double coefficients[COEFF_AMOUNT]; // the common coefficients that every thread *starts* with
+  double coefficients[COEFFAMOUNT]; // the common coefficients that every thread *starts* with
   /* thread_predictions: array, one element per thread
   when breaking down a batch into pieces, each thread writes in thread_predictions 
   how many lines the batch piece it took on had,
@@ -39,7 +41,7 @@ typedef struct scheduler{
   when all threads have calculated this for a part of a batch, the master thread will sum
   every element of threads_coeffs and will then divide its elements by thread_predictions.
   This is the average loss. Then we multiply with the learning rate and update the coefficients. */
-  double (*threads_coeffs)[COEFF_AMOUNT];  
+  double (*threads_coeffs)[COEFFAMOUNT];  
   int *thread_correct_predictions; // needs to be allocated execution_threads amount of columns
   int all_correct_predictions; // sum of thread_correct_predictions' elements per execution_threads no. of batches
   int all_predictions_testing; // sum of thread_predictions during testing phase, to be able to correctly calculate 

@@ -58,6 +58,8 @@ void test_scheduler_creation(){
     list_node *new_node = create_node(node_id, i);
     int hash = hash_function(map, node_id);
     add_to_bucket(map, hash, new_node);
+    tfarr->vectors[i]->name = malloc(2*sizeof(char));
+    strcpy(tfarr->vectors[i]->name, node_id);
   }
   JobScheduler *sch = initialize_scheduler(2, map, tfarr);
   qelem *newJob;

@@ -28,17 +28,28 @@ JobScheduler* initialize_scheduler(int execution_threads, hash_map* map, tf* tfa
   }
   /////////////////////
   //Thread array
-  pthread_t threads[execution_threads];
-  new->tids = threads;
-  // new->tids = malloc(sizeof(pthread_t)*execution_threads);
+  new->tids = malloc(sizeof(pthread_t)*execution_threads);
   ///////////////
   // Initialization of mutexes and cond variables
   new->are_calcs_done_cond = (pthread_cond_t)PTHREAD_COND_INITIALIZER;
   new->can_i_take_a_job = (pthread_cond_t)PTHREAD_COND_INITIALIZER;
   new->queue_mutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
   new->threads_complete_mutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
-  /////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////
+  // Initialization of common 'memory'/arrays where threads will write their results //
+  // And from where the master thread will read to calculate new common coefficients //
+  ///////////////////////////////// Or overall accuracy ///////////////////////////////
+  for(int i = 0; i < COEFFAMOUNT; i++){
+    new->coefficients[i] = 0;
+  }
   new->threads_coeffs = malloc(execution_threads*sizeof(*(new->threads_coeffs)));
+  for(int i = 0; i < execution_threads; i++){
+    for(int j = 0; j < COEFFAMOUNT; j++){
+      new->threads_coeffs[i][j] = 0;
+    }
+  }
+  new->thread_predictions = calloc(execution_threads, sizeof(int));
+  new->thread_correct_predictions = calloc(execution_threads, sizeof(int));;
 }
 
 int submit_job(JobScheduler* sch, qelem* j){
@@ -77,26 +88,25 @@ void* threadWork(void *arg){
       break;
     }
   }
+  printf("i = %d\n", i);
   assert(i < myScheduler->execution_threads);
   
   if(aJob->type == training){
-    printf("i is %d\n", i);
-    for(int j = 0; j < COEFF_AMOUNT; j++){
+    for(int j = 0; j < COEFFAMOUNT; j++){
       myScheduler->threads_coeffs[i][j] = 0;      
     }
-    printf("training, thread_id = %ld\n", myScheduler->tids[i]);
-    train(myScheduler->map, myScheduler->tf_array, aJob->file_name, myScheduler->coefficients, myScheduler->threads_coeffs[i]);
-  }else if(aJob->type == testing){
-    myScheduler->read_from_coeff_array == 1;
-    myScheduler->thread_correct_predictions[i] = test(myScheduler->map, myScheduler->tf_array, aJob->file_name, myScheduler->coefficients);
-  }
+    myScheduler->thread_predictions[i] = train(myScheduler->map, myScheduler->tf_array, aJob->file_name, myScheduler->coefficients, myScheduler->threads_coeffs[i]);
+  }// }else if(aJob->type == testing){
+    // myScheduler->read_from_coeff_array == 1;
+    // myScheduler->thread_correct_predictions[i] = test(myScheduler->map, myScheduler->tf_array, aJob->file_name, myScheduler->coefficients);
+  // }
   
   pthread_mutex_lock(&myScheduler->threads_complete_mutex);
   printf("thread complete\n");
   myScheduler->threads_complete++;
-  if(aJob->type == testing){
-    myScheduler->test_batches++;
-  }
+  // if(aJob->type == testing){
+    // myScheduler->test_batches++;
+  // }
   destroy_queue_element(&aJob);
   pthread_mutex_unlock(&myScheduler->threads_complete_mutex);
   pthread_cond_signal(&myScheduler->are_calcs_done_cond);  
@@ -117,24 +127,32 @@ int execute_all_jobs(JobScheduler* sch){
     printf("calcs are done cond var is true\n");
     sch->time_to_work = 0;
     if(sch->read_from_coeff_array == 1){
-      double coefficients_temp[COEFF_AMOUNT];
+      int batch_size = 0;
+      for(int i = 0; i < sch->execution_threads; i++){
+        batch_size += sch->thread_predictions[i];
+      }
+      double coefficients_temp[COEFFAMOUNT];
+      for(int i = 0; i < COEFFAMOUNT; i++){
+        coefficients_temp[i] = 0;
+      }
       // calculate new coefficients (still in training phase)
-      for(int i = 0; i < COEFF_AMOUNT; i++){
+      for(int i = 0; i < COEFFAMOUNT; i++){
         for(int j = 0; j < sch->execution_threads; j++){
-          coefficients_temp[i] += sch->threads_coeffs[i][j];
+          coefficients_temp[i] += sch->threads_coeffs[j][i];
         }
-        coefficients_temp[i] = coefficients_temp[i]/((double)sch->execution_threads);
+        coefficients_temp[i] = coefficients_temp[i]/((double)batch_size);
         coefficients_temp[i] *= 0.1; // learning rate
       }
-      for(int i = 0; i < COEFF_AMOUNT; i++){
+      for(int i = 0; i < COEFFAMOUNT; i++){
         sch->coefficients[i] = sch->coefficients[i] - coefficients_temp[i];
       }
       printf("new coeffs done\n");
-    }else{
-      for(int i = 0; i < sch->execution_threads; i++){
-        sch->all_correct_predictions += sch->thread_correct_predictions[i];
-      }
     }
+    // else{
+      // for(int i = 0; i < sch->execution_threads; i++){
+        // sch->all_correct_predictions += sch->thread_correct_predictions[i];
+      // }
+    // }
     sch->threads_complete = 0;
     pthread_mutex_unlock(&sch->threads_complete_mutex); 
     // pthread_cond_signal(&sch->are_calcs_done_cond);
@@ -154,7 +172,7 @@ int destroy_scheduler(JobScheduler* sch){
   // destroy scheduler itself
 }
 
-void decrement(int batchsize){
+void decrement(){
     FILE* fp = fopen("../ML_Sets/TrainingSet_medium.csv", "r");
     assert(fp != NULL);
     FILE* tempfile;
