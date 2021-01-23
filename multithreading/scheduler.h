@@ -53,5 +53,5 @@ typedef struct scheduler{
 JobScheduler* initialize_scheduler(int, hash_map*, tf*);
 int submit_job(JobScheduler*, qelem*);
 int execute_all_jobs(JobScheduler*);
-int destroy_scheduler(JobScheduler*);
+int destroy_scheduler(JobScheduler**);
 #endif

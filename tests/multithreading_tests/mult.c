@@ -197,7 +197,7 @@ void test_scheduler_creation(){
   free(file_name);
   destroy_map(&map);
   destroy_tf(&tfarr);
-  // destroy_scheduler(sch);
+  destroy_scheduler(&sch);
 }
 
 TEST_LIST = {

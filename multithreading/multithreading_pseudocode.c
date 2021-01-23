@@ -201,13 +201,32 @@ int execute_all_jobs(JobScheduler* sch){
   // the order of the two pthread_cond_signal may have to change
 }
 
-int destroy_scheduler(JobScheduler* sch){
+int destroy_scheduler(JobScheduler** sch){
   // destroy cond vars and semaphores - is it necessary before thread destruction?
+  pthread_mutex_destroy(&((*sch)->queue_mutex));
+  pthread_mutex_destroy(&((*sch)->threads_complete_mutex));
+  pthread_mutex_destroy(&((*sch)->can_i_take_a_job_mutex));
+  pthread_mutex_destroy(&((*sch)->print_mutex));
+  pthread_cond_destroy(&((*sch)->are_calcs_done_cond));
+  pthread_cond_destroy(&((*sch)->can_i_take_a_job));
+  free((*sch)->time_to_work);
+  (*sch)->time_to_work = NULL;
+  free((*sch)->tids);
+  (*sch)->tids = NULL;
+  free((*sch)->thread_predictions);
+  (*sch)->thread_predictions = NULL;
+  free((*sch)->thread_correct_predictions);
+  (*sch)->thread_correct_predictions = NULL;
+  free((*sch)->threads_coeffs);
+  (*sch)->map = NULL;
+  (*sch)->tf_array = NULL;
   // destroy all threads
   // destroy queue
-  queue_destroy(&(sch->q));
+  queue_destroy(&((*sch)->q));
   // destroy pthread tids
   // destroy scheduler itself
+  free(*sch);
+  *sch = NULL;
 }
 
 void decrement(){
