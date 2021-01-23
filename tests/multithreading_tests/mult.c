@@ -67,9 +67,13 @@ void test_scheduler_creation(){
   JobScheduler *sch = initialize_scheduler(2, map, tfarr);
   qelem *newJob;
   char *file_name = malloc(38*sizeof(char));
-  for(int i = 0; i < 4; i++){
+  for(int i = 0; i < 6; i++){
     sprintf(file_name, "tests/multithreading_tests/batch%d.txt", i);
-    create_queue_element(&newJob, training, file_name);
+    if(i != 4 && i != 5){
+      create_queue_element(&newJob, training, file_name);
+    }else{
+      create_queue_element(&newJob, testing, file_name);
+    }
     submit_job(sch, newJob);
   }
   

@@ -6,7 +6,7 @@
 #include "../TF-IDF/idfVectorOps.h"
 
 int train(hash_map *, tf *, char *, double[], double[]);
-double test(hash_map *, tf *, char *, double[]);
+double test(hash_map *, tf *, char *, double[], int *);
 double sigmoid(double);
 double f(IDFVector *, double[]);
 void update_coefficients(double[], double, double, IDFVector *);

@@ -56,7 +56,7 @@ int train(hash_map *map, tf *tfarr_new, char *file_name, double curr_coeffs[], d
   return prediction_count;
 }
 
-double test(hash_map *map, tf *tfarr_new, char *file_name, double res_coeffs[]){
+double test(hash_map *map, tf *tfarr_new, char *file_name, double res_coeffs[], int *corr_preds){
   FILE *fp = fopen(file_name, "r");
   assert(fp != NULL);
   size_t line_size = 1024;
@@ -80,9 +80,9 @@ double test(hash_map *map, tf *tfarr_new, char *file_name, double res_coeffs[]){
     line = line_buffer;
     file_name_1 = strtok_r(line, ",", &line);
     file_toked = strtok_r(line, ",", &line);
-    while(memchr(file_toked, ' ', strlen(file_toked)) != NULL){
+    // while(memchr(file_toked, ' ', strlen(file_toked)) != NULL){
       file_name_2 = strtok_r(file_toked, " ", &file_toked);
-    }
+    // }
     temp_1 = find_node(map, file_name_1);
     temp_2 = find_node(map, file_name_2);
     assert(temp_1 != NULL);
@@ -100,7 +100,7 @@ double test(hash_map *map, tf *tfarr_new, char *file_name, double res_coeffs[]){
     free(temp_vector->elements);
     free(temp_vector);
     
-    if(prediction > 0.00041){
+    if(prediction > 0.5){
       prediction = 1.0;
     }else{
       prediction = 0.0;
@@ -118,10 +118,10 @@ double test(hash_map *map, tf *tfarr_new, char *file_name, double res_coeffs[]){
     
     bytes_read = getline(&line_buffer, &line_size, fp);
   }
-  assert(all_predictions == 512);
   assert(fclose(fp) == 0);
   free(line_buffer);
-  return correct_predictions;
+  *corr_preds = correct_predictions;
+  return all_predictions;
 }
 
 double f(IDFVector *vec, double res_coeffs[]){

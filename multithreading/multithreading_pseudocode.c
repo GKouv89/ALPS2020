@@ -54,7 +54,9 @@ JobScheduler* initialize_scheduler(int execution_threads, hash_map* map, tf* tfa
     }
   }
   new->thread_predictions = calloc(execution_threads, sizeof(int));
-  new->thread_correct_predictions = calloc(execution_threads, sizeof(int));;
+  new->thread_correct_predictions = calloc(execution_threads, sizeof(int));
+  new->all_predictions_testing = 0;
+  new->all_correct_predictions = 0;
 }
 
 int submit_job(JobScheduler* sch, qelem* j){
@@ -104,10 +106,15 @@ void* threadWork(void *arg){
         myScheduler->threads_coeffs[i][j] = 0;      
       }
       myScheduler->thread_predictions[i] = train(myScheduler->map, myScheduler->tf_array, aJob->file_name, myScheduler->coefficients, myScheduler->threads_coeffs[i]);
-    }// }else if(aJob->type == testing){
-      // myScheduler->read_from_coeff_array == 1;
-      // myScheduler->thread_correct_predictions[i] = test(myScheduler->map, myScheduler->tf_array, aJob->file_name, myScheduler->coefficients);
-    // }
+    }else if(aJob->type == testing){
+      pthread_mutex_lock(&myScheduler->threads_complete_mutex);
+      // pthread_mutex_lock(&myScheduler->threads_complete_mutex);
+      if(myScheduler->read_from_coeff_array == 1){
+        myScheduler->read_from_coeff_array = 0;
+      }
+      pthread_mutex_unlock(&myScheduler->threads_complete_mutex);
+      myScheduler->thread_predictions[i] = test(myScheduler->map, myScheduler->tf_array, aJob->file_name, myScheduler->coefficients, &myScheduler->thread_correct_predictions[i]);
+    }
     
     pthread_mutex_lock(&myScheduler->threads_complete_mutex);
     // printf("thread complete\n");
@@ -155,19 +162,16 @@ int execute_all_jobs(JobScheduler* sch){
       for(int i = 0; i < COEFFAMOUNT; i++){
         sch->coefficients[i] = sch->coefficients[i] - coefficients_temp[i];
       }
-      // printf("new coeffs done\n");
+    }else{
+      for(int i = 0; i < sch->execution_threads; i++){
+        sch->all_correct_predictions += sch->thread_correct_predictions[i];
+        sch->all_predictions_testing += sch->thread_predictions[i];
+      }
       pthread_mutex_lock(&sch->print_mutex);
-      // for(int i = 0; i < COEFFAMOUNT; i++){
-        // printf("%lf ", sch->coefficients[i]);
-      // }
-      // printf("\n");
-      pthread_mutex_unlock(&sch->print_mutex);
+      printf("sch->all_correct_predictions = %d\n", sch->all_correct_predictions);
+      printf("sch->all_predictions_testing = %d\n", sch->all_predictions_testing);
+      pthread_mutex_unlock(&sch->print_mutex);      
     }
-    // else{
-      // for(int i = 0; i < sch->execution_threads; i++){
-        // sch->all_correct_predictions += sch->thread_correct_predictions[i];
-      // }
-    // }
     sch->threads_complete = 0;
     pthread_mutex_lock(&sch->can_i_take_a_job_mutex);
     for(int i = 0; i < sch->execution_threads; i++){
@@ -187,6 +191,7 @@ int execute_all_jobs(JobScheduler* sch){
     }
     pthread_mutex_unlock(&sch->queue_mutex);
     if(to_break){
+      printf("Accuracy: %lf%%\n", ((double)sch->all_correct_predictions/(double)sch->all_predictions_testing)*100);
       break;
     }
     pthread_mutex_lock(&sch->print_mutex);
