@@ -99,6 +99,7 @@ void test_scheduler_creation(){
   int ground_truth;
   int label_1 = 0;
   double prediction;
+  int all_predictions = 0;
   double cross_entropy;
   while(!feof(mergfile)){
     for(int i = 0; i<4; i++){ // batchsize is 4 but because we have 2 threads, each batch is broken into 2 files
@@ -142,6 +143,54 @@ void test_scheduler_creation(){
       res_coeffs[i] = 0;
     }
   }
+  FILE* fp;
+  fp = fopen("tests/multithreading_tests/mergbatchtest.txt","r");
+  TEST_ASSERT(fp != NULL);
+  char *file_name_3, *file_name_4;
+  list_node *temp_3, *temp_4; 
+  int correct_predictions = 0;
+  
+  while(!feof(fp)){
+    bytes_read = getline(&line_buffer, &line_size, fp);
+    line = line_buffer;
+    file_name_3 = strtok_r(line, ",", &line);
+    file_toked = strtok_r(line, ",", &line);
+    // while(memchr(file_toked, ' ', strlen(file_toked)) != NULL){
+      file_name_4 = strtok_r(file_toked, " ", &file_toked);
+    // }
+    temp_3 = find_node(map, file_name_3);
+    temp_4 = find_node(map, file_name_4);
+    TEST_ASSERT(temp_3 != NULL);
+    TEST_ASSERT(temp_4 != NULL);
+    TEST_ASSERT(temp_3->vec_num >= 0);
+    TEST_ASSERT(temp_4->vec_num >= 0);
+    TEST_ASSERT(strcmp(tfarr->vectors[temp_3->vec_num]->name, file_name_3) ==  0);
+    TEST_ASSERT(strcmp(tfarr->vectors[temp_4->vec_num]->name, file_name_4) ==  0);
+    ground_truth = atoi(line);
+    
+    IDFVector *temp_vector=concatenate_idf_vectors(tfarr->vectors[temp_3->vec_num], tfarr->vectors[temp_4->vec_num]);
+    TEST_ASSERT(temp_vector->size == COEFFAMOUNT - 1);
+    
+    prediction = sigmoid(f(temp_vector, sch->coefficients));
+    free(temp_vector->elements);
+    free(temp_vector);
+    
+    if(prediction > 0.5){
+      prediction = 1.0;
+    }else{
+      prediction = 0.0;
+    }
+    
+    if(prediction == (double) ground_truth){
+      correct_predictions++;
+    }
+    all_predictions++;
+  }
+  printf("Correct %d\tAll %d\n", correct_predictions, all_predictions);
+  printf("Accuracy %lf%%\n",((double)correct_predictions/(double)all_predictions)*100);
+  
+  TEST_ASSERT(fclose(fp) == 0);
+  
   free(line_buffer);
   fclose(mergfile);
   free(node_id);
