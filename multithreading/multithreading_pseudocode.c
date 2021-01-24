@@ -259,6 +259,44 @@ int decrement(char *path, int execution_threads, int first_no){
         }
         assert(fclose(tempfile) == 0);
     }
+    int checking = ncount%execution_threads;
+    FILE* tomerge;
+    FILE* temp;
+    int newbatch = 0;
+    if(checking != 0){
+        i = ncount;
+        tomerge = fopen("nonfullbatch.csv","w+");
+        while(i != ncount - checking){
+            sprintf(filename,"batch%d.csv",i);
+            temp = fopen(filename, "r");
+            while(!feof(temp)){
+                getline(&line, &sizel, temp);
+                fputs(line, tomerge);
+                newbatch++;
+            }
+            fclose(temp);
+            remove(filename);
+            i--;
+        }
+        // int temploop = ncount - checking;
+        ncount -= checking ;
+        first_no -= checking;
+        fseek(tomerge,0, SEEK_SET);
+        tomerge = fopen("nonfullbatch.csv","r");
+        int linesperbatch = newbatch/execution_threads;
+        for(i = first_no+1; i <= first_no+execution_threads; i++){
+            sprintf(filename,"batch%d.csv",i);
+            temp = fopen(filename, "w+");
+            for(int j=0; j<linesperbatch; j++){
+                getline(&line, &sizel, tomerge);
+                fputs(line, temp);
+            }
+            fclose(temp);
+        }
+        ncount += execution_threads;
+        fclose(tomerge);
+    }
+    
     assert(fclose(fp) == 0);
     return ncount;
 }

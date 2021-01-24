@@ -209,7 +209,7 @@ void test_batch_file_creation(void){
   int lower_bound = training_files + 1;
   int test_files = decrement(path, 4, lower_bound);
   printf("no of testing files made: %d\n", test_files);
-  TEST_ASSERT(test_files == 73);
+  TEST_ASSERT(test_files == 76);
   ////INSERTION INTO JOB QUEUE////
   JobScheduler *sch = initialize_scheduler(4, NULL, NULL);
   qelem *newJob;
@@ -226,7 +226,7 @@ void test_batch_file_creation(void){
     create_queue_element(&newJob, testing, file_name);      
     submit_job(sch, newJob);
   }
-  TEST_CHECK(queue_size(sch->q) == 5*220 + 73);
+  TEST_CHECK(queue_size(sch->q) == 5*220 + 76);
   TEST_MSG("queue_size: %d", queue_size(sch->q));
   for(int i = 1; i < lower_bound + test_files; i++){
     sprintf(file_name, "batch%d.csv", i);
