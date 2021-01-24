@@ -5,6 +5,58 @@
 Γεωργία Κουτίβα, ΑΜ: 1115201700060
 Αλέξανδρος Νεοφώτιστος, ΑΜ: 1115201700270
 
+## Τελική Αναφορά
+* Προδιαγραφές συστήματος στο οποίο έγιναν οι δοκιμές:
+	* Επεξεργαστής: Intel Core i5-7200U CPU @ 2.50GHz
+	* Εγκατεστημένη RAM: 6,00GB
+	* Λειτουργικό Σύστημα: Ubuntu Bash Shell (ver. 20.04 LTS) on Windows 10 64bit
+* Χρονικά Στατιστικά/Σύγκριση χρονικών απαιτήσεων παραδοτέου 2 με 3:
+Αναλυτικότερα (η χρονομέτρηση έγινε με χρήση μεταβλητών time_t και της συνάρτησης time()):
+* 2η εργασία: 
+	* Total elapsed time:
+		* Medium dataset: real 4m12.944s | user 1m2.297s | sys 1m35.094s
+		* Large dataset: real 5m26.213s | user 1m46.953s | sys 1m34.125s
+	* Αναλυτικότερα:
+		* Medium dataset (χρόνος σε δευτερόλεπτα):
+			* 120 for parsing and BOW creation
+			* 1 for clique creation
+			* 0 for IDF computation
+			* 44 for tf-idf overall and average computation
+    			* 2 for important word selection
+			* 18 for sizing down TF-IDF array
+    			* Training (5 epochs): 6 | Validation : 0 | Test: 0
+		* Large dataset (χρόνος σε δευτερόλεπτα):
+			* 82 for parsing and BOW creation
+			* 3 for clique creation
+			* 0 for IDF computation
+			* 67 for tf-idf overall and average computation
+    			* 2 for important word selection
+			* 26 for sizing down TF-IDF array
+    			* Training (5 epochs): 52 | Validation : 1 | Test: 2
+ * 3η εργασία: 
+	 * Total elapsed time:
+		* Medium dataset: real 3m11.349s | user 1m2.672s | sys 1m30.328s
+		* Large dataset:  real 3m24.780s | user 1m35.266s | sys 1m33.969s
+	* Αναλυτικότερα:
+		* Medium dataset (χρόνος σε δευτερόλεπτα):
+			* 138 for parsing and BOW creation
+			* 1 for clique creation
+			* 0 for IDF computation
+			* 68 for tf-idf overall and average computation
+    			* 2 for important word selection
+			* 20 for sizing down TF-IDF array
+    			* 1 for batch files creation
+    			* 5 for 5 epochs of training and one run on test file
+		* Large dataset (χρόνος σε δευτερόλεπτα):
+			* 94 for parsing and BOW creation
+			* 3 for clique creation
+			* 0 for IDF computation
+			* 55 for tf-idf overall and average computation
+    			* 3 for important word selection
+			* 25 for sizing down TF-IDF array
+    			* 5 for batch files creation
+    			* 16 for 5 epochs of training and one run on test file
+    
 ## Νέες Προσθήκες - 3η Άσκηση
 ### Δομές
 * **Job Scheduler**: Ο Job Scheduler κρατάει την ουρά των εργασιών που θα τρέξουν τα νήματα, καθώς και του σημαφόρους και τα condition variables που χρειάζονται για τον
