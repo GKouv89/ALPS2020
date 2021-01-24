@@ -19,7 +19,6 @@
 #include "TF-IDF/idfVectorOps.h"
 #include "TF-IDF/tf.h"
 
-// #include "logreg.h"
 #include "multithreading/scheduler.h"
 #include "multithreading/routines.h"
 #include "multithreading/queue.h"
@@ -41,22 +40,38 @@ int main(int argc, char* argv[]){
     IDFVector *idf_vec;
     create_idf_vector(&idf_vec);
     
+    time_t parse_start, parse_end;
+    time(&parse_start);
     parser(map, l, bag, &dict, idf_vec);
     fprintf(stderr, "Words parsed, dictionary done, BoW too.\n");
+    time(&parse_end);
+    fprintf(stderr, "%ld for parsing and BOW creation\n", parse_end - parse_start);
     
+    time_t cliques_start, cliques_end;
+    time(&cliques_start);
     csvparser(map, all_cliques);
+    time(&cliques_end);
+    fprintf(stderr, "%ld for clique creation\n", cliques_end - cliques_start);
     fprintf(stderr, "Positive association cliques OK\n");
     
     print_all_cliques(0, all_cliques);
     // medium 46666 with first row
     // large 341930 -//-
     
+    time_t idf_start, idf_end;
+    time(&idf_start);
     compute_idf_vals(idf_vec);
     fprintf(stderr, "IDF completed\n");
+    time(&idf_end);
+    fprintf(stderr, "%ld for IDF computation\n", idf_end - idf_start);
     tf *tfarr;
     create_tf(&tfarr, idf_vec->size);
     fprintf(stderr, "TF array completed\n");
+    time_t tf_start, tf_end;
+    time(&tf_start);
     IDFVector *important_words = compute_tf_idf(bag, tfarr, idf_vec);
+    time(&tf_end);
+    fprintf(stderr, "%ld for tf-idf overall and average computation\n", tf_end-tf_start);
     fprintf(stderr, "AVG TF-IDF values computed\n");
     destroy_bow(&bag);
     fprintf(stderr, "destroyed BoW\n");
@@ -65,6 +80,8 @@ int main(int argc, char* argv[]){
     destroy_tree(&dict);
     fprintf(stderr, "destroyed dictionary\n");
     
+    time_t sort_start, sort_end;
+    time(&sort_start);
     Vector *wordVec = copy_vector(tfarr->wordVec);
     sort_avg_tf_idf(wordVec, important_words, 0, wordVec->size - 1);
     fprintf(stderr, "AVG TF-IDF values sorted\n");
@@ -76,24 +93,19 @@ int main(int argc, char* argv[]){
     destroy_vector(&wordVec);
 
     sort_important_words_indices(new_wordVec, 0, new_wordVec->size - 1);
-
+    time(&sort_end);
+    fprintf(stderr, "%ld for important word selection\n", sort_end - sort_start);
     tf *tfarr_mini;
     create_tf(&tfarr_mini, IMPWORDS);
+    time_t size_down_start, size_down_end;
+    time(&size_down_start);
     size_down_tf_idf(tfarr, tfarr_mini, new_wordVec);
     fprintf(stderr, "TF-IDF mini array calculated\n");
+    time(&size_down_end);
+    fprintf(stderr, "%ld for sizing down TF-IDF array\n", size_down_end - size_down_start);
     destroy_tf(&tfarr);
     fprintf(stderr, "Destroyed tf array\n");
-    
-    // init_coefficients();
-    // for(int i = 0; i < COEFF_AMOUNT; i++){
-      // assert(coefficients[i] == 0);
-    // }
 
-    // train(map, tfarr_mini);
-    // validate(map, tfarr_mini);
-    // fprintf(stderr, "TEST SET\n");
-    // test(map, tfarr_mini);
-    
     char *path;
     if(strstr(DATASET, "medium") != NULL){
       path = malloc((strlen("ML_Sets/TrainingSet_medium.csv") + 1)*sizeof(char));
@@ -103,6 +115,8 @@ int main(int argc, char* argv[]){
       strcpy(path, "ML_Sets/TrainingSet.csv");
     }
     
+    time_t time_create_start, time_create_end;
+    time(&time_create_start);
     int training_files = decrement(path, THREADNO, 1);
     assert(training_files % THREADNO == 0);
     if(strstr(DATASET, "medium") != NULL){
@@ -112,6 +126,8 @@ int main(int argc, char* argv[]){
     }
     int lower_bound = training_files + 1;
     int test_files = decrement(path, THREADNO, lower_bound);
+    time(&time_create_end);
+    fprintf(stderr, "%ld for batch files creation\n", time_create_end - time_create_start);
     assert(test_files % THREADNO == 0);
     fprintf(stderr, "no of testing files made: %d\n", test_files);
     fprintf(stderr, "No of training files made: %d\n", training_files);
@@ -133,17 +149,16 @@ int main(int argc, char* argv[]){
       submit_job(sch, newJob);
     }
     assert(queue_size(sch->q) % THREADNO == 0);
+    time_t machine_learning_start, machine_learning_end;
+    time(&machine_learning_start);
     execute_all_jobs(sch);
-
+    time(&machine_learning_end);
+    fprintf(stderr, "%ld for 5 epochs of training and one run on test file\n", machine_learning_end - machine_learning_start);
     for(int i = 1; i < lower_bound + test_files; i++){
       sprintf(file_name, "batch%d.csv", i);
       remove(file_name);
     }
-    
-    // fprintf(stderr, "COEFFS\n");
-    // for(int i = 0; i < COEFFAMOUNT; i++){
-      // fprintf(stderr, "%lf\n", sch->coefficients[i]);
-    // }
+
     double accuracy = ((double)sch->all_correct_predictions/(double)sch->all_predictions_testing)*100;
     fprintf(stderr, "ACCURACY: %lf%%\n", accuracy);    
     destroy_scheduler(&sch);
