@@ -273,7 +273,7 @@ int decrement(char *path, int execution_threads, int first_no){
     FILE* tomerge;
     FILE* temp;
     int newbatch = 0;
-    first_no--;
+    first_no -= checking;
     if(checking != 0){
         tomerge = fopen("nonfullbatch.csv","w+");
         for(i = 1; i <= checking; i++){

@@ -143,6 +143,9 @@ void test_scheduler_creation(){
       res_coeffs[i] = 0;
     }
   }
+  for(int i = 0; i < COEFFAMOUNT; i++){
+    TEST_ASSERT(curr_coeffs[i] == sch->coefficients[i]); 
+  }
   FILE* fp;
   fp = fopen("tests/multithreading_tests/mergbatchtest.txt","r");
   TEST_ASSERT(fp != NULL);
@@ -188,7 +191,7 @@ void test_scheduler_creation(){
   }
   printf("Correct %d\tAll %d\n", correct_predictions, all_predictions);
   printf("Accuracy %lf%%\n",((double)correct_predictions/(double)all_predictions)*100);
-  
+  printf("Accuracy computed through threading: %lf%%\n", ((double)sch->all_correct_predictions/(double)sch->all_predictions_testing)*100);
   TEST_ASSERT(fclose(fp) == 0);
   
   free(line_buffer);
@@ -204,12 +207,12 @@ void test_batch_file_creation(void){
   char *path = malloc((strlen("ML_Sets/TrainingSet.csv") + 1)*sizeof(char));//_medium.csv") + 1)*sizeof(char));
   strcpy(path, "ML_Sets/TrainingSet.csv");
   int training_files = decrement(path, 4, 1);
-  TEST_ASSERT(training_files == 220);
-  strcpy(path, "ML_Sets/TestSet.csv");
+  // TEST_ASSERT(training_files == 220);
+  strcpy(path, "ML_Sets/TestSet_medium.csv");
   int lower_bound = training_files + 1;
   int test_files = decrement(path, 4, lower_bound);
   printf("no of testing files made: %d\n", test_files);
-  TEST_ASSERT(test_files == 76);
+  // TEST_ASSERT(test_files == 76);
   ////INSERTION INTO JOB QUEUE////
   JobScheduler *sch = initialize_scheduler(4, NULL, NULL);
   qelem *newJob;
@@ -226,7 +229,7 @@ void test_batch_file_creation(void){
     create_queue_element(&newJob, testing, file_name);      
     submit_job(sch, newJob);
   }
-  TEST_CHECK(queue_size(sch->q) == 5*220 + 76);
+  TEST_CHECK(queue_size(sch->q) == 5*training_files + test_files);
   TEST_MSG("queue_size: %d", queue_size(sch->q));
   for(int i = 1; i < lower_bound + test_files; i++){
     sprintf(file_name, "batch%d.csv", i);
