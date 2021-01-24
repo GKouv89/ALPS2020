@@ -201,11 +201,11 @@ void test_scheduler_creation(){
 }
 
 void test_batch_file_creation(void){
-  char *path = malloc((strlen("ML_Sets/TrainingSet_medium.csv") + 1)*sizeof(char));
-  strcpy(path, "ML_Sets/TrainingSet_medium.csv");
+  char *path = malloc((strlen("ML_Sets/TrainingSet.csv") + 1)*sizeof(char));//_medium.csv") + 1)*sizeof(char));
+  strcpy(path, "ML_Sets/TrainingSet.csv");
   int training_files = decrement(path, 4, 1);
   TEST_ASSERT(training_files == 220);
-  strcpy(path, "ML_Sets/TestSet_medium.csv");
+  strcpy(path, "ML_Sets/TestSet.csv");
   int lower_bound = training_files + 1;
   int test_files = decrement(path, 4, lower_bound);
   printf("no of testing files made: %d\n", test_files);
