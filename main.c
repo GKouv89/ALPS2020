@@ -98,12 +98,17 @@ int main(int argc, char* argv[]){
     if(strstr(DATASET, "medium") != NULL){
       path = malloc((strlen("ML_Sets/TrainingSet_medium.csv") + 1)*sizeof(char));
       strcpy(path, "ML_Sets/TrainingSet_medium.csv");
+    }else{
+      path = malloc((strlen("ML_Sets/TrainingSet.csv") + 1)*sizeof(char));
+      strcpy(path, "ML_Sets/TrainingSet.csv");
     }
     
     int training_files = decrement(path, THREADNO, 1);
     assert(training_files % THREADNO == 0);
     if(strstr(DATASET, "medium") != NULL){
       strcpy(path, "ML_Sets/TestSet_medium.csv");
+    }else{
+      stpcpy(path, "ML_Sets/TestSet.csv");
     }
     int lower_bound = training_files + 1;
     int test_files = decrement(path, THREADNO, lower_bound);
