@@ -22,6 +22,7 @@
 // #include "logreg.h"
 #include "multithreading/scheduler.h"
 #include "multithreading/routines.h"
+#include "multithreading/queue.h"
 
 int main(int argc, char* argv[]){
     srand(time(NULL));
@@ -100,11 +101,13 @@ int main(int argc, char* argv[]){
     }
     
     int training_files = decrement(path, THREADNO, 1);
+    assert(training_files % THREADNO == 0);
     if(strstr(DATASET, "medium") != NULL){
       strcpy(path, "ML_Sets/TestSet_medium.csv");
     }
     int lower_bound = training_files + 1;
     int test_files = decrement(path, THREADNO, lower_bound);
+    assert(test_files % THREADNO == 0);
     fprintf(stderr, "no of testing files made: %d\n", test_files);
     fprintf(stderr, "No of training files made: %d\n", training_files);
     
@@ -124,11 +127,19 @@ int main(int argc, char* argv[]){
       create_queue_element(&newJob, testing, file_name);      
       submit_job(sch, newJob);
     }
-    
+    assert(queue_size(sch->q) % THREADNO == 0);
+    execute_all_jobs(sch);
+
     for(int i = 1; i < lower_bound + test_files; i++){
       sprintf(file_name, "batch%d.csv", i);
       remove(file_name);
     }
+    
+    fprintf(stderr, "COEFFS");
+    for(int i = 0; i < COEFFAMOUNT; i++){
+      fprintf(stderr, "%lf\n", sch->coefficients[i]);
+    }
+    
     destroy_tf(&tfarr_mini);
     fprintf(stderr, "Destroyed mini tf array\n");
 

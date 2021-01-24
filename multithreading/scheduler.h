@@ -10,7 +10,7 @@
 #include "queue.h"
 
 #ifndef COEFFAMOUNT
-  #define COEFFAMOUNT 15
+  #define COEFFAMOUNT 2001
 #endif
 
 #ifndef THREADNO
