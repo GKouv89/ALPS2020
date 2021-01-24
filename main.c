@@ -135,11 +135,13 @@ int main(int argc, char* argv[]){
       remove(file_name);
     }
     
-    fprintf(stderr, "COEFFS");
-    for(int i = 0; i < COEFFAMOUNT; i++){
-      fprintf(stderr, "%lf\n", sch->coefficients[i]);
-    }
-    
+    // fprintf(stderr, "COEFFS\n");
+    // for(int i = 0; i < COEFFAMOUNT; i++){
+      // fprintf(stderr, "%lf\n", sch->coefficients[i]);
+    // }
+    double accuracy = ((double)sch->all_correct_predictions/(double)sch->all_predictions_testing)*100;
+    fprintf(stderr, "ACCURACY: %lf%%\n", accuracy);    
+    destroy_scheduler(&sch);
     destroy_tf(&tfarr_mini);
     fprintf(stderr, "Destroyed mini tf array\n");
 

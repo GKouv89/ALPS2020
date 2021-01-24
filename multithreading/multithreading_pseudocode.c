@@ -72,7 +72,7 @@ void* threadWork(void *arg){
   int i;
   while(1){
     pthread_mutex_lock(&myScheduler->print_mutex);
-    printf("in threadWork\n");
+    // printf("in threadWork\n");
     pthread_mutex_unlock(&myScheduler->print_mutex);
     for(i = 0; i < myScheduler->execution_threads; i++){
       if(myScheduler->tids[i] == pthread_self()){
@@ -85,7 +85,7 @@ void* threadWork(void *arg){
     pthread_mutex_lock(&myScheduler->can_i_take_a_job_mutex);
     while(myScheduler->time_to_work[i] == 0){
       pthread_mutex_lock(&myScheduler->print_mutex);
-      printf("queue cond variable false\n");
+      // printf("queue cond variable false\n");
       pthread_mutex_unlock(&myScheduler->print_mutex);
       pthread_cond_wait(&myScheduler->can_i_take_a_job, &myScheduler->can_i_take_a_job_mutex); 
     }
@@ -137,7 +137,7 @@ int execute_all_jobs(JobScheduler* sch){
     pthread_mutex_lock(&sch->threads_complete_mutex);
     while(sch->threads_complete != sch->execution_threads){
       pthread_mutex_lock(&sch->print_mutex);
-      printf("calcs are done cond var is false\n");
+      // printf("calcs are done cond var is false\n");
       pthread_mutex_unlock(&sch->print_mutex);
       pthread_cond_wait(&sch->are_calcs_done_cond, &sch->threads_complete_mutex); 
     }
@@ -168,15 +168,15 @@ int execute_all_jobs(JobScheduler* sch){
         sch->all_predictions_testing += sch->thread_predictions[i];
       }
       pthread_mutex_lock(&sch->print_mutex);
-      printf("sch->all_correct_predictions = %d\n", sch->all_correct_predictions);
-      printf("sch->all_predictions_testing = %d\n", sch->all_predictions_testing);
+      // printf("sch->all_correct_predictions = %d\n", sch->all_correct_predictions);
+      // printf("sch->all_predictions_testing = %d\n", sch->all_predictions_testing);
       pthread_mutex_unlock(&sch->print_mutex);      
     }
     sch->threads_complete = 0;
     pthread_mutex_lock(&sch->can_i_take_a_job_mutex);
     for(int i = 0; i < sch->execution_threads; i++){
       pthread_mutex_lock(&sch->print_mutex);
-      printf("updating sch->time_to_work\n");
+      // printf("updating sch->time_to_work\n");
       pthread_mutex_unlock(&sch->print_mutex);
       sch->time_to_work[i] = 1;
     }
@@ -191,11 +191,11 @@ int execute_all_jobs(JobScheduler* sch){
     }
     pthread_mutex_unlock(&sch->queue_mutex);
     if(to_break){
-      printf("Accuracy: %lf%%\n", ((double)sch->all_correct_predictions/(double)sch->all_predictions_testing)*100);
+      // printf("Accuracy: %lf%%\n", ((double)sch->all_correct_predictions/(double)sch->all_predictions_testing)*100);
       break;
     }
     pthread_mutex_lock(&sch->print_mutex);
-    printf("next main loop...\n");
+    // printf("next main loop...\n");
     pthread_mutex_unlock(&sch->print_mutex);
   }
   // the order of the two pthread_cond_signal may have to change
@@ -243,6 +243,8 @@ int decrement(char *path, int execution_threads, int first_no){
     line = malloc(sizeof(char)*sizel);
     filename = malloc(sizeof("batch1000.csv"));   
     ncount = 0;
+    int broken = 0;
+    size_t bytes_read;
     while(1){
         i = 0;
         sprintf(filename,"batch%d.csv",first_no);
@@ -250,41 +252,52 @@ int decrement(char *path, int execution_threads, int first_no){
         ncount++;
         first_no++;
         while(i<batchsize){
-            getline(&line, &sizel, fp);
+            bytes_read = getline(&line, &sizel, fp);
+            if(bytes_read == -1){
+              broken = 1;
+              break;
+            }
             fputs(line,tempfile);
+            if(feof(fp)){
+              broken = 1;
+              break;
+            }
             i++;
         }
-        if(feof(fp)){
-            break;
-        }
         assert(fclose(tempfile) == 0);
+        if(broken){
+          break;
+        }
     }
     int checking = ncount%execution_threads;
     FILE* tomerge;
     FILE* temp;
     int newbatch = 0;
+    first_no--;
     if(checking != 0){
-        i = ncount;
         tomerge = fopen("nonfullbatch.csv","w+");
-        while(i != ncount - checking){
-            sprintf(filename,"batch%d.csv",i);
+        for(i = 1; i <= checking; i++){
+            sprintf(filename, "batch%d.csv", first_no);
             temp = fopen(filename, "r");
+            fseek(temp, 0, SEEK_SET);
             while(!feof(temp)){
-                getline(&line, &sizel, temp);
-                fputs(line, tomerge);
-                newbatch++;
+              bytes_read = getline(&line, &sizel, temp);
+              if(bytes_read == -1){
+                break;
+              }
+              fputs(line, tomerge);
+              newbatch++;
             }
+            first_no++;
             fclose(temp);
             remove(filename);
-            i--;
         }
-        // int temploop = ncount - checking;
+        fseek(tomerge,0, SEEK_SET);
         ncount -= checking ;
         first_no -= checking;
         fseek(tomerge,0, SEEK_SET);
-        tomerge = fopen("nonfullbatch.csv","r");
         int linesperbatch = newbatch/execution_threads;
-        for(i = first_no+1; i <= first_no+execution_threads; i++){
+        for(i = first_no; i < first_no + execution_threads; i++){
             sprintf(filename,"batch%d.csv",i);
             temp = fopen(filename, "w+");
             for(int j=0; j<linesperbatch; j++){
@@ -295,6 +308,7 @@ int decrement(char *path, int execution_threads, int first_no){
         }
         ncount += execution_threads;
         fclose(tomerge);
+        remove("nonfullbatch.csv");
     }
     
     assert(fclose(fp) == 0);

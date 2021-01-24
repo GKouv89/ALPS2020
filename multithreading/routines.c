@@ -5,7 +5,7 @@
 #include "routines.h"
 
 int train(hash_map *map, tf *tfarr_new, char *file_name, double curr_coeffs[], double res_coeffs[]){
-  fprintf(stderr, "train: %s\n", file_name);
+  // fprintf(stderr, "train: %s\n", file_name);
   FILE *fp = fopen(file_name, "r");
   assert(fp != NULL);
   size_t line_size = 1024;
@@ -23,7 +23,7 @@ int train(hash_map *map, tf *tfarr_new, char *file_name, double curr_coeffs[], d
   while(!feof(fp)){
     bytes_read = getline(&line_buffer, &line_size, fp);
     if(bytes_read == -1){
-      fprintf(stderr, "BATCH PIECE FINISHED\n");
+      // fprintf(stderr, "BATCH PIECE %s FINISHED\n", file_name);
       break;
     }
     // fprintf(stderr, "BATCH: %s line: %s | prediction no %d\n", file_name, line_buffer, prediction_count);

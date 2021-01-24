@@ -121,7 +121,7 @@ void test_scheduler_creation(){
           label_1++;
         }
         IDFVector *temp_vector=concatenate_idf_vectors(tfarr->vectors[temp_1->vec_num], tfarr->vectors[temp_2->vec_num]);
-        TEST_ASSERT(temp_vector->size == COEFFAMOUNT - 1);
+        TEST_CHECK(temp_vector->size == COEFFAMOUNT - 1);
         prediction = sigmoid(f(temp_vector, curr_coeffs));
         // update_coefficients(res_coeffs, prediction, (double) ground_truth, temp_vector);
         cross_entropy = prediction - ground_truth;
