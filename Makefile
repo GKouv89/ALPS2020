@@ -1,6 +1,6 @@
 FLAGS = -g -o
 LINKS = -lpthread -lm
-MODULES =  parse.c datatypes.c hashmap.c set.c tuplist.c negcl.c BOW/stringOps.c BOW/vectorOps.c BOW/stopwords.c BOW/bow.c BOW/dictionary.c TF-IDF/idfVectorOps.c TF-IDF/tf.c logreg.c -lm
+MODULES =  parse.c datatypes.c hashmap.c set.c tuplist.c negcl.c BOW/stringOps.c BOW/vectorOps.c BOW/stopwords.c BOW/bow.c BOW/dictionary.c TF-IDF/idfVectorOps.c TF-IDF/tf.c multithreading/multithreading_pseudocode.c multithreading/queue.c multithreading/queueelement.c multithreading/routines.c $(LINKS)
 MULTI_MODS = datatypes.o tuplist.o hashmap.o BOW/vectorOps.o TF-IDF/tf.o TF-IDF/idfVectorOps.o multithreading/multithreading_pseudocode.o multithreading/queue.o multithreading/queueelement.o multithreading/routines.o
 
 medium:

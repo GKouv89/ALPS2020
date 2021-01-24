@@ -229,8 +229,8 @@ int destroy_scheduler(JobScheduler** sch){
   *sch = NULL;
 }
 
-void decrement(){
-    FILE* fp = fopen("../ML_Sets/TrainingSet_medium.csv", "r");
+int decrement(char *path, int execution_threads, int first_no){
+    FILE* fp = fopen(path, "r");
     assert(fp != NULL);
     FILE* tempfile;
     int i;
@@ -238,15 +238,17 @@ void decrement(){
     char* filename;
     char* line;
     size_t sizel = 300;
-    int batchsize = 512;
+    int batchsize = 512/execution_threads; // actual batch size divided by how many threads the batch will
+    // be broken down into
     line = malloc(sizeof(char)*sizel);
-    filename = malloc(sizeof("batch1000.csv"));
-    ncount = 1;
+    filename = malloc(sizeof("batch1000.csv"));   
+    ncount = 0;
     while(1){
         i = 0;
-        sprintf(filename,"batch%d.csv",ncount);
+        sprintf(filename,"batch%d.csv",first_no);
         tempfile = fopen(filename, "w+");
         ncount++;
+        first_no++;
         while(i<batchsize){
             getline(&line, &sizel, fp);
             fputs(line,tempfile);
@@ -256,7 +258,7 @@ void decrement(){
             break;
         }
         assert(fclose(tempfile) == 0);
-        
     }
     assert(fclose(fp) == 0);
+    return ncount;
 }

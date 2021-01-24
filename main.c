@@ -19,7 +19,9 @@
 #include "TF-IDF/idfVectorOps.h"
 #include "TF-IDF/tf.h"
 
-#include "logreg.h"
+// #include "logreg.h"
+#include "multithreading/scheduler.h"
+#include "multithreading/routines.h"
 
 int main(int argc, char* argv[]){
     srand(time(NULL));
@@ -81,16 +83,52 @@ int main(int argc, char* argv[]){
     destroy_tf(&tfarr);
     fprintf(stderr, "Destroyed tf array\n");
     
-    init_coefficients();
-    for(int i = 0; i < COEFF_AMOUNT; i++){
-      assert(coefficients[i] == 0);
+    // init_coefficients();
+    // for(int i = 0; i < COEFF_AMOUNT; i++){
+      // assert(coefficients[i] == 0);
+    // }
+
+    // train(map, tfarr_mini);
+    // validate(map, tfarr_mini);
+    // fprintf(stderr, "TEST SET\n");
+    // test(map, tfarr_mini);
+    
+    char *path;
+    if(strstr(DATASET, "medium") != NULL){
+      path = malloc((strlen("ML_Sets/TrainingSet_medium.csv") + 1)*sizeof(char));
+      strcpy(path, "ML_Sets/TrainingSet_medium.csv");
     }
-
-    train(map, tfarr_mini);
-    validate(map, tfarr_mini);
-    fprintf(stderr, "TEST SET\n");
-    test(map, tfarr_mini);
-
+    
+    int training_files = decrement(path, THREADNO, 1);
+    if(strstr(DATASET, "medium") != NULL){
+      strcpy(path, "ML_Sets/TestSet_medium.csv");
+    }
+    int lower_bound = training_files + 1;
+    int test_files = decrement(path, THREADNO, lower_bound);
+    fprintf(stderr, "no of testing files made: %d\n", test_files);
+    fprintf(stderr, "No of training files made: %d\n", training_files);
+    
+    ////INSERTION INTO JOB QUEUE////
+    JobScheduler *sch = initialize_scheduler(THREADNO, map, tfarr_mini);
+    qelem *newJob;
+    char *file_name = malloc(45*sizeof(char));
+    for(int i = 0; i < 5; i++){ // TRAINING EPOCHS
+      for(int j = 1; j <= training_files; j++){
+        sprintf(file_name, "batch%d.csv", j);
+        create_queue_element(&newJob, training, file_name);      
+        submit_job(sch, newJob);
+      }
+    }
+    for(int i = lower_bound; i < lower_bound + test_files; i++){
+      sprintf(file_name, "batch%d.csv", i);
+      create_queue_element(&newJob, testing, file_name);      
+      submit_job(sch, newJob);
+    }
+    
+    for(int i = 1; i < lower_bound + test_files; i++){
+      sprintf(file_name, "batch%d.csv", i);
+      remove(file_name);
+    }
     destroy_tf(&tfarr_mini);
     fprintf(stderr, "Destroyed mini tf array\n");
 

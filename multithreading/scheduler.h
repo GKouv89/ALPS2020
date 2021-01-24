@@ -13,6 +13,14 @@
   #define COEFFAMOUNT 15
 #endif
 
+#ifndef THREADNO
+  #define THREADNO 4
+#endif
+
+#ifndef IMPWORDS
+  #define IMPWORDS 1000
+#endif
+
 typedef struct scheduler{
   int execution_threads;
   int *time_to_work; // boolean values, indicate if thread[i] can take job from pool
@@ -54,4 +62,5 @@ JobScheduler* initialize_scheduler(int, hash_map*, tf*);
 int submit_job(JobScheduler*, qelem*);
 int execute_all_jobs(JobScheduler*);
 int destroy_scheduler(JobScheduler**);
+int decrement(char *, int, int);
 #endif
