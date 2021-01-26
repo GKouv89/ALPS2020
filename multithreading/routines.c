@@ -108,7 +108,7 @@ double test(hash_map *map, tf *tfarr_new, char *file_name, double res_coeffs[], 
     free(temp_vector->elements);
     free(temp_vector);
     
-    if(prediction > 0.5){
+    if(prediction > 0.0315){
       prediction = 1.0;
     }else{
       prediction = 0.0;
@@ -156,29 +156,34 @@ void update_coefficients(double res_coeffs[], double prediction, double ground_t
 
 void conflict_resolution(hash_map* map, tf* tfarr_new, double coeffs[]){
     FILE* fp;
-    int threshold = 0.00041;
-    fp = fopen("../ML_Sets/ValidationSet_medium.csv","r");
+    int threshold = 0.0315;
+    fp = fopen("ML_Sets/ValidationSet_medium.csv","r");
     assert(fp != NULL);
     size_t line_size = 1024;
     size_t bytes_read;
     char *line_buffer = malloc(line_size*sizeof(char));
     char *line, *file_toked;
     char *file_name_1, *file_name_2;
-    list_node *temp_1, *temp_2; 
+    list_node *temp_1, *temp_2, *root_a, *root_b; 
     int ground_truth;
     // int label_1 = 0;
-    double prediction;
+    double prediction, min_prediction, max_prediction;
+    min_prediction = 1;
+    max_prediction = 0;
     
     clique_list* temp_cliques;
     create_clique_list(&temp_cliques);
     while(!feof(fp)){
         bytes_read = getline(&line_buffer, &line_size, fp);
+        if(bytes_read == -1){
+          break;
+        }
         line = line_buffer;
         file_name_1 = strtok_r(line, ",", &line);
         file_toked = strtok_r(line, ",", &line);
-        while(memchr(file_toked, ' ', strlen(file_toked)) != NULL){
+        // while(memchr(file_toked, ' ', strlen(file_toked)) != NULL){
             file_name_2 = strtok_r(file_toked, " ", &file_toked);
-        }
+        // }
         temp_1 = find_node(map, file_name_1);
         temp_2 = find_node(map, file_name_2);
         assert(temp_1 != NULL);
@@ -193,20 +198,29 @@ void conflict_resolution(hash_map* map, tf* tfarr_new, double coeffs[]){
         // }
         IDFVector *temp_vector=concatenate_idf_vectors(tfarr_new->vectors[temp_1->vec_num], tfarr_new->vectors[temp_2->vec_num]);
         prediction = sigmoid(f(temp_vector, coeffs));
-      
+        root_a = find_root(temp_1);
+        root_b = find_root(temp_2);
+         
         if(prediction > threshold){
             // positive clique
-            join_sets(temp_cliques, temp_1, temp_2);
+            join_sets(temp_cliques, root_a, root_b);
         }else{
             // negative clique
-            if(temp_1->ngl == NULL){
-                neglist_create(&temp_1);
+            if(root_a->ngl == NULL){
+                neglist_create(&root_a);
             }
-            if(temp_2->ngl == NULL){
-                neglist_create(&temp_2);
+            if(root_b->ngl == NULL){
+                neglist_create(&root_b);
             }
-            neglist_add(temp_1,temp_2);
+            neglist_add(root_a, root_b);
         }
+        if(prediction < min_prediction){
+          min_prediction = prediction;
+        }
+        if(prediction > max_prediction){
+          max_prediction = prediction;
+        }
+        printf("PREDICTION: %s, %s, %.16lf\n", file_name_1, file_name_2, prediction);
         free(temp_vector->elements);
         free(temp_vector);
     }
@@ -218,20 +232,26 @@ void conflict_resolution(hash_map* map, tf* tfarr_new, double coeffs[]){
     int totalconflicts = 0;
     while(tempnode != NULL){
         temp_listnode = tempnode->representative;
-        negt = temp_listnode->ngl->front;
-        while(negt != NULL){
-            if(strcmp(temp_listnode->id,negt->neg_clique->id) == 0){
-                frinc = 1;
-                break;
-            }
-            negt = negt->next_in_negclique;
+        if(temp_listnode->ngl != NULL){
+          negt = temp_listnode->ngl->front;
+          while(negt != NULL){
+              if(strcmp(temp_listnode->id,negt->neg_clique->id) == 0){
+                  frinc = 1;
+                  break;
+              }
+              negt = negt->next_in_negclique;
+          }
+          if(frinc!=0){
+              totalconflicts++;
+          }
+          frinc = 0;
         }
-        if(frinc!=0){
-            totalconflicts++;
-        }
-        frinc = 0;
-        tempnode = tempnode->next;
+        tempnode = tempnode->next;          
     }
-    printf("Total conflicts found\t%d\n",totalconflicts);
+    fprintf(stderr, "MIN PRED: %.16lf, MAX PRED: %.16lf\n", min_prediction, max_prediction);
+    fprintf(stderr, "Total conflicts found\t%d\n",totalconflicts);
+    printf("VALIDATION CLIQUES\n");
+    // print_all_cliques(0, temp_cliques);
     destroy_clique_list(&temp_cliques);
+    reinitialize_all_cliques(map);
 }

@@ -10,5 +10,5 @@ double test(hash_map *, tf *, char *, double[], int *);
 double sigmoid(double);
 double f(IDFVector *, double[]);
 void update_coefficients(double[], double, double, IDFVector *);
-void conflict_resolution();
+void conflict_resolution(hash_map*, tf*, double[]);
 #endif

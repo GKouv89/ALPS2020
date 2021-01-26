@@ -118,20 +118,23 @@ void neglist_print(list_node* repres){
 
 void delete_negnode(neg_node** negptr){
     int error;
-    free((*negptr)->neg_clique);
+    (*negptr)->neg_clique = NULL;
     (*negptr)->next_in_negclique = NULL;
     free(*negptr);
     *negptr = NULL;
 }
 
 void destroy_neglist(list_node** repres){
+    if((*repres)->ngl == NULL){
+      return;
+    }
     neg_node* temp = (*repres)->ngl->front;
     if(temp != NULL && (*repres)->ngl->rear != NULL){
         neg_node* next = NULL;
         while(temp){
+            next = temp->next_in_negclique;
             if(temp->next_in_negclique){
-                next = temp->next_in_negclique;
-                temp->next_in_negclique = NULL;
+              temp->next_in_negclique = NULL;
             }
             delete_negnode(&temp);
             temp = next;

@@ -27,6 +27,7 @@ typedef struct list{
 void list_create(info_list**);
 list_node* create_node(char*, int);
 void list_add(info_list*, list_node*);
+void reinitialize_cliques(info_list*);
 void list_print(info_list*);
 void delete_node(list_node**);
 void destroy_list(info_list**);

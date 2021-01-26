@@ -42,6 +42,11 @@ list_node* find_node(hash_map* map, char* id){
     return NULL;
 }
 
+void reinitialize_all_cliques(hash_map *map){
+  for(int i = 0; i < BUCKETS; i++){
+    reinitialize_cliques(map->map[i].bucket_list);
+  }
+}
 
 void print_bucket_no_of_entries(hash_map* map){
     int median = 0;

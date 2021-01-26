@@ -3,6 +3,7 @@
 #include <string.h>
 #include "datatypes.h"
 #include "tuplist.h"
+#include "negcl.h"
 
 void list_create(info_list** list){
     (*list) = malloc(sizeof(info_list));
@@ -62,6 +63,17 @@ void destroy_list(info_list** list){
     (*list)->rear = NULL;
     free(*list);
     *list = NULL;
+}
+
+void reinitialize_cliques(info_list* list){
+  list_node *temp = list->front;
+  while(temp){
+    temp->amount = 1;
+    temp->parent = NULL;
+    temp->next_in_clique = NULL;
+    destroy_neglist(&temp);
+    temp = temp->next;
+  }
 }
 
 void delete_node(list_node** node){

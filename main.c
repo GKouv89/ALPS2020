@@ -54,9 +54,10 @@ int main(int argc, char* argv[]){
     fprintf(stderr, "%ld for clique creation\n", cliques_end - cliques_start);
     fprintf(stderr, "Positive association cliques OK\n");
     
-    print_all_cliques(0, all_cliques);
+    // print_all_cliques(0, all_cliques);
     // medium 46666 with first row
     // large 341930 -//-
+    reinitialize_all_cliques(map);
     
     time_t idf_start, idf_end;
     time(&idf_start);
@@ -159,7 +160,7 @@ int main(int argc, char* argv[]){
       remove(file_name);
     }
 
-    
+    conflict_resolution(map, tfarr_mini, sch->coefficients);
 
     double accuracy = ((double)sch->all_correct_predictions/(double)sch->all_predictions_testing)*100;
     fprintf(stderr, "ACCURACY: %lf%%\n", accuracy);    
