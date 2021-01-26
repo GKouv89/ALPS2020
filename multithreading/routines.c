@@ -154,7 +154,7 @@ void update_coefficients(double res_coeffs[], double prediction, double ground_t
   }
 }
 
-void conflict_resolution(hash_map* map, tf* tfarr_new){
+void conflict_resolution(hash_map* map, tf* tfarr_new, double coeffs[]){
     FILE* fp;
     int threshold = 0.00041;
     fp = fopen("../ML_Sets/ValidationSet_medium.csv","r");
@@ -192,12 +192,11 @@ void conflict_resolution(hash_map* map, tf* tfarr_new){
             // label_1++;
         // }
         IDFVector *temp_vector=concatenate_idf_vectors(tfarr_new->vectors[temp_1->vec_num], tfarr_new->vectors[temp_2->vec_num]);
-        assert(temp_vector->size == COEFF_AMOUNT - 1);
-        prediction = sigmoid(f(temp_vector));
+        prediction = sigmoid(f(temp_vector, coeffs));
       
         if(prediction > threshold){
             // positive clique
-            join_sets(temp_1,temp_2);
+            join_sets(temp_cliques, temp_1, temp_2);
         }else{
             // negative clique
             if(temp_1->ngl == NULL){
@@ -206,7 +205,7 @@ void conflict_resolution(hash_map* map, tf* tfarr_new){
             if(temp_2->ngl == NULL){
                 neglist_create(&temp_2);
             }
-            neglist_add(temp_1,temp_2)
+            neglist_add(temp_1,temp_2);
         }
         free(temp_vector->elements);
         free(temp_vector);
@@ -220,7 +219,7 @@ void conflict_resolution(hash_map* map, tf* tfarr_new){
     while(tempnode != NULL){
         temp_listnode = tempnode->representative;
         negt = temp_listnode->ngl->front;
-        while(negt != NUll){
+        while(negt != NULL){
             if(strcmp(temp_listnode->id,negt->neg_clique->id) == 0){
                 frinc = 1;
                 break;
@@ -233,6 +232,6 @@ void conflict_resolution(hash_map* map, tf* tfarr_new){
         frinc = 0;
         tempnode = tempnode->next;
     }
-    
+    printf("Total conflicts found\t%d\n",totalconflicts);
     destroy_clique_list(&temp_cliques);
 }

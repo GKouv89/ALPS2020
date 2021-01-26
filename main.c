@@ -159,6 +159,8 @@ int main(int argc, char* argv[]){
       remove(file_name);
     }
 
+    
+
     double accuracy = ((double)sch->all_correct_predictions/(double)sch->all_predictions_testing)*100;
     fprintf(stderr, "ACCURACY: %lf%%\n", accuracy);    
     destroy_scheduler(&sch);
