@@ -237,6 +237,7 @@ void test_batch_file_creation(void){
   }
 }
 
+
 TEST_LIST = {
   {"scheduler_creation", test_scheduler_creation},
   {"batch_file_creation", test_batch_file_creation},

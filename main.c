@@ -160,7 +160,10 @@ int main(int argc, char* argv[]){
       remove(file_name);
     }
 
-    conflict_resolution(map, tfarr_mini, sch->coefficients);
+    // if(strstr(DATASET, "medium") != NULL){
+      // threshold_tuning(map, tfarr_mini, "ML_Sets/TestSet_medium.csv", sch->coefficients);
+    // }
+    conflict_resolution(map, tfarr_mini, 0.0775, "ML_Sets/ValidationSet_medium.csv", sch->coefficients);
 
     double accuracy = ((double)sch->all_correct_predictions/(double)sch->all_predictions_testing)*100;
     fprintf(stderr, "ACCURACY: %lf%%\n", accuracy);    
