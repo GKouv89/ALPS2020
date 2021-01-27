@@ -280,89 +280,49 @@ void conflict_resolution(hash_map* map, tf* tfarr_new, double threshold, char *f
           // printf("%.16lf ", temp_vector->elements[i]);
         // }
         prediction = sigmoid(f(temp_vector, coeffs));
-         
+        root_a = find_root(temp_1);
+        root_b = find_root(temp_2);
+           
         if(prediction >= threshold){
             // positive clique
-            root_a = find_root(temp_1);
-            root_b = find_root(temp_2);
             join_sets(temp_cliques, root_a, root_b);
+        }else{
+          // a conflict would mean that the two nodes are already in the same positive association clique but the likelihood
+          // of them being in the same clique is smaller than the threshold
+          if(root_a == root_b){
+            totalconflicts++;
+            fprintf(stderr, "CONFLICT\n");
+          }
         }
         printf("PREDICTION: %s, %s, %.16lf\n", file_name_1, file_name_2, prediction);
         free(temp_vector->elements);
         free(temp_vector);
     }
-    fseek(fp, 0, SEEK_SET);
-    while(!feof(fp)){
-        bytes_read = getline(&line_buffer, &line_size, fp);
-        if(bytes_read == -1){
-          break;
-        }
-        line = line_buffer;
-        file_name_1 = strtok_r(line, ",", &line);
-        file_toked = strtok_r(line, ",", &line);
-        // while(memchr(file_toked, ' ', strlen(file_toked)) != NULL){
-            file_name_2 = strtok_r(file_toked, " ", &file_toked);
+    // clique_list_node* tempnode;
+    // tempnode = temp_cliques->front;
+    // list_node* temp_listnode;
+    // neg_node* negt;
+    // int frinc = 0; // found representative in own neglist
+    // int totalcliqueconflicts = 0;
+    // while(tempnode != NULL){
+        // temp_listnode = tempnode->representative;
+        // if(temp_listnode->ngl != NULL){
+          // negt = temp_listnode->ngl->front;
+          // while(negt != NULL){
+              // if(strcmp(temp_listnode->id,negt->neg_clique->id) == 0){
+                  // frinc = 1;
+                  // break;
+              // }
+              // negt = negt->next_in_negclique;
+          // }
+          // // if(frinc!=0){
+              // // totalcliqueconflicts++;
+          // // }
+          // frinc = 0;
         // }
-        temp_1 = find_node(map, file_name_1);
-        temp_2 = find_node(map, file_name_2);
-        assert(temp_1 != NULL);
-        assert(temp_2 != NULL);
-        assert(temp_1->vec_num >= 0);
-        assert(temp_2->vec_num >= 0);
-        assert(strcmp(tfarr_new->vectors[temp_1->vec_num]->name, file_name_1) ==  0);
-        assert(strcmp(tfarr_new->vectors[temp_2->vec_num]->name, file_name_2) ==  0);
-        ground_truth = atoi(line);
-        // if(ground_truth == 1 && i == 0){
-            // label_1++;
-        // }
-        IDFVector *temp_vector=concatenate_idf_vectors(tfarr_new->vectors[temp_1->vec_num], tfarr_new->vectors[temp_2->vec_num]);
-        prediction = sigmoid(f(temp_vector, coeffs));
-        
-        if(prediction < threshold){
-          printf("neg pred\n");
-          root_a = find_root(temp_1);
-          root_b = find_root(temp_2);
-          if(root_a == root_b){
-            totalconflicts++;
-            fprintf(stderr, "CONFLICT\n");
-          }
-          if(root_a->ngl == NULL){
-              neglist_create(&root_a);
-          }
-          if(root_b->ngl == NULL){
-              neglist_create(&root_b);
-          }
-          neglist_add(root_a, root_b);
-        }
-        printf("PREDICTION: %s, %s, %.16lf | THRESHOLD: %.2lf\n", file_name_1, file_name_2, prediction, threshold);
-        free(temp_vector->elements);
-        free(temp_vector);
-    }
-    clique_list_node* tempnode;
-    tempnode = temp_cliques->front;
-    list_node* temp_listnode;
-    neg_node* negt;
-    int frinc = 0; // found representative in own neglist
-    int totalcliqueconflicts = 0;
-    while(tempnode != NULL){
-        temp_listnode = tempnode->representative;
-        if(temp_listnode->ngl != NULL){
-          negt = temp_listnode->ngl->front;
-          while(negt != NULL){
-              if(strcmp(temp_listnode->id,negt->neg_clique->id) == 0){
-                  frinc = 1;
-                  break;
-              }
-              negt = negt->next_in_negclique;
-          }
-          if(frinc!=0){
-              totalcliqueconflicts++;
-          }
-          frinc = 0;
-        }
-        tempnode = tempnode->next;          
-    }
-    fprintf(stderr, "Total cliques with conflicts found\t%d\n",totalcliqueconflicts);
+        // tempnode = tempnode->next;          
+    // }
+    // fprintf(stderr, "Total cliques with conflicts found\t%d\n",totalcliqueconflicts);
     fprintf(stderr, "Total conflicts found\t%d\n", totalconflicts);
     printf("VALIDATION CLIQUES\n");
     print_all_cliques(0, temp_cliques);
