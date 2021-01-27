@@ -72,3 +72,4 @@ clean_tests:
 	rm -f tests/*.o tests/hash_test tests/data_test tests/cliques tests/csvparse tests/arrayparse tests/ctype tests/bowtest tests/dicttest tests/allbowtest tests/ngltest
 	rm -f TF-IDF/*.o BOW/*.o multithreading/*.o *.o
 	rm -f tests/multithreading_tests/mult tests/multithreading_tests/*.o
+	rm -f tests/multithreading_tests/conf 

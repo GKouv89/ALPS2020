@@ -251,81 +251,77 @@ void conflict_resolution(hash_map* map, tf* tfarr_new, double threshold, char *f
     double prediction, min_prediction, max_prediction;
     
     clique_list* temp_cliques;
-    create_clique_list(&temp_cliques);
-    while(!feof(fp)){
-        bytes_read = getline(&line_buffer, &line_size, fp);
-        if(bytes_read == -1){
-          break;
-        }
-        line = line_buffer;
-        file_name_1 = strtok_r(line, ",", &line);
-        file_toked = strtok_r(line, ",", &line);
-        // while(memchr(file_toked, ' ', strlen(file_toked)) != NULL){
-            file_name_2 = strtok_r(file_toked, " ", &file_toked);
-        // }
-        temp_1 = find_node(map, file_name_1);
-        temp_2 = find_node(map, file_name_2);
-        assert(temp_1 != NULL);
-        assert(temp_2 != NULL);
-        assert(temp_1->vec_num >= 0);
-        assert(temp_2->vec_num >= 0);
-        assert(strcmp(tfarr_new->vectors[temp_1->vec_num]->name, file_name_1) ==  0);
-        assert(strcmp(tfarr_new->vectors[temp_2->vec_num]->name, file_name_2) ==  0);
-        ground_truth = atoi(line);
-        // if(ground_truth == 1 && i == 0){
-            // label_1++;
-        // }
-        IDFVector *temp_vector=concatenate_idf_vectors(tfarr_new->vectors[temp_1->vec_num], tfarr_new->vectors[temp_2->vec_num]);
-        // for(int i = 0; i < temp_vector->size; i++){
-          // printf("%.16lf ", temp_vector->elements[i]);
-        // }
-        prediction = sigmoid(f(temp_vector, coeffs));
-        root_a = find_root(temp_1);
-        root_b = find_root(temp_2);
-           
-        if(prediction >= threshold){
-            // positive clique
-            join_sets(temp_cliques, root_a, root_b);
-        }else{
-          // a conflict would mean that the two nodes are already in the same positive association clique but the likelihood
-          // of them being in the same clique is smaller than the threshold
-          if(root_a == root_b){
-            totalconflicts++;
-            fprintf(stderr, "CONFLICT\n");
-          }
-        }
-        printf("PREDICTION: %s, %s, %.16lf\n", file_name_1, file_name_2, prediction);
-        free(temp_vector->elements);
-        free(temp_vector);
+    double res_coeffs[COEFFAMOUNT];
+    for(int i = 0; i < COEFFAMOUNT; i++){
+      res_coeffs[i] = 0;
     }
-    // clique_list_node* tempnode;
-    // tempnode = temp_cliques->front;
-    // list_node* temp_listnode;
-    // neg_node* negt;
-    // int frinc = 0; // found representative in own neglist
-    // int totalcliqueconflicts = 0;
-    // while(tempnode != NULL){
-        // temp_listnode = tempnode->representative;
-        // if(temp_listnode->ngl != NULL){
-          // negt = temp_listnode->ngl->front;
-          // while(negt != NULL){
-              // if(strcmp(temp_listnode->id,negt->neg_clique->id) == 0){
-                  // frinc = 1;
-                  // break;
-              // }
-              // negt = negt->next_in_negclique;
+    for(int i = 0; i < 2; i++){
+      create_clique_list(&temp_cliques);
+      while(!feof(fp)){
+          bytes_read = getline(&line_buffer, &line_size, fp);
+          if(bytes_read == -1){
+            break;
+          }
+          line = line_buffer;
+          file_name_1 = strtok_r(line, ",", &line);
+          file_toked = strtok_r(line, ",", &line);
+          // while(memchr(file_toked, ' ', strlen(file_toked)) != NULL){
+              file_name_2 = strtok_r(file_toked, " ", &file_toked);
           // }
-          // // if(frinc!=0){
-              // // totalcliqueconflicts++;
-          // // }
-          // frinc = 0;
-        // }
-        // tempnode = tempnode->next;          
-    // }
-    // fprintf(stderr, "Total cliques with conflicts found\t%d\n",totalcliqueconflicts);
-    fprintf(stderr, "Total conflicts found\t%d\n", totalconflicts);
-    printf("VALIDATION CLIQUES\n");
-    print_all_cliques(0, temp_cliques);
-    destroy_clique_list(&temp_cliques);
-    reinitialize_all_cliques(map);
+          temp_1 = find_node(map, file_name_1);
+          temp_2 = find_node(map, file_name_2);
+          assert(temp_1 != NULL);
+          assert(temp_2 != NULL);
+          assert(temp_1->vec_num >= 0);
+          assert(temp_2->vec_num >= 0);
+          assert(strcmp(tfarr_new->vectors[temp_1->vec_num]->name, file_name_1) ==  0);
+          assert(strcmp(tfarr_new->vectors[temp_2->vec_num]->name, file_name_2) ==  0);
+          ground_truth = atoi(line);
+          // if(ground_truth == 1 && i == 0){
+              // label_1++;
+          // }
+          IDFVector *temp_vector=concatenate_idf_vectors(tfarr_new->vectors[temp_1->vec_num], tfarr_new->vectors[temp_2->vec_num]);
+          // for(int i = 0; i < temp_vector->size; i++){
+            // printf("%.16lf ", temp_vector->elements[i]);
+          // }
+          prediction = sigmoid(f(temp_vector, coeffs));
+          root_a = find_root(temp_1);
+          root_b = find_root(temp_2);
+             
+          if(prediction >= threshold){
+              // positive clique
+              join_sets(temp_cliques, root_a, root_b);
+          }else{
+            // a conflict would mean that the two nodes are already in the same positive association clique but the likelihood
+            // of them being in the same clique is smaller than the threshold
+            if(root_a == root_b){
+              totalconflicts++;
+              // fprintf(stderr, "CONFLICT\n");
+              // we automatically assume that what we have gathered so far,
+              // a.k.a. that temp_1 and temp_2 should match
+              // is the correct prediction. So, we sum this for the later correction
+              update_coefficients(res_coeffs, prediction, 1, temp_vector);
+            }
+          }
+          printf("PREDICTION: %s, %s, %.16lf\n", file_name_1, file_name_2, prediction);
+          free(temp_vector->elements);
+          free(temp_vector);
+      }
+      fprintf(stderr, "Total conflicts found in this run\t%d\n", totalconflicts);
+      fseek(fp, 0, SEEK_SET);
+      destroy_clique_list(&temp_cliques);
+      reinitialize_all_cliques(map);
+      if(totalconflicts == 0){
+        break;
+      }
+      for(int j = 0; j < COEFFAMOUNT; j++){
+        res_coeffs[j] = res_coeffs[j]/totalconflicts;
+        res_coeffs[j] *= 0.1;
+        coeffs[j] = coeffs[j] - res_coeffs[j];
+        res_coeffs[j] = 0.0;
+      }
+      totalconflicts = 0;
+    }
+    // printf("VALIDATION CLIQUES\n");
+    // print_all_cliques(0, temp_cliques);
 }

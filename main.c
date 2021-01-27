@@ -159,14 +159,18 @@ int main(int argc, char* argv[]){
       sprintf(file_name, "batch%d.csv", i);
       remove(file_name);
     }
+    double accuracy = ((double)sch->all_correct_predictions/(double)sch->all_predictions_testing)*100;
+    fprintf(stderr, "ACCURACY after only training: %lf%%\n", accuracy);    
 
     // if(strstr(DATASET, "medium") != NULL){
       // threshold_tuning(map, tfarr_mini, "ML_Sets/TestSet_medium.csv", sch->coefficients);
     // }
     conflict_resolution(map, tfarr_mini, 0.0775, "ML_Sets/ValidationSet_medium.csv", sch->coefficients);
-
-    double accuracy = ((double)sch->all_correct_predictions/(double)sch->all_predictions_testing)*100;
-    fprintf(stderr, "ACCURACY: %lf%%\n", accuracy);    
+    int new_corr_preds = 0;
+    int new_all_preds = test(map, tfarr_mini, "ML_Sets/TestSet.csv", sch->coefficients, &new_corr_preds);
+    accuracy = ((double)new_corr_preds/(double)new_all_preds)*100;
+    fprintf(stderr, "ACCURACY after 'conflict resolution': %lf%%\n", accuracy);
+    
     destroy_scheduler(&sch);
     destroy_tf(&tfarr_mini);
     fprintf(stderr, "Destroyed mini tf array\n");
