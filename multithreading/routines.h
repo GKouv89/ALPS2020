@@ -8,7 +8,7 @@
 #include "../negcl.h"
 
 int train(hash_map *, tf *, char *, double[], double[]);
-double test(hash_map *, tf *, char *, double[], int *);
+double test(hash_map *, tf *, char *, double, double[], int *);
 double sigmoid(double);
 double f(IDFVector *, double[]);
 void update_coefficients(double[], double, double, IDFVector *);

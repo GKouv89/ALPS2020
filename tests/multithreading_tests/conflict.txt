@@ -1,0 +1,3 @@
+www.ebay.com//123, www.ebay.com//456, 1
+www.ebay.com//456, www.amazon.net//123, 1
+www.ebay.com//123, www.amazon.net//123, 1 

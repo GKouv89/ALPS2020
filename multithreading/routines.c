@@ -64,7 +64,7 @@ int train(hash_map *map, tf *tfarr_new, char *file_name, double curr_coeffs[], d
   return prediction_count;
 }
 
-double test(hash_map *map, tf *tfarr_new, char *file_name, double res_coeffs[], int *corr_preds){
+double test(hash_map *map, tf *tfarr_new, char *file_name, double threshold, double res_coeffs[], int *corr_preds){
   FILE *fp = fopen(file_name, "r");
   assert(fp != NULL);
   size_t line_size = 1024;
@@ -108,7 +108,7 @@ double test(hash_map *map, tf *tfarr_new, char *file_name, double res_coeffs[], 
     free(temp_vector->elements);
     free(temp_vector);
     
-    if(prediction >= 0.0775){
+    if(prediction >= threshold){
       prediction = 1.0;
     }else{
       prediction = 0.0;
@@ -236,7 +236,6 @@ void threshold_tuning(hash_map *map, tf *tfarr_new, char *file_name, double coef
 
 void conflict_resolution(hash_map* map, tf* tfarr_new, double threshold, char *file_name, double coeffs[]){
     FILE* fp;
-    // int threshold = 0.077;
     fp = fopen(file_name,"r");
     assert(fp != NULL);
     size_t line_size = 1024;
@@ -249,14 +248,14 @@ void conflict_resolution(hash_map* map, tf* tfarr_new, double threshold, char *f
     int totalconflicts = 0;
     int conflict_resolved = 0;
     // int label_1 = 0;
-    double prediction, min_prediction, max_prediction;
+    double prediction, min_prediction, max_prediction = 0;
     
     clique_list* temp_cliques;
     double res_coeffs[COEFFAMOUNT];
     for(int i = 0; i < COEFFAMOUNT; i++){
       res_coeffs[i] = 0;
     }
-    for(int i = 0; i < 2; i++){
+    for(int i = 0; i < 100; i++){
       create_clique_list(&temp_cliques);
       while(!feof(fp)){
           bytes_read = getline(&line_buffer, &line_size, fp);
@@ -266,9 +265,7 @@ void conflict_resolution(hash_map* map, tf* tfarr_new, double threshold, char *f
           line = line_buffer;
           file_name_1 = strtok_r(line, ",", &line);
           file_toked = strtok_r(line, ",", &line);
-          // while(memchr(file_toked, ' ', strlen(file_toked)) != NULL){
-              file_name_2 = strtok_r(file_toked, " ", &file_toked);
-          // }
+          file_name_2 = strtok_r(file_toked, " ", &file_toked);
           temp_1 = find_node(map, file_name_1);
           temp_2 = find_node(map, file_name_2);
           assert(temp_1 != NULL);
@@ -278,13 +275,8 @@ void conflict_resolution(hash_map* map, tf* tfarr_new, double threshold, char *f
           assert(strcmp(tfarr_new->vectors[temp_1->vec_num]->name, file_name_1) ==  0);
           assert(strcmp(tfarr_new->vectors[temp_2->vec_num]->name, file_name_2) ==  0);
           ground_truth = atoi(line);
-          // if(ground_truth == 1 && i == 0){
-              // label_1++;
-          // }
+
           IDFVector *temp_vector=concatenate_idf_vectors(tfarr_new->vectors[temp_1->vec_num], tfarr_new->vectors[temp_2->vec_num]);
-          // for(int i = 0; i < temp_vector->size; i++){
-            // printf("%.16lf ", temp_vector->elements[i]);
-          // }
           prediction = sigmoid(f(temp_vector, coeffs));
           root_a = find_root(temp_1);
           root_b = find_root(temp_2);
@@ -292,6 +284,12 @@ void conflict_resolution(hash_map* map, tf* tfarr_new, double threshold, char *f
           if(prediction >= threshold){
               // positive clique
               join_sets(temp_cliques, root_a, root_b);
+              if(temp_1->matches == NULL){
+                matchlist_create(&temp_1);
+              }
+              if(temp_2->matches == NULL){
+                matchlist_create(&temp_2);
+              }
               matchlist_add(temp_1, temp_2, prediction);
           }
           if(prediction > max_prediction){
@@ -309,9 +307,7 @@ void conflict_resolution(hash_map* map, tf* tfarr_new, double threshold, char *f
           line = line_buffer;
           file_name_1 = strtok_r(line, ",", &line);
           file_toked = strtok_r(line, ",", &line);
-          // while(memchr(file_toked, ' ', strlen(file_toked)) != NULL){
-              file_name_2 = strtok_r(file_toked, " ", &file_toked);
-          // }
+          file_name_2 = strtok_r(file_toked, " ", &file_toked);
           temp_1 = find_node(map, file_name_1);
           temp_2 = find_node(map, file_name_2);
           assert(temp_1 != NULL);
@@ -321,13 +317,7 @@ void conflict_resolution(hash_map* map, tf* tfarr_new, double threshold, char *f
           assert(strcmp(tfarr_new->vectors[temp_1->vec_num]->name, file_name_1) ==  0);
           assert(strcmp(tfarr_new->vectors[temp_2->vec_num]->name, file_name_2) ==  0);
           ground_truth = atoi(line);
-          // if(ground_truth == 1 && i == 0){
-              // label_1++;
-          // }
           IDFVector *temp_vector=concatenate_idf_vectors(tfarr_new->vectors[temp_1->vec_num], tfarr_new->vectors[temp_2->vec_num]);
-          // for(int i = 0; i < temp_vector->size; i++){
-            // printf("%.16lf ", temp_vector->elements[i]);
-          // }
           prediction = sigmoid(f(temp_vector, coeffs));
           root_a = find_root(temp_1);
           root_b = find_root(temp_2);
@@ -341,13 +331,19 @@ void conflict_resolution(hash_map* map, tf* tfarr_new, double threshold, char *f
                   neglist_create(&root_b);
               }
               neglist_add(root_a,root_b); 
+              if(temp_1->matches == NULL){
+                matchlist_create(&temp_1);
+              }
+              if(temp_2->matches == NULL){
+                matchlist_create(&temp_2);
+              }
               matchlist_add(temp_1, temp_2, prediction);
             }
           }
           free(temp_vector->elements);
           free(temp_vector);
       }
-      normalize_predictions(map, max_prediction);
+      // normalize_predictions(map, max_prediction);
       // Third pass, actual conflict resolution
       fseek(fp, 0, SEEK_SET);
       while(!feof(fp)){
@@ -358,9 +354,7 @@ void conflict_resolution(hash_map* map, tf* tfarr_new, double threshold, char *f
           line = line_buffer;
           file_name_1 = strtok_r(line, ",", &line);
           file_toked = strtok_r(line, ",", &line);
-          // while(memchr(file_toked, ' ', strlen(file_toked)) != NULL){
-              file_name_2 = strtok_r(file_toked, " ", &file_toked);
-          // }
+          file_name_2 = strtok_r(file_toked, " ", &file_toked);
           temp_1 = find_node(map, file_name_1);
           temp_2 = find_node(map, file_name_2);
           assert(temp_1 != NULL);
@@ -376,7 +370,6 @@ void conflict_resolution(hash_map* map, tf* tfarr_new, double threshold, char *f
           root_b = find_root(temp_2);
           if(prediction < threshold){
             if(root_a == root_b){ // TYPE ONE CONFLICT
-              double prediction_normalized = prediction/max_prediction;
               matchlist *matches_1 = temp_1->matches;
               matchlist *matches_2 = temp_2->matches;
               if(matches_1 == NULL || matches_2 == NULL){
@@ -387,11 +380,37 @@ void conflict_resolution(hash_map* map, tf* tfarr_new, double threshold, char *f
                 while(match_1){
                   match_2 = matches_2->head;
                   while(match_2){
-                    if(strcmp(match_1->matched_with->id, match_2->matched_with->id) == 0){
+                    if(strcmp(match_1->matched_with->id, match_2->matched_with->id) == 0 && match_1->prediction >= threshold && match_2->prediction >= threshold){
                       double prediction_mult = match_1->prediction*match_2->prediction;
-                      if(1 - prediction_normalized > prediction_mult){
-                        update_coefficients(res_coeffs, prediction, 0, temp_vector);
+                      if(max_prediction - prediction > prediction_mult){
+                        fprintf(stderr, "case1 solution1\n");
+                        fprintf(stderr, "prediction1 = %.16lf, prediction2 = %.16lf, prediction = %.16lf\n", match_1->prediction, match_2->prediction, prediction);
+                        // WE BREAK THE CLIQUE,
+                        // The actual data structure will not change
+                        // But what will happen is we will update the weights to correspond to what we would've expected them to
+                        // If we have that a and b match and a and c match and we find out it is likelier for
+                        // b and c not to match, then we must update the coefficients by 'separating'
+                        // them in two cliques. Which of the two matching is more likely to be true?
+                        // a matches b or a matches c? That one stays. The other one has its coeffs updated.
+                        if(match_1->prediction > match_2->prediction){
+                          list_node *to_change_1 = temp_1;
+                          list_node *to_change_2 = find_node(map, match_1->matched_with->id);
+                          IDFVector *to_change = concatenate_idf_vectors(tfarr_new->vectors[to_change_1->vec_num], tfarr_new->vectors[to_change_2->vec_num]);
+                          double to_change_pred = sigmoid(f(to_change, coeffs));
+                          update_coefficients(res_coeffs, to_change_pred, 0, to_change);
+                          free(to_change->elements);
+                          free(to_change);
+                        }else{
+                          list_node *to_change_1 = find_node(map, match_1->matched_with->id);
+                          list_node *to_change_2 = temp_2;
+                          IDFVector *to_change = concatenate_idf_vectors(tfarr_new->vectors[to_change_1->vec_num], tfarr_new->vectors[to_change_2->vec_num]);
+                          double to_change_pred = sigmoid(f(to_change, coeffs));
+                          update_coefficients(res_coeffs, to_change_pred, 0, to_change);
+                          free(to_change->elements);
+                          free(to_change);
+                        }
                       }else{
+                        fprintf(stderr, "prediction1 = %.16lf, prediction2 = %.16lf, prediction = %.16lf\n", match_1->prediction, match_2->prediction, prediction);
                         update_coefficients(res_coeffs, prediction, 1, temp_vector);
                       }
                       totalconflicts++;
@@ -415,37 +434,23 @@ void conflict_resolution(hash_map* map, tf* tfarr_new, double threshold, char *f
               neg_node *root_a_temp = root_a_neg_list->front;
               while(root_a_temp){
                 if(root_a_temp->neg_clique == root_b){ // TYPE 2 CONFLICT
-                  double prediction_normalized = prediction/max_prediction;
-                  matchlist *matches_1 = temp_1->matches;
-                  matchlist *matches_2 = temp_2->matches;
-                  if(matches_1 == NULL || matches_2 == NULL){
-                    fprintf(stderr, "???\n");
+                  IDFVector *rep_relationship = concatenate_idf_vectors(tfarr_new->vectors[root_a->vec_num], tfarr_new->vectors[root_b->vec_num]);
+                  double prediction_repres = sigmoid(f(rep_relationship, coeffs));
+                  if(prediction_repres >= threshold){
+                    fprintf(stderr, "the representatives also don't match...?");
                   }else{
-                    match_tuple *match_1 = matches_1->head;
-                    match_tuple *match_2;
-                    while(match_1){
-                      match_2 = matches_2->head;
-                      while(match_2){
-                        if(strcmp(match_1->matched_with->id, match_2->matched_with->id) == 0){
-                          double prediction_mult = (1-match_1->prediction)*(1-match_2->prediction);
-                          if(prediction_normalized > prediction_mult){
-                            update_coefficients(res_coeffs, prediction, 1, temp_vector);
-                          }else{
-                            update_coefficients(res_coeffs, prediction, 0, temp_vector);
-                          }
-                          totalconflicts++;
-                          conflict_resolved = 1;
-                          break;
-                        }
-                        match_2 = match_2->next;
-                      }
-                      if(conflict_resolved == 1){
-                        conflict_resolved = 0;
-                        break;
-                      }
-                      match_1 = match_1->next;
+                    if(max_prediction - prediction_repres > prediction){
+                      // It's more likely that temp_1 and temp_2's representatives don't match
+                      // So it's more likely they also don't
+                      update_coefficients(res_coeffs, prediction, 0, temp_vector);
+                    }else{
+                      // It's more likely that temp_1 and temp_2 match so the representatives also must match
+                      update_coefficients(res_coeffs, prediction_repres, 1, temp_vector);
                     }
+                    totalconflicts++;
                   }
+                  free(rep_relationship->elements);
+                  free(rep_relationship);
                   break;
                 }
                 root_a_temp = root_a_temp->next_in_negclique;
@@ -470,6 +475,4 @@ void conflict_resolution(hash_map* map, tf* tfarr_new, double threshold, char *f
       }
       totalconflicts = 0;
     }
-    // printf("VALIDATION CLIQUES\n");
-    // print_all_cliques(0, temp_cliques);
 }

@@ -167,7 +167,7 @@ int main(int argc, char* argv[]){
     // }
     conflict_resolution(map, tfarr_mini, 0.0775, "ML_Sets/ValidationSet_medium.csv", sch->coefficients);
     int new_corr_preds = 0;
-    int new_all_preds = test(map, tfarr_mini, "ML_Sets/TestSet.csv", sch->coefficients, &new_corr_preds);
+    int new_all_preds = test(map, tfarr_mini, "ML_Sets/TestSet.csv", 0.0775, sch->coefficients, &new_corr_preds);
     accuracy = ((double)new_corr_preds/(double)new_all_preds)*100;
     fprintf(stderr, "ACCURACY after 'conflict resolution': %lf%%\n", accuracy);
     

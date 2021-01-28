@@ -113,7 +113,7 @@ void* threadWork(void *arg){
         myScheduler->read_from_coeff_array = 0;
       }
       pthread_mutex_unlock(&myScheduler->threads_complete_mutex);
-      myScheduler->thread_predictions[i] = test(myScheduler->map, myScheduler->tf_array, aJob->file_name, myScheduler->coefficients, &myScheduler->thread_correct_predictions[i]);
+      myScheduler->thread_predictions[i] = test(myScheduler->map, myScheduler->tf_array, aJob->file_name, 0.0775, myScheduler->coefficients, &myScheduler->thread_correct_predictions[i]);
     }
     
     pthread_mutex_lock(&myScheduler->threads_complete_mutex);
