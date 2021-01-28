@@ -9,7 +9,6 @@
 #include "../set.h"
 
 int train(hash_map *map, tf *tfarr_new, char *file_name, double curr_coeffs[], double res_coeffs[]){
-  // fprintf(stderr, "train: %s\n", file_name);
   FILE *fp = fopen(file_name, "r");
   assert(fp != NULL);
   size_t line_size = 1024;
@@ -27,17 +26,12 @@ int train(hash_map *map, tf *tfarr_new, char *file_name, double curr_coeffs[], d
   while(!feof(fp)){
     bytes_read = getline(&line_buffer, &line_size, fp);
     if(bytes_read == -1){
-      // fprintf(stderr, "BATCH PIECE %s FINISHED\n", file_name);
       break;
     }
-    // fprintf(stderr, "BATCH: %s line: %s | prediction no %d\n", file_name, line_buffer, prediction_count);
     line = line_buffer;
     file_name_1 = strtok_r(line, ",", &line);
     file_toked = strtok_r(line, ",", &line);  
-    // while(memchr(file_toked, ' ', strlen(file_toked)) != NULL){
-      file_name_2 = strtok_r(file_toked, " ", &file_toked);
-    // }
-    // fprintf(stderr, "BATCH: %s line %d | file_name_1, file_name_2: %s, %s\n",  file_name, prediction_count, file_name_1, file_name_2);
+    file_name_2 = strtok_r(file_toked, " ", &file_toked);
     temp_1 = find_node(map, file_name_1);
     temp_2 = find_node(map, file_name_2);
     assert(temp_1 != NULL);
@@ -383,8 +377,8 @@ void conflict_resolution(hash_map* map, tf* tfarr_new, double threshold, char *f
                     if(strcmp(match_1->matched_with->id, match_2->matched_with->id) == 0 && match_1->prediction >= threshold && match_2->prediction >= threshold){
                       double prediction_mult = match_1->prediction*match_2->prediction;
                       if(max_prediction - prediction > prediction_mult){
-                        fprintf(stderr, "case1 solution1\n");
-                        fprintf(stderr, "prediction1 = %.16lf, prediction2 = %.16lf, prediction = %.16lf\n", match_1->prediction, match_2->prediction, prediction);
+                        // fprintf(stderr, "case1 solution1\n");
+                        // fprintf(stderr, "prediction1 = %.16lf, prediction2 = %.16lf, prediction = %.16lf\n", match_1->prediction, match_2->prediction, prediction);
                         // WE BREAK THE CLIQUE,
                         // The actual data structure will not change
                         // But what will happen is we will update the weights to correspond to what we would've expected them to
@@ -410,7 +404,8 @@ void conflict_resolution(hash_map* map, tf* tfarr_new, double threshold, char *f
                           free(to_change);
                         }
                       }else{
-                        fprintf(stderr, "prediction1 = %.16lf, prediction2 = %.16lf, prediction = %.16lf\n", match_1->prediction, match_2->prediction, prediction);
+                        // fprintf(stderr, "case1 solution2\n");
+                        // fprintf(stderr, "prediction1 = %.16lf, prediction2 = %.16lf, prediction = %.16lf\n", match_1->prediction, match_2->prediction, prediction);
                         update_coefficients(res_coeffs, prediction, 1, temp_vector);
                       }
                       totalconflicts++;

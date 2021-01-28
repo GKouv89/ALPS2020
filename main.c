@@ -162,14 +162,30 @@ int main(int argc, char* argv[]){
     double accuracy = ((double)sch->all_correct_predictions/(double)sch->all_predictions_testing)*100;
     fprintf(stderr, "ACCURACY after only training: %lf%%\n", accuracy);    
 
-    // if(strstr(DATASET, "medium") != NULL){
+    time_t conf_res_start, conf_res_end;
+    time(&conf_res_start);
+    if(strstr(DATASET, "medium") != NULL){
       // threshold_tuning(map, tfarr_mini, "ML_Sets/TestSet_medium.csv", sch->coefficients);
-    // }
-    conflict_resolution(map, tfarr_mini, 0.0775, "ML_Sets/ValidationSet_medium.csv", sch->coefficients);
+      conflict_resolution(map, tfarr_mini, 0.0775, "ML_Sets/ValidationSet_medium.csv", sch->coefficients);
+    }else{
+      conflict_resolution(map, tfarr_mini, 0.0775, "ML_Sets/ValidationSet.csv", sch->coefficients);
+    }
+    time(&conf_res_end);
+    fprintf(stderr, "%ld for conflict resolution \n", conf_res_end-conf_res_start);
+    
+    time_t ser_test_start, ser_test_end;
     int new_corr_preds = 0;
-    int new_all_preds = test(map, tfarr_mini, "ML_Sets/TestSet.csv", 0.0775, sch->coefficients, &new_corr_preds);
+    int new_all_preds;
+    time(&ser_test_start);
+    if(strstr(DATASET, "medium") != NULL){
+      new_all_preds = test(map, tfarr_mini, "ML_Sets/TestSet_medium.csv", 0.0775, sch->coefficients, &new_corr_preds);
+    }else{
+      new_all_preds = test(map, tfarr_mini, "ML_Sets/TestSet.csv", 0.0775, sch->coefficients, &new_corr_preds);  
+    }
     accuracy = ((double)new_corr_preds/(double)new_all_preds)*100;
     fprintf(stderr, "ACCURACY after 'conflict resolution': %lf%%\n", accuracy);
+    time(&ser_test_end);
+    fprintf(stderr, "%ld for one run of testing, linear\n", ser_test_end - ser_test_start);
     
     destroy_scheduler(&sch);
     destroy_tf(&tfarr_mini);
