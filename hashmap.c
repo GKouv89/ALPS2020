@@ -48,6 +48,12 @@ void reinitialize_all_cliques(hash_map *map){
   }
 }
 
+void normalize_predictions(hash_map *map, double max_pred){
+  for(int i = 0; i < BUCKETS; i++){
+    normalize_preds(map->map[i].bucket_list, max_pred);
+  }
+}
+
 void print_bucket_no_of_entries(hash_map* map){
     int median = 0;
     int max = 0;

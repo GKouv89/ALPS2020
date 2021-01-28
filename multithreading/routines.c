@@ -247,6 +247,7 @@ void conflict_resolution(hash_map* map, tf* tfarr_new, double threshold, char *f
     list_node *temp_1, *temp_2, *root_a, *root_b; 
     int ground_truth;
     int totalconflicts = 0;
+    int conflict_resolved = 0;
     // int label_1 = 0;
     double prediction, min_prediction, max_prediction;
     
@@ -291,19 +292,166 @@ void conflict_resolution(hash_map* map, tf* tfarr_new, double threshold, char *f
           if(prediction >= threshold){
               // positive clique
               join_sets(temp_cliques, root_a, root_b);
-          }else{
-            // a conflict would mean that the two nodes are already in the same positive association clique but the likelihood
-            // of them being in the same clique is smaller than the threshold
-            if(root_a == root_b){
-              totalconflicts++;
-              // fprintf(stderr, "CONFLICT\n");
-              // we automatically assume that what we have gathered so far,
-              // a.k.a. that temp_1 and temp_2 should match
-              // is the correct prediction. So, we sum this for the later correction
-              update_coefficients(res_coeffs, prediction, 1, temp_vector);
+              matchlist_add(temp_1, temp_2, prediction);
+          }
+          if(prediction > max_prediction){
+            max_prediction = prediction;
+          }
+          free(temp_vector->elements);
+          free(temp_vector);
+      }
+      fseek(fp, 0, SEEK_SET);
+      while(!feof(fp)){
+          bytes_read = getline(&line_buffer, &line_size, fp);
+          if(bytes_read == -1){
+            break;
+          }
+          line = line_buffer;
+          file_name_1 = strtok_r(line, ",", &line);
+          file_toked = strtok_r(line, ",", &line);
+          // while(memchr(file_toked, ' ', strlen(file_toked)) != NULL){
+              file_name_2 = strtok_r(file_toked, " ", &file_toked);
+          // }
+          temp_1 = find_node(map, file_name_1);
+          temp_2 = find_node(map, file_name_2);
+          assert(temp_1 != NULL);
+          assert(temp_2 != NULL);
+          assert(temp_1->vec_num >= 0);
+          assert(temp_2->vec_num >= 0);
+          assert(strcmp(tfarr_new->vectors[temp_1->vec_num]->name, file_name_1) ==  0);
+          assert(strcmp(tfarr_new->vectors[temp_2->vec_num]->name, file_name_2) ==  0);
+          ground_truth = atoi(line);
+          // if(ground_truth == 1 && i == 0){
+              // label_1++;
+          // }
+          IDFVector *temp_vector=concatenate_idf_vectors(tfarr_new->vectors[temp_1->vec_num], tfarr_new->vectors[temp_2->vec_num]);
+          // for(int i = 0; i < temp_vector->size; i++){
+            // printf("%.16lf ", temp_vector->elements[i]);
+          // }
+          prediction = sigmoid(f(temp_vector, coeffs));
+          root_a = find_root(temp_1);
+          root_b = find_root(temp_2);
+             
+          if(prediction < threshold){
+            if(root_a != root_b){ // ignoring conflicts...
+              if(root_a->ngl == NULL){
+                neglist_create(&root_a);
+              }
+              if(root_b->ngl == NULL){
+                  neglist_create(&root_b);
+              }
+              neglist_add(root_a,root_b); 
+              matchlist_add(temp_1, temp_2, prediction);
             }
           }
-          printf("PREDICTION: %s, %s, %.16lf\n", file_name_1, file_name_2, prediction);
+          free(temp_vector->elements);
+          free(temp_vector);
+      }
+      normalize_predictions(map, max_prediction);
+      // Third pass, actual conflict resolution
+      fseek(fp, 0, SEEK_SET);
+      while(!feof(fp)){
+          bytes_read = getline(&line_buffer, &line_size, fp);
+          if(bytes_read == -1){
+            break;
+          }
+          line = line_buffer;
+          file_name_1 = strtok_r(line, ",", &line);
+          file_toked = strtok_r(line, ",", &line);
+          // while(memchr(file_toked, ' ', strlen(file_toked)) != NULL){
+              file_name_2 = strtok_r(file_toked, " ", &file_toked);
+          // }
+          temp_1 = find_node(map, file_name_1);
+          temp_2 = find_node(map, file_name_2);
+          assert(temp_1 != NULL);
+          assert(temp_2 != NULL);
+          assert(temp_1->vec_num >= 0);
+          assert(temp_2->vec_num >= 0);
+          assert(strcmp(tfarr_new->vectors[temp_1->vec_num]->name, file_name_1) ==  0);
+          assert(strcmp(tfarr_new->vectors[temp_2->vec_num]->name, file_name_2) ==  0);
+          ground_truth = atoi(line);
+          IDFVector *temp_vector=concatenate_idf_vectors(tfarr_new->vectors[temp_1->vec_num], tfarr_new->vectors[temp_2->vec_num]);
+          prediction = sigmoid(f(temp_vector, coeffs));
+          root_a = find_root(temp_1);
+          root_b = find_root(temp_2);
+          if(prediction < threshold){
+            if(root_a == root_b){ // TYPE ONE CONFLICT
+              double prediction_normalized = prediction/max_prediction;
+              matchlist *matches_1 = temp_1->matches;
+              matchlist *matches_2 = temp_2->matches;
+              if(matches_1 == NULL || matches_2 == NULL){
+                fprintf(stderr, "???\n");
+              }else{
+                match_tuple *match_1 = matches_1->head;
+                match_tuple *match_2;
+                while(match_1){
+                  match_2 = matches_2->head;
+                  while(match_2){
+                    if(strcmp(match_1->matched_with->id, match_2->matched_with->id) == 0){
+                      double prediction_mult = match_1->prediction*match_2->prediction;
+                      if(1 - prediction_normalized > prediction_mult){
+                        update_coefficients(res_coeffs, prediction, 0, temp_vector);
+                      }else{
+                        update_coefficients(res_coeffs, prediction, 1, temp_vector);
+                      }
+                      totalconflicts++;
+                      conflict_resolved = 1;
+                      break;
+                    }
+                    match_2 = match_2->next;
+                  }
+                  if(conflict_resolved == 1){
+                    conflict_resolved = 0;
+                    break;
+                  }
+                  match_1 = match_1->next;
+                }
+              }
+            }
+          }else{
+            // we search to see if root_a has root_b in its neglist; that would be a conflict
+            neg_list *root_a_neg_list = root_a->ngl;
+            if(root_a->ngl != NULL){
+              neg_node *root_a_temp = root_a_neg_list->front;
+              while(root_a_temp){
+                if(root_a_temp->neg_clique == root_b){ // TYPE 2 CONFLICT
+                  double prediction_normalized = prediction/max_prediction;
+                  matchlist *matches_1 = temp_1->matches;
+                  matchlist *matches_2 = temp_2->matches;
+                  if(matches_1 == NULL || matches_2 == NULL){
+                    fprintf(stderr, "???\n");
+                  }else{
+                    match_tuple *match_1 = matches_1->head;
+                    match_tuple *match_2;
+                    while(match_1){
+                      match_2 = matches_2->head;
+                      while(match_2){
+                        if(strcmp(match_1->matched_with->id, match_2->matched_with->id) == 0){
+                          double prediction_mult = (1-match_1->prediction)*(1-match_2->prediction);
+                          if(prediction_normalized > prediction_mult){
+                            update_coefficients(res_coeffs, prediction, 1, temp_vector);
+                          }else{
+                            update_coefficients(res_coeffs, prediction, 0, temp_vector);
+                          }
+                          totalconflicts++;
+                          conflict_resolved = 1;
+                          break;
+                        }
+                        match_2 = match_2->next;
+                      }
+                      if(conflict_resolved == 1){
+                        conflict_resolved = 0;
+                        break;
+                      }
+                      match_1 = match_1->next;
+                    }
+                  }
+                  break;
+                }
+                root_a_temp = root_a_temp->next_in_negclique;
+              }
+            }
+          }
           free(temp_vector->elements);
           free(temp_vector);
       }

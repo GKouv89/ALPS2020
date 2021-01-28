@@ -20,6 +20,7 @@ hash_map* create_map();
 void add_to_bucket(hash_map*, int, list_node*);
 list_node* find_node(hash_map*, char*);
 void destroy_map(hash_map**);
+void normalize_predictions(hash_map *, double);
 void reinitialize_all_cliques(hash_map *);
 int hash_function(hash_map*, const char*);
 void print_bucket_no_of_entries(hash_map*);

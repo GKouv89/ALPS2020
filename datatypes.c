@@ -65,6 +65,14 @@ void destroy_list(info_list** list){
     *list = NULL;
 }
 
+void normalize_preds(info_list *list, double max_pred){
+  list_node *temp = list->front;
+  while(temp){
+    normalize(temp, max_pred);
+    temp = temp->next;
+  }
+}
+
 void reinitialize_cliques(info_list* list){
   list_node *temp = list->front;
   while(temp){
@@ -72,6 +80,7 @@ void reinitialize_cliques(info_list* list){
     temp->parent = NULL;
     temp->next_in_clique = NULL;
     destroy_neglist(&temp);
+    destroy_matchlist(&temp);
     temp = temp->next;
   }
 }

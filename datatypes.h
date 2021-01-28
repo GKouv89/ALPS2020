@@ -3,6 +3,7 @@
 
 #include "tuplist.h"
 #include "negcl.h"
+#include "multithreading/matchlist.h"
 
 typedef struct node{
     char* id; // this will be of the format folder_name//file_numeric_id
@@ -16,7 +17,7 @@ typedef struct node{
     // at the very beginning, each node is a disjoint set of its own.
     //new//
     neg_list *ngl;
-    
+    matchlist *matches;
 } list_node;
 
 typedef struct list{
@@ -27,6 +28,7 @@ typedef struct list{
 void list_create(info_list**);
 list_node* create_node(char*, int);
 void list_add(info_list*, list_node*);
+void normalize_preds(info_list *, double);
 void reinitialize_cliques(info_list*);
 void list_print(info_list*);
 void delete_node(list_node**);

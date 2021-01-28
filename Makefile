@@ -1,7 +1,7 @@
 FLAGS = -g -o
 LINKS = -lpthread -lm
-MODULES =  parse.c datatypes.c hashmap.c set.c tuplist.c negcl.c BOW/stringOps.c BOW/vectorOps.c BOW/stopwords.c BOW/bow.c BOW/dictionary.c TF-IDF/idfVectorOps.c TF-IDF/tf.c multithreading/scheduler.c multithreading/queue.c multithreading/queueelement.c multithreading/routines.c $(LINKS)
-MULTI_MODS = datatypes.c tuplist.c hashmap.c BOW/vectorOps.c TF-IDF/tf.c TF-IDF/idfVectorOps.c multithreading/scheduler.c multithreading/queue.c multithreading/queueelement.c multithreading/routines.c
+MODULES =  parse.c datatypes.c hashmap.c set.c tuplist.c negcl.c BOW/stringOps.c BOW/vectorOps.c BOW/stopwords.c BOW/bow.c BOW/dictionary.c TF-IDF/idfVectorOps.c TF-IDF/tf.c multithreading/scheduler.c multithreading/queue.c multithreading/queueelement.c multithreading/routines.c multithreading/matchlist.c $(LINKS)
+MULTI_MODS = datatypes.c tuplist.c hashmap.c BOW/vectorOps.c TF-IDF/tf.c TF-IDF/idfVectorOps.c multithreading/scheduler.c multithreading/queue.c multithreading/queueelement.c multithreading/routines.c multithreading/matchlist.c
 
 medium:
 	gcc $(FLAGS) main main.c $(MODULES) -DDATASET=\"sigmod_medium_labelled_dataset.csv\" -DVECTORS=29788 -DTFVECTORS=29787

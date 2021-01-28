@@ -4,6 +4,8 @@
 #include "../hashmap.h"
 #include "../TF-IDF/tf.h"
 #include "../TF-IDF/idfVectorOps.h"
+#include "matchlist.h"
+#include "../negcl.h"
 
 int train(hash_map *, tf *, char *, double[], double[]);
 double test(hash_map *, tf *, char *, double[], int *);
