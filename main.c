@@ -54,7 +54,7 @@ int main(int argc, char* argv[]){
     fprintf(stderr, "%ld for clique creation\n", cliques_end - cliques_start);
     fprintf(stderr, "Positive association cliques OK\n");
     
-    // print_all_cliques(0, all_cliques);
+    print_all_cliques(0, all_cliques);
     // medium 46666 with first row
     // large 341930 -//-
     reinitialize_all_cliques(map);

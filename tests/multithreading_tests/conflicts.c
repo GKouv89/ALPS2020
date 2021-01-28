@@ -53,9 +53,6 @@ void test_conflict_type_1_sol_2(void){
 
   double coeffs[7] = {2, 2, 2, 2, 2, 2, 2};
   conflict_resolution(map, tfarr, 0.5, "tests/multithreading_tests/conflict.txt", coeffs);
-  int correct_predictions = 0;
-  int all_preds = test(map, tfarr, "tests/multithreading_tests/conflict.txt", 0.5, coeffs, &correct_predictions);
-  printf("ACCURACY: %.3lf\n", ((double)correct_predictions/(double)all_preds)*100);
 }
 
 struct tfidf_sm_vector tfidf_sm_array2[] = {
@@ -105,9 +102,6 @@ void test_conflict_type_1_sol_1(void){
 
   double coeffs[7] = {2, 2, 2, 2, 2, 2, 2};
   conflict_resolution(map, tfarr, 0.5, "tests/multithreading_tests/conflict.txt", coeffs);
-  int correct_predictions = 0;
-  int all_preds = test(map, tfarr, "tests/multithreading_tests/conflict.txt", 0.5, coeffs, &correct_predictions);
-  printf("ACCURACY: %.3lf\n", ((double)correct_predictions/(double)all_preds)*100);
 }
 
 TEST_LIST = {

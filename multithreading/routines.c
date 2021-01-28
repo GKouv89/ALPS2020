@@ -377,8 +377,6 @@ void conflict_resolution(hash_map* map, tf* tfarr_new, double threshold, char *f
                     if(strcmp(match_1->matched_with->id, match_2->matched_with->id) == 0 && match_1->prediction >= threshold && match_2->prediction >= threshold){
                       double prediction_mult = match_1->prediction*match_2->prediction;
                       if(max_prediction - prediction > prediction_mult){
-                        // fprintf(stderr, "case1 solution1\n");
-                        // fprintf(stderr, "prediction1 = %.16lf, prediction2 = %.16lf, prediction = %.16lf\n", match_1->prediction, match_2->prediction, prediction);
                         // WE BREAK THE CLIQUE,
                         // The actual data structure will not change
                         // But what will happen is we will update the weights to correspond to what we would've expected them to
@@ -404,8 +402,6 @@ void conflict_resolution(hash_map* map, tf* tfarr_new, double threshold, char *f
                           free(to_change);
                         }
                       }else{
-                        // fprintf(stderr, "case1 solution2\n");
-                        // fprintf(stderr, "prediction1 = %.16lf, prediction2 = %.16lf, prediction = %.16lf\n", match_1->prediction, match_2->prediction, prediction);
                         update_coefficients(res_coeffs, prediction, 1, temp_vector);
                       }
                       totalconflicts++;
